@@ -856,8 +856,8 @@
       <div class="box-product">
         <div class="box-product-title">라이트 박스 - 40,000원</div>
         <div class="box-product-desc">
-          10장 구성. 가볍게 까는 박스입니다.<br>
-          박스힛 5% / 시크릿 5% / 슈퍼힛 0.1%
+          10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
+          박스힛 슬롯: 박스힛 94.9% / 시크릿 5% / 슈퍼힛 0.1%
         </div>
         <button class="box-open-btn light" onclick="openBox('light')">라이트 박스 개봉</button>
       </div>
@@ -865,8 +865,8 @@
       <div class="box-product">
         <div class="box-product-title">스탠다드 박스 - 90,000원</div>
         <div class="box-product-desc">
-          10장 구성. 가장 균형 잡힌 박스입니다.<br>
-          박스힛 7% / 시크릿 5% / 슈퍼힛 0.15%
+          10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
+          박스힛 슬롯: 박스힛 94.85% / 시크릿 5% / 슈퍼힛 0.15%
         </div>
         <button class="box-open-btn standard" onclick="openBox('standard')">스탠다드 박스 개봉</button>
       </div>
@@ -874,8 +874,8 @@
       <div class="box-product">
         <div class="box-product-title">프리미엄 박스 - 120,000원</div>
         <div class="box-product-desc">
-          10장 구성. 슈퍼레어와 박스힛 기대감이 올라갑니다.<br>
-          박스힛 8% / 시크릿 5% / 슈퍼힛 0.2%
+          10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
+          박스힛 슬롯: 박스힛 94.8% / 시크릿 5% / 슈퍼힛 0.2%
         </div>
         <button class="box-open-btn premium" onclick="openBox('premium')">프리미엄 박스 개봉</button>
       </div>
@@ -883,8 +883,8 @@
       <div class="box-product">
         <div class="box-product-title">하이엔드 박스 - 190,000원</div>
         <div class="box-product-desc">
-          10장 구성. 고위험 고보상 박스입니다.<br>
-          박스힛 12% / 시크릿 5% / 슈퍼힛 0.3%
+          10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
+          박스힛 슬롯: 박스힛 94.7% / 시크릿 5% / 슈퍼힛 0.3%
         </div>
         <button class="box-open-btn highend" onclick="openBox('highend')">하이엔드 박스 개봉</button>
       </div>
@@ -964,28 +964,28 @@
         name: "라이트 박스",
         price: 40000,
         rareSlot: { rare: 90, superRare: 10 },
-        chaseSlot: { rare: 72.9, superRare: 17, boxHit: 5, secret: 5, superHit: 0.1 }
+        boxHitSlot: { boxHit: 94.9, secret: 5, superHit: 0.1 }
       },
       {
         id: "standard",
         name: "스탠다드 박스",
         price: 90000,
         rareSlot: { rare: 85, superRare: 15 },
-        chaseSlot: { rare: 69.85, superRare: 18, boxHit: 7, secret: 5, superHit: 0.15 }
+        boxHitSlot: { boxHit: 94.85, secret: 5, superHit: 0.15 }
       },
       {
         id: "premium",
         name: "프리미엄 박스",
         price: 120000,
         rareSlot: { rare: 80, superRare: 20 },
-        chaseSlot: { rare: 66.8, superRare: 20, boxHit: 8, secret: 5, superHit: 0.2 }
+        boxHitSlot: { boxHit: 94.8, secret: 5, superHit: 0.2 }
       },
       {
         id: "highend",
         name: "하이엔드 박스",
         price: 190000,
         rareSlot: { rare: 75, superRare: 25 },
-        chaseSlot: { rare: 62.7, superRare: 20, boxHit: 12, secret: 5, superHit: 0.3 }
+        boxHitSlot: { boxHit: 94.7, secret: 5, superHit: 0.3 }
       }
     ];
 
@@ -1312,24 +1312,20 @@
       totalSpent += boxConfig.price;
       totalEarned += boxValue;
 
-      let hasBoxHitOrAbove = false;
       let hasSecretOrSuper = false;
 
       cards.forEach(function(card) {
         if (card.rarity === "boxHit") {
           boxHitCount++;
-          hasBoxHitOrAbove = true;
         }
 
         if (card.rarity === "secret") {
           secretCount++;
-          hasBoxHitOrAbove = true;
           hasSecretOrSuper = true;
         }
 
         if (card.rarity === "superHit") {
           superHitCount++;
-          hasBoxHitOrAbove = true;
           hasSecretOrSuper = true;
         }
 
@@ -1357,17 +1353,10 @@
             boxRecovery + "%</span>";
           triggerConfetti();
           triggerConfetti();
-        } else if (hasBoxHitOrAbove) {
-          ui.result.innerHTML =
-            "🎯 <span style='color:#e74c3c'>" +
-            boxConfig.name + "에서 박스힛 이상 획득! 회수 가치 " +
-            boxValue.toLocaleString() + "원 / 박스 회수율 " +
-            boxRecovery + "%</span>";
-          triggerConfetti();
         } else {
           ui.result.innerHTML =
-            "<span style='color:#7f8c8d'>" +
-            boxConfig.name + " 개봉 완료. 회수 가치 " +
+            "🎯 <span style='color:#e74c3c'>" +
+            boxConfig.name + " 박스힛 슬롯 개봉 완료! 회수 가치 " +
             boxValue.toLocaleString() + "원 / 박스 회수율 " +
             boxRecovery + "%</span>";
         }
@@ -1394,8 +1383,8 @@
         cards.push(createBoxCard(rarity, boxConfig));
       }
 
-      const chaseRarity = pickByProbability(boxConfig.chaseSlot);
-      cards.push(createBoxCard(chaseRarity, boxConfig));
+      const boxHitRarity = pickByProbability(boxConfig.boxHitSlot);
+      cards.push(createBoxCard(boxHitRarity, boxConfig));
 
       return cards;
     }
@@ -1444,7 +1433,7 @@
       }
 
       if (rarity === "boxHit") {
-        return randomRangeByStep(boxPrice * 0.9, boxPrice * 1.3, 1000);
+        return randomRangeByStep(boxPrice * 0.1, boxPrice * 0.25, 1000);
       }
 
       if (rarity === "secret") {
@@ -1576,7 +1565,7 @@
         };
       }
 
-      if (roll < 3.1) {
+      if (roll < 5.1) {
         return {
           type: "graded",
           grade: 10,
@@ -1584,7 +1573,7 @@
         };
       }
 
-      if (roll < 45) {
+      if (roll < 55.1) {
         return {
           type: "graded",
           grade: 9,
@@ -1592,7 +1581,7 @@
         };
       }
 
-      if (roll < 87) {
+      if (roll < 95.1) {
         return {
           type: "graded",
           grade: 8,
@@ -1600,7 +1589,7 @@
         };
       }
 
-      if (roll < 92) {
+      if (roll < 96.6) {
         return {
           type: "graded",
           grade: 7,
@@ -1608,7 +1597,7 @@
         };
       }
 
-      if (roll < 95) {
+      if (roll < 97.6) {
         return {
           type: "graded",
           grade: 6,
@@ -1616,7 +1605,7 @@
         };
       }
 
-      if (roll < 97) {
+      if (roll < 98.4) {
         return {
           type: "graded",
           grade: 5,
@@ -1624,7 +1613,7 @@
         };
       }
 
-      if (roll < 98) {
+      if (roll < 99.0) {
         return {
           type: "graded",
           grade: 4,
@@ -1632,7 +1621,7 @@
         };
       }
 
-      if (roll < 99) {
+      if (roll < 99.5) {
         return {
           type: "graded",
           grade: 3,
@@ -1640,7 +1629,7 @@
         };
       }
 
-      if (roll < 99.5) {
+      if (roll < 99.8) {
         return {
           type: "graded",
           grade: 2,
