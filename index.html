@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>포켓몬 오리파 광산</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; }
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; overflow-x: hidden; }
         h1 { color: #333; }
         
         /* 통계 영역 스타일 */
@@ -75,13 +75,25 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         .log-amount { color: #c0392b; font-weight: bold; }
         .log-warning { color: #e67e22; font-weight: bold; }
+
+        /* [추가] 꽃가루(Confetti) 스타일 및 애니메이션 */
+        .confetti {
+            position: fixed;
+            z-index: 9999;
+            top: -15px;
+            pointer-events: none;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(105vh) rotate(720deg); }
+        }
     </style>
 </head>
 <body>
     <h1>포켓몬 오리파 광산</h1>
     
     <div class="stats">
-        <!-- [수정됨] 전체 카드 2000장으로 표기 변경 -->
         <div class="box"><span class="stat-label">전체 카드</span><span class="stat-value" id="total">2000</span></div>
         <div class="box"><span class="stat-label">잔여 카드</span><span class="stat-value" id="remain">2000</span></div>
         <div class="box"><span class="stat-label">당첨(힛)</span><span class="stat-value hit-val" id="hit">0</span> / 30</div>
@@ -122,14 +134,12 @@
     </div>
 
     <script>
-        // [수정됨] 초기 카드 수 2000으로 세팅
         let total = 2000, remain = 2000, hitCount = 0, missCount = 0;
         let nogada = 0, drawTickets = 0;
         let totalSpent = 0, totalEarned = 0;
         let isAnimating = false;
         let hideCardTimeout; 
         
-        // [수정됨] 대망의 1등 100만원, 30등 5만원 원복
         const minHit = 50000;
         const maxHit = 1000000;
         let hits = [];
@@ -137,7 +147,6 @@
 
         function initDeck() {
             hits = Array.from({length: 30}, (_, i) => maxHit - (i * (maxHit - minHit) / 29));
-            // [수정됨] 꽝 카드를 1970장(2000-30)으로 늘려서 확률 희석
             deck = [...hits, ...Array(1970).fill(1000)];
         }
         initDeck();
@@ -208,24 +217,56 @@
             updateUI();
         }
 
+        // [추가] 꽃가루 생성 자바스크립트 엔진
+        function triggerConfetti() {
+            const colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#ff758c'];
+            const count = 80; // 떨어질 꽃가루 개수
+
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                // 무작위 속성 설정
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 무작위 크기 (사각형 또는 원형)
+                const size = Math.random() * 8 + 6; 
+                confetti.style.width = size + 'px';
+                confetti.style.height = size + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0%';
+                
+                // 무작위 낙하 속도 및 투명도
+                confetti.style.animationDuration = Math.random() * 1.5 + 1.2 + 's';
+                confetti.style.opacity = Math.random() * 0.7 + 0.3;
+                
+                document.body.appendChild(confetti);
+                
+                // 화면 밖으로 나가면 메모리 확보를 위해 요소 자동 삭제
+                setTimeout(() => {
+                    confetti.remove();
+                }, 2700);
+            }
+        }
+
         function getOpportunityMessage(spent) {
             const randomBase = random10kTexts[Math.floor(Math.random() * random10kTexts.length)];
             let cumulativeWarning = "";
 
-            if (spent >= 20000000) { cumulativeWarning = `🚨💥 <b>[경고! 신형 소형 SUV 1대 증발 - 누적 2,000만 원 돌파]</b> 당신은 지금 2천만 원짜리 도파민 휴지조각을 손에 쥐었습니다. 신형 캐스퍼나 셀토스 풀옵션을 일시불로 뽑아 도로를 질주할 수 있었던 전 재산급 거금이 순식간에 공중분해 되었습니다.`; }
-            else if (spent >= 10000000) { cumulativeWarning = `🚨💥 <b>[경고! 국산 중고차 1대 증발 - 누적 1,000만 원 돌파]</b> 당신은 지금 1천만 원짜리 도파민 휴지조각을 손에 쥐었습니다. 상태 좋은 아반떼나 모닝 중고차를 일시불로 뽑아 도로를 질주할 수 있었던 전 재산급 거금이 순식간에 공중분해 되었습니다.`; }
+            if (spent >= 20000000) { cumulativeWarning = `🚨💥 <b>[경고! 신형 소형 SUV 1대 증발 - 누적 2,000만 원 돌파]</b> 당신은 지금 2천만 원짜리 도파민 휴지조각을 손에 쥐었습니다. 신형 소형 SUV 풀옵션을 일시불로 뽑아 도로를 질주할 수 있었던 전 재산급 거금이 순식간에 공중분해 되었습니다.`; }
+            else if (spent >= 10000000) { cumulativeWarning = `🚨💥 <b>[경고! 국산 중고차 1대 증발 - 누적 1,000만 원 돌파]</b> 당신은 지금 1천만 원짜리 도파민 휴지조각을 손에 쥐었습니다. 상태 좋은 준중형 중고차를 일시불로 뽑아 도로를 질주할 수 있었던 전 재산급 거금이 순식간에 공중분해 되었습니다.`; }
             else if (spent >= 9000000) { cumulativeWarning = `🛑 <b>[누적 900만 원 돌파]</b> 최고급 사양의 가정용 태양광 발전 시스템을 설치하거나, 한 가구의 1년 치 관리비와 공과금 전체를 한 방에 해결할 수 있었던 초거대 자산이 증발했습니다.`; }
             else if (spent >= 8000000) { cumulativeWarning = `🛑 <b>[누적 800만 원 돌파]</b> 유럽이나 남미로 떠나는 전 일정 비즈니스 클래스 왕복 항공권과 5성급 호텔 장기 숙박권을 결제하여 평생 잊지 못할 추억을 만들 수 있었던 기회비용입니다.`; }
-            else if (spent >= 7000000) { cumulativeWarning = `🛑 <b>[누적 700만 원 돌파]</b> 리오넬 메시나 쇼헤이 오타니의 루키 시즌 최고 등급(PSA 10) 친필 싸인 카드를 수집가들 사이에서 당당하게 현금으로 스카웃해 올 수 있었던 엄청난 예산입니다.`; }
-            else if (spent >= 6000000) { cumulativeWarning = `🛑 <b>[누적 600만 원 돌파]</b> 백화점 명품관에서 아내를 위한 최고급 베스트셀러 가방을 웨이팅 없이 영접하거나, 최고급 사양의 풀세트 인테리어 가전을 싹 바꿀 수 있었던 거금입니다.`; }
+            else if (spent >= 7000000) { cumulativeWarning = `🛑 <b>[누적 700만 원 돌파]</b> 희귀 소장 가치가 높은 전 세계 한정판 최고 등급(PSA 10) 스포츠 카드나 트레이딩 카드를 당당하게 현금으로 스카웃해 올 수 있었던 엄청난 예산입니다.`; }
+            else if (spent >= 6000000) { cumulativeWarning = `🛑 <b>[누적 600만 원 돌파]</b> 백화점 명품관에서 최고의 베스트셀러 가방을 웨이팅 없이 영접하거나, 최고급 사양의 풀세트 인테리어 가전을 싹 바꿀 수 있었던 거금입니다.`; }
             else if (spent >= 5000000) { cumulativeWarning = `🔥🚨 <b>[누적 500만 원 돌파]</b> 적립식 펀드나 배당 우량주에 넣어두었다면 평생 따박따박 복리 이자를 낳았을 '황금 알을 낳는 거위'의 배를 통째로 갈라버린 수준입니다. 지갑의 비명이 들리지 않으십니까?`; }
-            else if (spent >= 4000000) { cumulativeWarning = `🚨 <b>[누적 400만 원 돌파]</b> 최고급 사양의 산업용 3D 프린터 장비와 수십 킬로그램의 최고급 레진 원료를 창고에 가득 쌓아두고 커스텀 피규어 공장을 차릴 수 있었던 비용입니다.`; }
-            else if (spent >= 3000000) { cumulativeWarning = `🚨 <b>[누적 300만 원 돌파]</b> 양가 부모님과 동생, 아내, 아이까지 온 가족이 최고급 리조트에서 일주일 동안 머물며 초호화 효도 온천 여행을 완벽하게 다녀올 수 있었던 거금입니다.`; }
-            else if (spent >= 2000000) { cumulativeWarning = `🚨 <b>[누적 200만 원 돌파]</b> 최고 사양 커스텀 게이밍 PC 본체와 4K 모니터를 풀세트로 맞추거나, 매달 10만 원씩 우량 ETF를 무려 20개월 동안 기계처럼 적립할 수 있었던 소중한 시드머니입니다.`; }
-            else if (spent >= 1000000) { cumulativeWarning = `💥 <b>[누적 100만 원 돌파]</b> 이베이에서 침만 흘리던 초고가 레전드 그레이딩 슬랩 카드를 확정 구매하거나, 최신형 스마트폰을 일시불로 사고도 남았을 거금입니다.`; }
-            else if (spent >= 500000) { cumulativeWarning = `🚨 <b>[누적 50만 원 돌파]</b> 온 가족이 제주도로 날아가 2박 3일 동안 고급 렌트카를 빌리고 흑돼지를 배터지게 먹을 수 있는 거대한 예산이 증발했습니다.`; }
-            else if (spent >= 300000) { cumulativeWarning = `⚠️ <b>[누적 30만 원 돌파]</b> 프리미엄 3D 프린터 기기 한 대를 들여놓거나, 닌텐도 스위치 콘솔을 새 제품으로 영접할 수 있었던 금액입니다.`; }
-            else if (spent >= 100000) { cumulativeWarning = `📉 <b>[누적 10만 원 돌파]</b> 든든한 미국 배당성장 ETF(SCHD)를 수십 개월 치 적립식 매수할 기회를 고작 클릭 몇 번의 도파민과 맞바꿨습니다. 아내 자격증 교재비나 특별한 외식 한 번이 사라졌네요.`; }
+            else if (spent >= 4000000) { cumulativeWarning = `🚨 <b>[누적 400만 원 돌파]</b> 최고급 사양의 정밀 3D 프린터 장비와 수십 킬로그램의 원료 레진을 가득 쌓아두고 커스텀 피규어 공방을 차릴 수 있었던 비용입니다.`; }
+            else if (spent >= 3000000) { cumulativeWarning = `🚨 <b>[누적 300만 원 돌파]</b> 온 가족이 최고급 리조트에서 일주일 동안 머물며 초호화 효도 명품 여행을 완벽하게 다녀올 수 있었던 거금입니다.`; }
+            else if (spent >= 2000000) { cumulativeWarning = `🚨 <b>[누적 200만 원 돌파]</b> 최고 사양 커스텀 게이밍 PC 본체와 4K 모니터를 풀세트로 맞추거나, 매달 소중한 자산을 기계처럼 적립할 수 있었던 소중한 시드머니입니다.`; }
+            else if (spent >= 1000000) { cumulativeWarning = `💥 <b>[누적 100만 원 돌파]</b> 수집 시장에서 침만 흘리던 레전드 그레이딩 슬랩 카드를 확정 구매하거나, 최신형 스마트폰을 일시불로 사고도 남았을 거금입니다.`; }
+            else if (spent >= 500000) { cumulativeWarning = `🚨 <b>[누적 50만 원 돌파]</b> 온 가족이 여행지로 날아가 고급 렌트카를 빌리고 맛있는 음식을 배터지게 먹을 수 있는 거대한 예산이 증발했습니다.`; }
+            else if (spent >= 300000) { cumulativeWarning = `⚠️ <b>[누적 30만 원 돌파]</b> 고성능 3D 프린터 기기 한 대를 들여놓거나, 인기 비디오 게임 콘솔을 새 제품으로 영접할 수 있었던 금액입니다.`; }
+            else if (spent >= 100000) { cumulativeWarning = `📉 <b>[누적 10만 원 돌파]</b> 든든한 우량 주식이나 배당성장주를 적립식 매수할 기회를 고작 클릭 몇 번의 도파민과 맞바꿨습니다. 소중한 교재비나 외식 비용이 사라졌네요.`; }
             else if (spent >= 50000) { cumulativeWarning = `💸 <b>[누적 5만 원 돌파]</b> 겉바속촉 브랜드 치킨을 무려 2마리 반이나 굶은 셈입니다. 슬슬 뇌절의 영역으로 진입하고 있습니다.`; }
 
             return cumulativeWarning ? `${randomBase}<br><span class="log-warning">${cumulativeWarning}</span>` : randomBase;
@@ -290,6 +331,8 @@
                     setTimeout(() => {
                         if (isHit) {
                             ui.result.innerHTML = `🎉 <span style='color:#e74c3c'>${Math.floor(prize).toLocaleString()}원</span> 가치 당첨!`;
+                            // [핵심 연출] 당첨 결과 오픈 시점에 꽃가루 효과 발사!
+                            triggerConfetti();
                         } else {
                             ui.result.innerHTML = "<span style='color:#7f8c8d'>아쉽습니다... 꽝 (1,000원)</span>";
                         }
@@ -329,7 +372,6 @@
             
             alert(finalMessage);
 
-            // [수정됨] 리셋 시 2000장으로 복구
             total = 2000;
             remain = 2000;
             hitCount = 0;
