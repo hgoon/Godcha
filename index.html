@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>포켓몬 오리파 광산</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; }
+        h1 { color: #333; }
+        
+        /* 통계 영역 스타일 */
+        .stats { display: flex; justify-content: center; gap: 15px; margin: 20px auto; max-width: 600px; flex-wrap: wrap; }
+        .box { border: 2px solid #ddd; padding: 15px; border-radius: 10px; background-color: white; flex: 1; min-width: 120px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .stat-label { font-size: 0.8em; color: #666; display: block; margin-bottom: 5px; }
+        .stat-value { font-size: 1.5em; font-weight: bold; color: #333; }
+        .hit-val { color: #e74c3c; } 
+        .miss-val { color: #7f8c8d; } 
+
+        /* 광산 애니메이션 영역 */
+        #mining-area { font-size: 3em; height: 1.2em; margin-top: 20px; position: relative; display: flex; justify-content: center; align-items: center; }
+        #pickaxe { display: inline-block; transform-origin: bottom right; }
+        .swinging { animation: swing 0.15s ease-out; }
+        @keyframes swing { 0% { transform: rotate(0deg); } 30% { transform: rotate(-40deg); } 70% { transform: rotate(20deg); } 100% { transform: rotate(0deg); } }
+
+        /* 컨트롤 영역 */
+        .controls { margin: 20px; padding: 20px; border-top: 1px solid #ccc; }
+        button { padding: 10px 20px; font-size: 1em; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; transition: background 0.2s; }
+        #nogada-btn { background-color: #f1c40f; color: #333; font-weight: bold; }
+        #nogada-btn:hover { background-color: #f39c12; }
+        #draw-btn { background-color: #3498db; color: white; margin-left: 10px; }
+        #draw-btn:hover { background-color: #2980b9; }
+        #draw-btn:disabled, #nogada-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        
+        /* [추가] 초기화 버튼 스타일 */
+        #reset-btn { background-color: #e74c3c; color: white; margin-left: 10px; font-weight: bold; }
+        #reset-btn:hover { background-color: #c0392b; }
+        #reset-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+
+        #nogada-gauge { font-size: 0.9em; color: #555; margin-bottom: 10px; }
+
+        /* 카드 팩 애니메이션 영역 */
+        #pack-area { position: relative; height: 180px; display: none; justify-content: center; align-items: flex-end; margin: 20px auto; width: 200px; transition: opacity 0.3s ease; opacity: 1; }
+        .pack { width: 100px; height: 140px; background: linear-gradient(135deg, #2c3e50, #000000); border-radius: 8px; z-index: 2; position: absolute; bottom: 0; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: #f1c40f; font-weight: 900; font-size: 1.2em; border: 3px solid #f1c40f; letter-spacing: 2px; }
+        .card { width: 90px; height: 130px; position: absolute; bottom: 5px; z-index: 1; perspective: 1000px; }
+        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #ccc; box-sizing: border-box; padding: 5px; word-break: keep-all; font-size: 0.9em; flex-direction: column; }
+        .card-front { background: #34495e; color: white; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
+        .card-back { transform: rotateY(180deg); }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(1px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-2px, 0, 0); } 40%, 60% { transform: translate3d(2px, 0, 0); } }
+        .slide-up { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes slideUp { to { bottom: 160px; z-index: 3; } }
+        .flip { transform: rotateY(180deg); }
+        .holo-hit { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%); border: 3px solid #ff758c; box-shadow: 0 0 20px rgba(255, 117, 140, 0.6); color: #c0392b; font-size: 1.1em; }
+        .miss-card { background: #ecf0f1; color: #7f8c8d; }
+
+        /* 결과 및 재무 창 스타일 */
+        #result-area { height: 60px; font-size: 1.5em; margin: 20px; font-weight: bold; color: #2c3e50; display: flex; align-items: center; justify-content: center; }
+        #finance-area { font-size: 1em; color: #444; background: #eee; padding: 10px; border-radius: 5px; display: inline-block;}
+
+        /* 기회비용 로그 영역 */
+        #log-container { margin: 30px auto; max-width: 600px; background: #fff; border: 1px solid #ddd; border-radius: 8px; text-align: left; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        #log-header { background: #e74c3c; color: white; padding: 10px 15px; font-weight: bold; font-size: 1em; margin: 0; }
+        #log-list { list-style: none; padding: 0; margin: 0; height: 260px; overflow-y: auto; background: #fafafa; }
+        #log-list li { padding: 10px 15px; border-bottom: 1px dashed #ccc; font-size: 0.9em; color: #555; animation: fadeIn 0.3s; line-height: 1.4; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        .log-amount { color: #c0392b; font-weight: bold; }
+        .log-warning { color: #e67e22; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>포켓몬 오리파 광산</h1>
+    
+    <div class="stats">
+        <div class="box"><span class="stat-label">전체 카드</span><span class="stat-value" id="total">1000</span></div>
+        <div class="box"><span class="stat-label">잔여 카드</span><span class="stat-value" id="remain">1000</span></div>
+        <div class="box"><span class="stat-label">당첨(힛)</span><span class="stat-value hit-val" id="hit">0</span> / 30</div>
+        <div class="box"><span class="stat-label">꽝</span><span class="stat-value miss-val" id="miss">0</span></div>
+    </div>
+
+    <div id="mining-area">
+        <span id="miner">👨‍🏭</span>
+        <span id="pickaxe">⛏️</span>
+        <span id="rock">💎</span>
+    </div>
+
+    <div class="controls">
+        <div id="nogada-gauge">채굴 진행도: <span id="nogada-count">0</span> / 10</div>
+        <button id="nogada-btn" onclick="doNogada()">⛏️ 채굴하기</button>
+        <button id="draw-btn" onclick="drawCard()" disabled>🎁 뽑기 (기회: 0)</button>
+        <!-- [추가] 정산 및 초기화 버튼 -->
+        <button id="reset-btn" onclick="endGame()">🛑 뽑기 종료 및 정산</button>
+    </div>
+
+    <div id="pack-area">
+        <div id="card-element" class="card">
+            <div class="card-inner" id="card-inner">
+                <div class="card-front">?</div>
+                <div class="card-back" id="card-result">결과</div>
+            </div>
+        </div>
+        <div id="pack-element" class="pack">ORIPA</div>
+    </div>
+
+    <div id="result-area">채굴을 시작하세요!</div>
+    <div id="finance-area">💰 사용 금액: 0원 / 💎 획득 가치: 0원</div>
+
+    <div id="log-container">
+        <div id="log-header">📉 뼈맞는 실시간 누적 기회비용 로그</div>
+        <ul id="log-list">
+            <li style="text-align: center; color: #999;">아직 사용한 금액이 없습니다.</li>
+        </ul>
+    </div>
+
+    <script>
+        let total = 1000, remain = 1000, hitCount = 0, missCount = 0;
+        let nogada = 0, drawTickets = 0;
+        let totalSpent = 0, totalEarned = 0;
+        let isAnimating = false;
+        let hideCardTimeout; 
+        
+        const minHit = 50000;
+        const maxHit = 1000000;
+        let hits = [];
+        let deck = [];
+
+        // 덱 생성 함수 분리
+        function initDeck() {
+            hits = Array.from({length: 30}, (_, i) => maxHit - (i * (maxHit - minHit) / 29));
+            deck = [...hits, ...Array(970).fill(1000)];
+        }
+        initDeck();
+
+        const random10kTexts = [
+            "뜨끈한 국밥 한 그릇을 참았습니다.",
+            "스타벅스 달달한 돌체라떼 두 잔 값을 태웠습니다.",
+            "잠실야구장 외야석 직관 티켓 한 장이 날아갔습니다.",
+            "치킨 한 마리 주문할 때 보탤 수 있는 요긴한 돈입니다.",
+            "이베이 싱글 카드 경매 비딩을 한 번 참은 셈입니다.",
+            "아이 까까와 주스 몇 봉지를 살 수 있는 돈이 증발했습니다.",
+            "고품질 3D 프린터용 레진 용액 일부가 날아갔습니다."
+        ];
+
+        const ui = {
+            total: document.getElementById('total'),
+            remain: document.getElementById('remain'),
+            hit: document.getElementById('hit'),
+            miss: document.getElementById('miss'),
+            nogadaCount: document.getElementById('nogada-count'),
+            nogadaBtn: document.getElementById('nogada-btn'),
+            drawBtn: document.getElementById('draw-btn'),
+            resetBtn: document.getElementById('reset-btn'),
+            result: document.getElementById('result-area'),
+            finance: document.getElementById('finance-area'),
+            pickaxe: document.getElementById('pickaxe'),
+            packArea: document.getElementById('pack-area'),
+            packEl: document.getElementById('pack-element'),
+            cardEl: document.getElementById('card-element'),
+            cardInner: document.getElementById('card-inner'),
+            cardResult: document.getElementById('card-result'),
+            logList: document.getElementById('log-list')
+        };
+
+        function updateUI() {
+            ui.total.innerText = total;
+            ui.remain.innerText = remain;
+            ui.hit.innerText = hitCount;
+            ui.miss.innerText = missCount;
+            ui.nogadaCount.innerText = nogada;
+            ui.drawBtn.innerText = `🎁 뽑기 (기회: ${drawTickets})`;
+            
+            if (!isAnimating) {
+                ui.drawBtn.disabled = (drawTickets <= 0 || remain <= 0);
+                ui.nogadaBtn.disabled = false;
+                ui.resetBtn.disabled = false;
+            } else {
+                ui.resetBtn.disabled = true; // 애니메이션 중에는 정산 버튼 잠금
+            }
+            
+            const spentStr = totalSpent.toLocaleString();
+            const earnedStr = Math.floor(totalEarned).toLocaleString();
+            ui.finance.innerHTML = `💰 사용 금액: <b>${spentStr}원</b> / 💎 획득 가치: <b>${earnedStr}원</b>`;
+        }
+
+        function doNogada() {
+            if (isAnimating) return;
+            
+            ui.pickaxe.classList.remove('swinging');
+            void ui.pickaxe.offsetWidth; 
+            ui.pickaxe.classList.add('swinging');
+
+            nogada++;
+            if (nogada >= 10) {
+                drawTickets++;
+                nogada = 0;
+            }
+            updateUI();
+        }
+
+        function getOpportunityMessage(spent) {
+            const randomBase = random10kTexts[Math.floor(Math.random() * random10kTexts.length)];
+            let cumulativeWarning = "";
+
+            if (spent >= 10000000) { cumulativeWarning = `🚨💥 <b>[경고! 국산 중고차 1대 증발 - 누적 1,000만 원 돌파]</b> 당신은 지금 1천만 원짜리 도파민 휴지조각을 손에 쥐었습니다. 상태 좋은 아반떼나 모닝 중고차를 일시불로 뽑아 도로를 질주할 수 있었던 전 재산급 거금이 순식간에 공중분해 되었습니다.`; }
+            else if (spent >= 9000000) { cumulativeWarning = `🛑 <b>[누적 900만 원 돌파]</b> 최고급 사양의 가정용 태양광 발전 시스템을 설치하거나, 한 가구의 1년 치 관리비와 공과금 전체를 한 방에 해결할 수 있었던 초거대 자산이 증발했습니다.`; }
+            else if (spent >= 8000000) { cumulativeWarning = `🛑 <b>[누적 800만 원 돌파]</b> 유럽이나 남미로 떠나는 전 일정 비즈니스 클래스 왕복 항공권과 5성급 호텔 장기 숙박권을 결제하여 평생 잊지 못할 추억을 만들 수 있었던 기회비용입니다.`; }
+            else if (spent >= 7000000) { cumulativeWarning = `🛑 <b>[누적 700만 원 돌파]</b> 리오넬 메시나 쇼헤이 오타니의 루키 시즌 최고 등급(PSA 10) 친필 싸인 카드를 수집가들 사이에서 당당하게 현금으로 스카웃해 올 수 있었던 엄청난 예산입니다.`; }
+            else if (spent >= 6000000) { cumulativeWarning = `🛑 <b>[누적 600만 원 돌파]</b> 백화점 명품관에서 아내를 위한 최고급 베스트셀러 가방을 웨이팅 없이 영접하거나, 최고급 사양의 풀세트 인테리어 가전을 싹 바꿀 수 있었던 거금입니다.`; }
+            else if (spent >= 5000000) { cumulativeWarning = `🔥🚨 <b>[누적 500만 원 돌파]</b> 적립식 펀드나 배당 우량주에 넣어두었다면 평생 따박따박 복리 이자를 낳았을 '황금 알을 낳는 거위'의 배를 통째로 갈라버린 수준입니다. 지갑의 비명이 들리지 않으십니까?`; }
+            else if (spent >= 4000000) { cumulativeWarning = `🚨 <b>[누적 400만 원 돌파]</b> 최고급 사양의 산업용 3D 프린터 장비와 수십 킬로그램의 최고급 레진 원료를 창고에 가득 쌓아두고 커스텀 피규어 공장을 차릴 수 있었던 비용입니다.`; }
+            else if (spent >= 3000000) { cumulativeWarning = `🚨 <b>[누적 300만 원 돌파]</b> 양가 부모님과 동생, 아내, 아이까지 온 가족이 최고급 리조트에서 일주일 동안 머물며 초호화 효도 온천 여행을 완벽하게 다녀올 수 있었던 거금입니다.`; }
+            else if (spent >= 2000000) { cumulativeWarning = `🚨 <b>[누적 200만 원 돌파]</b> 최고 사양 커스텀 게이밍 PC 본체와 4K 모니터를 풀세트로 맞추거나, 매달 10만 원씩 우량 ETF를 무려 20개월 동안 기계처럼 적립할 수 있었던 소중한 시드머니입니다.`; }
+            else if (spent >= 1000000) { cumulativeWarning = `💥 <b>[누적 100만 원 돌파]</b> 이베이에서 침만 흘리던 초고가 레전드 그레이딩 슬랩 카드를 확정 구매하거나, 최신형 스마트폰을 일시불로 사고도 남았을 거금입니다.`; }
+            else if (spent >= 500000) { cumulativeWarning = `🚨 <b>[누적 50만 원 돌파]</b> 온 가족이 제주도로 날아가 2박 3일 동안 고급 렌트카를 빌리고 흑돼지를 배터지게 먹을 수 있는 거대한 예산이 증발했습니다.`; }
+            else if (spent >= 300000) { cumulativeWarning = `⚠️ <b>[누적 30만 원 돌파]</b> 프리미엄 3D 프린터 기기 한 대를 들여놓거나, 닌텐도 스위치 콘솔을 새 제품으로 영접할 수 있었던 금액입니다.`; }
+            else if (spent >= 100000) { cumulativeWarning = `📉 <b>[누적 10만 원 돌파]</b> 든든한 미국 배당성장 ETF(SCHD)를 수십 개월 치 적립식 매수할 기회를 고작 클릭 몇 번의 도파민과 맞바꿨습니다. 아내 자격증 교재비나 특별한 외식 한 번이 사라졌네요.`; }
+            else if (spent >= 50000) { cumulativeWarning = `💸 <b>[누적 5만 원 돌파]</b> 겉바속촉 브랜드 치킨을 무려 2마리 반이나 굶은 셈입니다. 슬슬 뇌절의 영역으로 진입하고 있습니다.`; }
+
+            return cumulativeWarning ? `${randomBase}<br><span class="log-warning">${cumulativeWarning}</span>` : randomBase;
+        }
+
+        function addOpportunityLog() {
+            if (totalSpent === 10000) {
+                ui.logList.innerHTML = "";
+            }
+
+            const li = document.createElement('li');
+            const logContent = getOpportunityMessage(totalSpent);
+            
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            li.innerHTML = `[${timeStr}] <span class="log-amount">-${totalSpent.toLocaleString()}원째 소모 중:</span> ${logContent}`;
+            ui.logList.prepend(li);
+        }
+
+        function drawCard() {
+            if (drawTickets <= 0 || remain <= 0 || isAnimating) return;
+            isAnimating = true;
+            updateUI(); // 버튼 잠금 상태 즉시 반영
+
+            clearTimeout(hideCardTimeout);
+
+            drawTickets--;
+            totalSpent += 10000;
+            
+            const idx = Math.floor(Math.random() * deck.length);
+            const prize = deck.splice(idx, 1)[0];
+            
+            remain--;
+            const isHit = prize > 1000;
+            if (isHit) { hitCount++; } else { missCount++; }
+            totalEarned += prize;
+
+            ui.result.innerHTML = "팩 개봉 중... 📦";
+            
+            ui.packArea.style.opacity = '1';
+            ui.packArea.style.display = 'flex';
+            ui.packEl.className = 'pack shake';
+            ui.cardEl.className = 'card';
+            ui.cardInner.className = 'card-inner';
+            
+            setTimeout(() => {
+                ui.packEl.classList.remove('shake');
+                ui.cardEl.classList.add('slide-up');
+                
+                setTimeout(() => {
+                    if (isHit) {
+                        ui.cardResult.className = 'card-back holo-hit';
+                        ui.cardResult.innerHTML = `✨HIT✨<br>${Math.floor(prize).toLocaleString()}원`;
+                    } else {
+                        ui.cardResult.className = 'card-back miss-card';
+                        ui.cardResult.innerHTML = `꽝<br>1,000원`;
+                    }
+                    
+                    ui.cardInner.classList.add('flip');
+                    
+                    setTimeout(() => {
+                        if (isHit) {
+                            ui.result.innerHTML = `🎉 <span style='color:#e74c3c'>${Math.floor(prize).toLocaleString()}원</span> 가치 당첨!`;
+                        } else {
+                            ui.result.innerHTML = "<span style='color:#7f8c8d'>아쉽습니다... 꽝 (1,000원)</span>";
+                        }
+                        
+                        isAnimating = false;
+                        updateUI();
+                        addOpportunityLog();
+
+                        hideCardTimeout = setTimeout(() => {
+                            ui.packArea.style.opacity = '0';
+                            setTimeout(() => {
+                                ui.packArea.style.display = 'none';
+                                ui.result.innerHTML = "다음 채굴을 시작하세요! ⛏️";
+                            }, 300);
+                        }, 1000);
+
+                    }, 400);
+                }, 300);
+            }, 600);
+        }
+
+        // [핵심 추가] 게임 종료, 정산 및 초기화 함수
+        function endGame() {
+            if (isAnimating) return; // 애니메이션 도중에는 실행 불가
+
+            if (totalSpent === 0) {
+                alert("아직 뽑기를 진행하지 않아 정산할 내역이 없습니다.");
+                return;
+            }
+
+            // 회수율 계산 (당첨금 / 투자금 * 100)
+            const recoveryRate = ((totalEarned / totalSpent) * 100).toFixed(2);
+            
+            // 결과 알림창 띄우기
+            const finalMessage = `[📊 오리파 최종 정산]\n\n` +
+                                 `💸 총 투자한 금액: ${totalSpent.toLocaleString()}원\n` +
+                                 `💎 획득한 당첨금: ${Math.floor(totalEarned).toLocaleString()}원\n` +
+                                 `📈 투자 대비 회수율: ${recoveryRate}%\n\n` +
+                                 `확인을 누르시면 모든 내역이 초기화됩니다. 현실로 돌아가세요!`;
+            
+            alert(finalMessage);
+
+            // 데이터 초기화
+            total = 1000;
+            remain = 1000;
+            hitCount = 0;
+            missCount = 0;
+            nogada = 0;
+            drawTickets = 0;
+            totalSpent = 0;
+            totalEarned = 0;
+
+            // 덱 초기화
+            initDeck();
+
+            // 애니메이션 및 텍스트 UI 초기화
+            clearTimeout(hideCardTimeout);
+            ui.packArea.style.display = 'none';
+            ui.result.innerHTML = "채굴을 시작하세요!";
+            ui.logList.innerHTML = '<li style="text-align: center; color: #999;">아직 사용한 금액이 없습니다.</li>';
+
+            updateUI();
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
