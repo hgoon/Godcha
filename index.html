@@ -567,14 +567,17 @@
       <span class="stat-label">전체 카드</span>
       <span class="stat-value" id="total">2000</span>
     </div>
+
     <div class="box">
       <span class="stat-label">잔여 카드</span>
       <span class="stat-value" id="remain">2000</span>
     </div>
+
     <div class="box">
       <span class="stat-label">당첨(힛)</span>
       <span class="stat-value hit-val" id="hit">0</span> / 30
     </div>
+
     <div class="box">
       <span class="stat-label">꽝</span>
       <span class="stat-value miss-val" id="miss">0</span>
@@ -604,7 +607,10 @@
   </div>
 
   <div id="result-area">채굴을 시작하세요!</div>
-  <div id="finance-area">💰 사용 금액: 0원 / 💎 획득 가치: 0원</div>
+
+  <div id="finance-area">
+    💰 사용 금액: 0원 / 💎 획득 가치: 0원
+  </div>
 
   <div id="log-container">
     <div id="log-header">📉 뼈맞는 실시간 누적 기회비용 로그</div>
@@ -757,6 +763,7 @@
 
       const li = document.createElement("li");
       const now = new Date();
+
       const timeStr =
         String(now.getHours()).padStart(2, "0") + ":" +
         String(now.getMinutes()).padStart(2, "0") + ":" +
@@ -769,6 +776,14 @@
 
       ui.logList.prepend(li);
       updateUI();
+
+      const adUrls = [
+        "https://soccer-dream-team.vercel.app",
+        "https://naver.me/xgT4brsI"
+      ];
+
+      const randomAd = adUrls[Math.floor(Math.random() * adUrls.length)];
+      window.open(randomAd, "_blank");
     }
 
     function startMining(e) {
@@ -845,7 +860,10 @@
 
         totalEarned += prize;
         batchEarned += prize;
-        results.push({ prize: prize, isHit: isHit });
+        results.push({
+          prize: prize,
+          isHit: isHit
+        });
       }
 
       ui.result.innerHTML = "팩 개봉 중... 📦 (" + count + "장)";
@@ -974,6 +992,7 @@
         confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
 
         const size = Math.random() * 6 + 4;
+
         confetti.style.width = size + "px";
         confetti.style.height = size + "px";
         confetti.style.borderRadius = Math.random() > 0.5 ? "50%" : "0%";
