@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>실전 오리파 게임</title>
+  <title>실전 오리파 & 박스깡 게임</title>
 
   <style>
     * {
@@ -13,7 +13,7 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
       text-align: center;
-      padding: 20px;
+      padding: 18px;
       margin: 0;
       background-color: #f4f4f4;
       overflow-x: hidden;
@@ -22,14 +22,78 @@
 
     h1 {
       color: #333;
-      font-size: 2rem;
-      margin: 28px 0 22px;
+      font-size: 1.9rem;
+      margin: 22px 0 18px;
+      line-height: 1.25;
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      max-width: 600px;
+      margin: 0 auto 12px;
+      background: #e9ecef;
+      padding: 6px;
+      border-radius: 12px;
+    }
+
+    .mode-tab {
+      flex: 1;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      color: #555;
+      font-weight: bold;
+      padding: 11px 8px;
+      margin: 0;
+    }
+
+    .mode-tab.active {
+      background: #2c3e50;
+      color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.16);
+    }
+
+    .common-panel {
+      max-width: 600px;
+      margin: 0 auto 14px;
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #finance-area {
+      font-size: 1em;
+      color: #444;
+      background: #f1f3f5;
+      padding: 10px;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+
+    #result-area {
+      min-height: 52px;
+      font-size: 1.1em;
+      margin: 12px auto;
+      font-weight: bold;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 600px;
+      line-height: 1.4;
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
     }
 
     .stats {
       display: flex;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       margin: 15px auto;
       max-width: 600px;
       flex-wrap: wrap;
@@ -42,7 +106,7 @@
       background-color: white;
       flex: 1;
       min-width: 120px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
     }
 
     .stat-label {
@@ -53,7 +117,7 @@
     }
 
     .stat-value {
-      font-size: 1.3em;
+      font-size: 1.25em;
       font-weight: bold;
       color: #333;
     }
@@ -66,10 +130,14 @@
       color: #7f8c8d;
     }
 
+    .secret-val {
+      color: #8e44ad;
+    }
+
     #mining-area {
       font-size: 3em;
       height: 1.2em;
-      margin-top: 20px;
+      margin-top: 18px;
       position: relative;
       display: flex;
       justify-content: center;
@@ -121,6 +189,14 @@
       transform: scale(0.98);
     }
 
+    button:disabled {
+      background-color: #bdc3c7 !important;
+      color: #777 !important;
+      border-color: #aaa !important;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     #nogada-btn {
       background-color: #f1c40f;
       color: #333;
@@ -135,42 +211,19 @@
       color: white;
     }
 
-    #draw-btn:hover {
-      background-color: #2980b9;
-    }
-
     #draw-10-btn {
       background-color: #e67e22;
       color: white;
       font-weight: bold;
     }
 
-    #draw-10-btn:hover {
-      background-color: #d35400;
-    }
-
-    #draw-btn:disabled,
-    #draw-10-btn:disabled,
-    #nogada-btn:disabled {
-      background-color: #bdc3c7;
-      color: #777;
-      cursor: not-allowed;
-      transform: none;
-    }
-
     #reset-btn {
       background-color: #e74c3c;
       color: white;
       font-weight: bold;
-    }
-
-    #reset-btn:hover {
-      background-color: #c0392b;
-    }
-
-    #reset-btn:disabled {
-      background-color: #bdc3c7;
-      cursor: not-allowed;
+      width: 100%;
+      max-width: 400px;
+      border: none;
     }
 
     #buy-tool-btn {
@@ -183,21 +236,75 @@
       border: 2px solid #8e44ad;
     }
 
-    #buy-tool-btn:hover {
-      background-color: #8e44ad;
-    }
-
-    #buy-tool-btn:disabled {
-      background-color: #95a5a6;
-      border-color: #7f8c8d;
-      cursor: not-allowed;
-      transform: none;
-    }
-
     #nogada-gauge {
       font-size: 0.9em;
       color: #555;
       margin-bottom: 5px;
+    }
+
+    .section-title {
+      max-width: 600px;
+      margin: 20px auto 8px;
+      text-align: left;
+      color: #333;
+      font-size: 1.15em;
+      font-weight: bold;
+    }
+
+    .box-product-list {
+      max-width: 600px;
+      margin: 12px auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .box-product {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 13px;
+      text-align: left;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+    }
+
+    .box-product-title {
+      font-weight: bold;
+      font-size: 1.05em;
+      margin-bottom: 5px;
+      color: #2c3e50;
+    }
+
+    .box-product-desc {
+      color: #666;
+      font-size: 0.9em;
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+
+    .box-open-btn {
+      width: 100%;
+      margin: 8px 0 0 0;
+      border: none;
+      color: white;
+      font-weight: bold;
+      background: #34495e;
+    }
+
+    .box-open-btn.light {
+      background: #16a085;
+    }
+
+    .box-open-btn.standard {
+      background: #2980b9;
+    }
+
+    .box-open-btn.premium {
+      background: #8e44ad;
+    }
+
+    .box-open-btn.highend {
+      background: #c0392b;
     }
 
     #pack-overlay {
@@ -221,10 +328,10 @@
       align-items: center;
       gap: 10px;
       width: 92vw;
-      max-width: 450px;
+      max-width: 460px;
       min-height: 220px;
       padding: 90px 12px 22px;
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.97);
       border-radius: 18px;
       box-shadow: 0 12px 35px rgba(0,0,0,0.35);
       opacity: 1;
@@ -260,7 +367,7 @@
       justify-content: center;
       color: #f1c40f;
       font-weight: 900;
-      font-size: 0.8em;
+      font-size: 0.75em;
       border: 2px solid #f1c40f;
       letter-spacing: 1px;
     }
@@ -295,10 +402,10 @@
       border: 1px solid #ccc;
       padding: 2px;
       word-break: keep-all;
-      font-size: 0.78em;
+      font-size: 0.72em;
       flex-direction: column;
       text-align: center;
-      line-height: 1.25;
+      line-height: 1.23;
     }
 
     .card-front {
@@ -343,45 +450,47 @@
       transform: rotateY(180deg);
     }
 
-    .holo-hit {
+    .card-rarity-base {
+      background: linear-gradient(135deg, #ecf0f1 0%, #ffffff 100%);
+      color: #7f8c8d;
+      border: 2px solid #bdc3c7;
+    }
+
+    .card-rarity-rare {
+      background: linear-gradient(135deg, #d6eaf8 0%, #ffffff 100%);
+      color: #2874a6;
+      border: 2px solid #3498db;
+    }
+
+    .card-rarity-superRare {
+      background: linear-gradient(135deg, #e8daef 0%, #ffffff 100%);
+      color: #7d3c98;
+      border: 2px solid #9b59b6;
+    }
+
+    .card-rarity-hit,
+    .card-rarity-boxHit {
       background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%);
       border: 2px solid #ff758c;
       box-shadow: 0 0 10px rgba(255, 117, 140, 0.6);
       color: #c0392b;
-      font-size: 0.82em;
     }
 
-    .base-card {
-      background: linear-gradient(135deg, #ecf0f1 0%, #ffffff 100%);
-      color: #7f8c8d;
-      border: 2px solid #bdc3c7;
-      font-size: 0.78em;
+    .card-rarity-secret {
+      background: linear-gradient(135deg, #f7dc6f 0%, #ffffff 45%, #d2b4de 100%);
+      color: #6c3483;
+      border: 2px solid #f1c40f;
+      box-shadow: 0 0 12px rgba(241,196,15,0.7);
     }
 
-    #result-area {
-      min-height: 50px;
-      font-size: 1.2em;
-      margin: 15px auto;
-      font-weight: bold;
-      color: #2c3e50;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      max-width: 600px;
-      line-height: 1.4;
+    .card-rarity-superHit {
+      background: linear-gradient(135deg, #111 0%, #8e44ad 45%, #f1c40f 100%);
+      color: white;
+      border: 2px solid #f1c40f;
+      box-shadow: 0 0 16px rgba(241,196,15,0.9);
     }
 
-    #finance-area {
-      font-size: 1em;
-      color: #444;
-      background: #eee;
-      padding: 10px;
-      border-radius: 8px;
-      display: inline-block;
-      line-height: 1.5;
-    }
-
-    #hit-list-container {
+    #valuable-container {
       margin: 24px auto 0;
       max-width: 600px;
       background: #fff;
@@ -392,7 +501,7 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
-    #hit-list-header {
+    #valuable-header {
       background: #2c3e50;
       color: white;
       padding: 11px 15px;
@@ -400,19 +509,19 @@
       font-size: 1em;
     }
 
-    #hit-list {
+    #valuable-list {
       padding: 10px;
       background: #fbfbfb;
     }
 
-    .empty-hit {
+    .empty-card {
       text-align: center;
       color: #999;
       padding: 18px 10px;
       font-size: 0.92em;
     }
 
-    .hit-card-item {
+    .valuable-item {
       background: white;
       border: 1px solid #ddd;
       border-left: 5px solid #e74c3c;
@@ -423,17 +532,27 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
-    .hit-card-title {
+    .valuable-title {
       font-weight: bold;
       color: #c0392b;
       font-size: 1.02em;
       margin-bottom: 4px;
     }
 
-    .hit-card-meta {
+    .valuable-meta {
       font-size: 0.9em;
       color: #555;
       margin: 2px 0;
+    }
+
+    .source-badge {
+      display: inline-block;
+      font-size: 0.78em;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #ecf0f1;
+      color: #555;
+      margin-right: 4px;
     }
 
     .grade-btn {
@@ -445,16 +564,6 @@
       border: none;
       border-radius: 6px;
       padding: 8px 10px;
-    }
-
-    .grade-btn:hover {
-      background: #2c3e50;
-    }
-
-    .grade-btn:disabled {
-      background: #bdc3c7;
-      color: #777;
-      cursor: not-allowed;
     }
 
     .grade-result-10 {
@@ -566,16 +675,10 @@
       color: white;
       font-weight: bold;
       padding: 15px 20px;
-      font-size: 1.1em;
+      font-size: 1.05em;
       border: none;
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    #share-btn:hover {
-      background-color: #27ae60;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 8px rgba(0,0,0,0.15);
     }
 
     #boss-popup {
@@ -587,7 +690,7 @@
       color: #f1c40f;
       padding: 30px;
       border-radius: 15px;
-      font-size: 1.5em;
+      font-size: 1.45em;
       font-weight: bold;
       z-index: 10000;
       display: none;
@@ -603,11 +706,11 @@
 
     @media (max-width: 480px) {
       body {
-        padding: 16px;
+        padding: 14px;
       }
 
       h1 {
-        font-size: 1.8rem;
+        font-size: 1.65rem;
       }
 
       .stats {
@@ -628,13 +731,13 @@
       }
 
       button {
-        font-size: 0.95em;
-        padding: 9px 12px;
+        font-size: 0.93em;
+        padding: 9px 11px;
       }
 
       #pack-area {
         width: 94vw;
-        max-width: 380px;
+        max-width: 385px;
         min-height: 220px;
         gap: 8px;
         padding-top: 86px;
@@ -647,77 +750,155 @@
 
       .pack {
         height: 82px;
-        font-size: 0.72em;
+        font-size: 0.68em;
       }
 
       .card {
         height: 78px;
       }
 
+      .card-front,
+      .card-back {
+        font-size: 0.68em;
+      }
+
       #result-area {
-        font-size: 1.05em;
+        font-size: 1.02em;
       }
     }
   </style>
 </head>
 
 <body>
-  <h1>실전 오리파 게임</h1>
+  <h1>실전 오리파 & 박스깡</h1>
 
-  <div class="stats">
-    <div class="box">
-      <span class="stat-label">전체 카드</span>
-      <span class="stat-value" id="total">2000</span>
-    </div>
-
-    <div class="box">
-      <span class="stat-label">잔여 카드</span>
-      <span class="stat-value" id="remain">2000</span>
-    </div>
-
-    <div class="box">
-      <span class="stat-label">힛카드</span>
-      <span class="stat-value hit-val" id="hit">0</span> / 30
-    </div>
-
-    <div class="box">
-      <span class="stat-label">베이스 카드</span>
-      <span class="stat-value base-val" id="base">0</span>
-    </div>
+  <div class="mode-tabs">
+    <button id="oripa-tab" class="mode-tab active" onclick="switchMode('oripa')">🎁 오리파</button>
+    <button id="box-tab" class="mode-tab" onclick="switchMode('box')">📦 박스깡</button>
   </div>
 
-  <div id="mining-area">
-    <span id="miner">👨‍🏭</span>
-    <span id="pickaxe">⛏️</span>
-    <span id="rock">💎</span>
+  <div class="common-panel">
+    <div id="finance-area">
+      💰 총 사용 금액: 0원 / 💎 총 회수 카드 가치: 0원
+    </div>
+    <button id="reset-btn" onclick="endGame()">🛑 전체 정산하기</button>
   </div>
 
-  <div class="controls">
-    <div id="nogada-gauge">
-      채굴 진행도: <span id="nogada-count">0</span> / 10
+  <div id="result-area">오리파 또는 박스깡을 시작하세요!</div>
+
+  <section id="oripa-section">
+    <div class="stats">
+      <div class="box">
+        <span class="stat-label">전체 오리파 카드</span>
+        <span class="stat-value" id="oripa-total">2000</span>
+      </div>
+
+      <div class="box">
+        <span class="stat-label">잔여 카드</span>
+        <span class="stat-value" id="remain">2000</span>
+      </div>
+
+      <div class="box">
+        <span class="stat-label">오리파 힛카드</span>
+        <span class="stat-value hit-val" id="oripa-hit">0</span> / 30
+      </div>
+
+      <div class="box">
+        <span class="stat-label">베이스 카드</span>
+        <span class="stat-value base-val" id="oripa-base">0</span>
+      </div>
     </div>
 
-    <button id="nogada-btn">⛏️ 채굴하기</button>
-    <button id="draw-btn" onclick="drawMultiple(1)" disabled>🎁 1회 뽑기</button>
-    <button id="draw-10-btn" onclick="drawMultiple(10)" disabled>🎁 10연속 뽑기</button>
-    <button id="reset-btn" onclick="endGame()">🛑 정산하기</button>
-    <button id="buy-tool-btn" onclick="buyTool()">🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)</button>
-  </div>
+    <div id="mining-area">
+      <span id="miner">👨‍🏭</span>
+      <span id="pickaxe">⛏️</span>
+      <span id="rock">💎</span>
+    </div>
+
+    <div class="controls">
+      <div id="nogada-gauge">
+        채굴 진행도: <span id="nogada-count">0</span> / 10
+      </div>
+
+      <button id="nogada-btn">⛏️ 채굴하기</button>
+      <button id="draw-btn" onclick="drawOripa(1)" disabled>🎁 1회 뽑기</button>
+      <button id="draw-10-btn" onclick="drawOripa(10)" disabled>🎁 10연속 뽑기</button>
+      <button id="buy-tool-btn" onclick="buyTool()">🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)</button>
+    </div>
+  </section>
+
+  <section id="box-section" style="display:none;">
+    <div class="stats">
+      <div class="box">
+        <span class="stat-label">개봉 박스</span>
+        <span class="stat-value" id="box-open-count">0</span>
+      </div>
+
+      <div class="box">
+        <span class="stat-label">박스힛</span>
+        <span class="stat-value hit-val" id="box-hit-count">0</span>
+      </div>
+
+      <div class="box">
+        <span class="stat-label">시크릿</span>
+        <span class="stat-value secret-val" id="secret-count">0</span>
+      </div>
+
+      <div class="box">
+        <span class="stat-label">슈퍼힛</span>
+        <span class="stat-value secret-val" id="super-hit-count">0</span>
+      </div>
+    </div>
+
+    <div class="section-title">📦 박스깡 선택</div>
+
+    <div class="box-product-list">
+      <div class="box-product">
+        <div class="box-product-title">라이트 박스 - 40,000원</div>
+        <div class="box-product-desc">
+          10장 구성. 가볍게 까는 박스입니다.<br>
+          박스힛 5% / 시크릿 5% / 슈퍼힛 0.1%
+        </div>
+        <button class="box-open-btn light" onclick="openBox('light')">라이트 박스 개봉</button>
+      </div>
+
+      <div class="box-product">
+        <div class="box-product-title">스탠다드 박스 - 90,000원</div>
+        <div class="box-product-desc">
+          10장 구성. 가장 균형 잡힌 박스입니다.<br>
+          박스힛 7% / 시크릿 5% / 슈퍼힛 0.15%
+        </div>
+        <button class="box-open-btn standard" onclick="openBox('standard')">스탠다드 박스 개봉</button>
+      </div>
+
+      <div class="box-product">
+        <div class="box-product-title">프리미엄 박스 - 120,000원</div>
+        <div class="box-product-desc">
+          10장 구성. 슈퍼레어와 박스힛 기대감이 올라갑니다.<br>
+          박스힛 8% / 시크릿 5% / 슈퍼힛 0.2%
+        </div>
+        <button class="box-open-btn premium" onclick="openBox('premium')">프리미엄 박스 개봉</button>
+      </div>
+
+      <div class="box-product">
+        <div class="box-product-title">하이엔드 박스 - 190,000원</div>
+        <div class="box-product-desc">
+          10장 구성. 고위험 고보상 박스입니다.<br>
+          박스힛 12% / 시크릿 5% / 슈퍼힛 0.3%
+        </div>
+        <button class="box-open-btn highend" onclick="openBox('highend')">하이엔드 박스 개봉</button>
+      </div>
+    </div>
+  </section>
 
   <div id="pack-overlay">
     <div id="pack-area"></div>
   </div>
 
-  <div id="result-area">채굴을 시작하세요!</div>
-
-  <div id="finance-area">
-    💰 사용 금액: 0원 / 💎 획득 카드 가치: 0원
-  </div>
-
-  <div id="hit-list-container">
-    <div id="hit-list-header">🏆 획득한 힛카드 현황</div>
-    <div id="hit-list">
-      <div class="empty-hit">아직 획득한 힛카드가 없습니다.</div>
+  <div id="valuable-container">
+    <div id="valuable-header">🏆 고가 카드 보관함 / 그레이딩</div>
+    <div id="valuable-list">
+      <div class="empty-card">아직 그레이딩 가능한 고가 카드가 없습니다.</div>
     </div>
   </div>
 
@@ -741,23 +922,32 @@
   </div>
 
   <script>
-    let total = 2000;
-    let remain = 2000;
-    let hitCount = 0;
-    let baseCount = 0;
-    let nogada = 0;
-    let drawTickets = 0;
+    let currentMode = "oripa";
+
     let totalSpent = 0;
     let totalEarned = 0;
     let isAnimating = false;
     let hideCardTimeout;
 
+    const ORIPA_TOTAL = 2000;
+    let remain = 2000;
+    let oripaHitCount = 0;
+    let oripaBaseCount = 0;
+    let nogada = 0;
+    let drawTickets = 0;
     let hasAutoMiner = false;
     let miningTimer = null;
     let isMiningMode = false;
+    let oripaDeck = [];
 
-    let deck = [];
-    let hitInventory = [];
+    let valuableCards = [];
+
+    let boxOpenCount = 0;
+    let boxSpent = 0;
+    let boxEarned = 0;
+    let boxHitCount = 0;
+    let secretCount = 0;
+    let superHitCount = 0;
 
     const hitValueTable = [
       1000000, 900000, 800000, 700000, 600000,
@@ -768,38 +958,36 @@
       100000, 100000, 100000, 100000, 100000
     ];
 
-    function getRandomBaseValue() {
-      const baseValues = [
-        10, 20, 30, 40, 50,
-        60, 70, 80, 90, 100,
-        200, 300, 400, 500, 600,
-        700, 800, 900, 1000
-      ];
-
-      return baseValues[Math.floor(Math.random() * baseValues.length)];
-    }
-
-    function initDeck() {
-      deck = [];
-
-      for (let i = 0; i < 30; i++) {
-        deck.push({
-          type: "hit",
-          rank: i + 1,
-          value: hitValueTable[i]
-        });
+    const boxConfigs = [
+      {
+        id: "light",
+        name: "라이트 박스",
+        price: 40000,
+        rareSlot: { rare: 90, superRare: 10 },
+        chaseSlot: { rare: 72.9, superRare: 17, boxHit: 5, secret: 5, superHit: 0.1 }
+      },
+      {
+        id: "standard",
+        name: "스탠다드 박스",
+        price: 90000,
+        rareSlot: { rare: 85, superRare: 15 },
+        chaseSlot: { rare: 69.85, superRare: 18, boxHit: 7, secret: 5, superHit: 0.15 }
+      },
+      {
+        id: "premium",
+        name: "프리미엄 박스",
+        price: 120000,
+        rareSlot: { rare: 80, superRare: 20 },
+        chaseSlot: { rare: 66.8, superRare: 20, boxHit: 8, secret: 5, superHit: 0.2 }
+      },
+      {
+        id: "highend",
+        name: "하이엔드 박스",
+        price: 190000,
+        rareSlot: { rare: 75, superRare: 25 },
+        chaseSlot: { rare: 62.7, superRare: 20, boxHit: 12, secret: 5, superHit: 0.3 }
       }
-
-      for (let i = 0; i < 1970; i++) {
-        deck.push({
-          type: "base",
-          rank: null,
-          value: getRandomBaseValue()
-        });
-      }
-    }
-
-    initDeck();
+    ];
 
     const random10kTexts = [
       "뜨끈한 국밥 한 그릇을 참았습니다.",
@@ -812,65 +1000,145 @@
     ];
 
     const ui = {
-      total: document.getElementById("total"),
+      oripaTab: document.getElementById("oripa-tab"),
+      boxTab: document.getElementById("box-tab"),
+      oripaSection: document.getElementById("oripa-section"),
+      boxSection: document.getElementById("box-section"),
+
+      finance: document.getElementById("finance-area"),
+      result: document.getElementById("result-area"),
+
+      oripaTotal: document.getElementById("oripa-total"),
       remain: document.getElementById("remain"),
-      hit: document.getElementById("hit"),
-      base: document.getElementById("base"),
+      oripaHit: document.getElementById("oripa-hit"),
+      oripaBase: document.getElementById("oripa-base"),
       nogadaCount: document.getElementById("nogada-count"),
       nogadaBtn: document.getElementById("nogada-btn"),
       drawBtn: document.getElementById("draw-btn"),
       draw10Btn: document.getElementById("draw-10-btn"),
-      resetBtn: document.getElementById("reset-btn"),
       buyToolBtn: document.getElementById("buy-tool-btn"),
-      result: document.getElementById("result-area"),
-      finance: document.getElementById("finance-area"),
       pickaxe: document.getElementById("pickaxe"),
+
+      boxOpenCount: document.getElementById("box-open-count"),
+      boxHitCount: document.getElementById("box-hit-count"),
+      secretCount: document.getElementById("secret-count"),
+      superHitCount: document.getElementById("super-hit-count"),
+
       packOverlay: document.getElementById("pack-overlay"),
       packArea: document.getElementById("pack-area"),
-      hitList: document.getElementById("hit-list"),
+
+      valuableList: document.getElementById("valuable-list"),
       logList: document.getElementById("log-list"),
       bossPopup: document.getElementById("boss-popup")
     };
 
+    function initOripaDeck() {
+      oripaDeck = [];
+
+      for (let i = 0; i < 30; i++) {
+        oripaDeck.push({
+          mode: "oripa",
+          rarity: "hit",
+          label: "HIT",
+          name: (i + 1) + "등 힛카드",
+          rank: i + 1,
+          value: hitValueTable[i]
+        });
+      }
+
+      for (let i = 0; i < 1970; i++) {
+        const value = getRandomBaseValue();
+
+        oripaDeck.push({
+          mode: "oripa",
+          rarity: "base",
+          label: "BASE",
+          name: "베이스 카드",
+          rank: null,
+          value: value
+        });
+      }
+    }
+
+    function getRandomBaseValue() {
+      const baseValues = [
+        10, 20, 30, 40, 50,
+        60, 70, 80, 90, 100,
+        200, 300, 400, 500, 600,
+        700, 800, 900, 1000
+      ];
+
+      return baseValues[Math.floor(Math.random() * baseValues.length)];
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+
+      if (mode !== "oripa") {
+        stopMining();
+      }
+
+      ui.oripaSection.style.display = mode === "oripa" ? "block" : "none";
+      ui.boxSection.style.display = mode === "box" ? "block" : "none";
+
+      ui.oripaTab.classList.toggle("active", mode === "oripa");
+      ui.boxTab.classList.toggle("active", mode === "box");
+
+      if (!isAnimating) {
+        ui.result.innerHTML = mode === "oripa"
+          ? "오리파 채굴을 시작하세요! ⛏️"
+          : "박스를 선택해 박스깡을 시작하세요! 📦";
+      }
+
+      updateUI();
+    }
+
     function updateUI() {
-      ui.total.innerText = total;
+      ui.oripaTotal.innerText = ORIPA_TOTAL;
       ui.remain.innerText = remain;
-      ui.hit.innerText = hitCount;
-      ui.base.innerText = baseCount;
+      ui.oripaHit.innerText = oripaHitCount;
+      ui.oripaBase.innerText = oripaBaseCount;
       ui.nogadaCount.innerText = nogada;
+
+      ui.boxOpenCount.innerText = boxOpenCount;
+      ui.boxHitCount.innerText = boxHitCount;
+      ui.secretCount.innerText = secretCount;
+      ui.superHitCount.innerText = superHitCount;
 
       ui.drawBtn.innerText = "🎁 1회 뽑기 (기회: " + drawTickets + ")";
       ui.draw10Btn.innerText = "🎁 10연뽑 (기회: " + Math.floor(drawTickets / 10) + ")";
-
-      if (remain <= 0) {
-        ui.drawBtn.disabled = true;
-        ui.draw10Btn.disabled = true;
-        ui.nogadaBtn.disabled = true;
-        ui.buyToolBtn.disabled = true;
-        ui.resetBtn.disabled = false;
-        stopMining();
-      } else if (!isAnimating) {
-        ui.drawBtn.disabled = drawTickets < 1 || remain < 1;
-        ui.draw10Btn.disabled = drawTickets < 10 || remain < 10;
-        ui.nogadaBtn.disabled = false;
-        ui.resetBtn.disabled = false;
-        ui.buyToolBtn.disabled = hasAutoMiner;
-      } else {
-        ui.drawBtn.disabled = true;
-        ui.draw10Btn.disabled = true;
-        ui.nogadaBtn.disabled = true;
-        ui.resetBtn.disabled = true;
-        ui.buyToolBtn.disabled = true;
-      }
 
       const spentStr = totalSpent.toLocaleString();
       const earnedStr = Math.floor(totalEarned).toLocaleString();
       const recoveryRate = totalSpent > 0 ? ((totalEarned / totalSpent) * 100).toFixed(1) : "0.0";
 
       ui.finance.innerHTML =
-        "💰 사용 금액: <b>" + spentStr + "원</b> / " +
-        "💎 획득 카드 가치: <b>" + earnedStr + "원</b><br>" +
-        "📈 회수율: <b>" + recoveryRate + "%</b>";
+        "💰 총 사용 금액: <b>" + spentStr + "원</b> / " +
+        "💎 총 회수 카드 가치: <b>" + earnedStr + "원</b><br>" +
+        "📈 전체 회수율: <b>" + recoveryRate + "%</b>";
+
+      if (remain <= 0) {
+        ui.drawBtn.disabled = true;
+        ui.draw10Btn.disabled = true;
+        ui.nogadaBtn.disabled = true;
+        ui.buyToolBtn.disabled = true;
+        stopMining();
+      } else if (!isAnimating) {
+        ui.drawBtn.disabled = drawTickets < 1 || remain < 1;
+        ui.draw10Btn.disabled = drawTickets < 10 || remain < 10;
+        ui.nogadaBtn.disabled = false;
+        ui.buyToolBtn.disabled = hasAutoMiner;
+      } else {
+        ui.drawBtn.disabled = true;
+        ui.draw10Btn.disabled = true;
+        ui.nogadaBtn.disabled = true;
+        ui.buyToolBtn.disabled = true;
+      }
+
+      const boxButtons = document.querySelectorAll(".box-open-btn");
+      boxButtons.forEach(function(btn) {
+        btn.disabled = isAnimating;
+      });
     }
 
     function doNogada() {
@@ -885,7 +1153,7 @@
     }
 
     function buyTool() {
-      if (hasAutoMiner || remain <= 0) return;
+      if (hasAutoMiner || remain <= 0 || isAnimating) return;
 
       hasAutoMiner = true;
       totalSpent += 1000000;
@@ -896,24 +1164,11 @@
       ui.buyToolBtn.style.borderColor = "#2ecc71";
       ui.nogadaBtn.innerHTML = "🚀 초고속 자동 기회 충전 (꾹~ 누르고 계세요!)";
 
-      if (totalSpent === 1000000) {
-        ui.logList.innerHTML = "";
-      }
-
-      const li = document.createElement("li");
-      const now = new Date();
-
-      const timeStr =
-        String(now.getHours()).padStart(2, "0") + ":" +
-        String(now.getMinutes()).padStart(2, "0") + ":" +
-        String(now.getSeconds()).padStart(2, "0");
-
-      li.innerHTML =
-        "[" + timeStr + "] " +
+      addLog(
         "<span class='log-amount'>-1,000,000원 지출:</span> " +
-        "🛠️ <b>초고속 자동 채굴기</b>를 구매했습니다! 돈을 들여 손가락 피로도를 없애고 뽑기 시드를 초고속 확보합니다.";
+        "🛠️ <b>초고속 자동 채굴기</b>를 구매했습니다! 돈을 들여 손가락 피로도를 없애고 뽑기 시드를 초고속 확보합니다."
+      );
 
-      ui.logList.prepend(li);
       updateUI();
 
       const adUrls = [
@@ -926,7 +1181,7 @@
     }
 
     function startMining(e) {
-      if (remain <= 0) return;
+      if (remain <= 0 || isAnimating || currentMode !== "oripa") return;
 
       if (e && e.cancelable) {
         e.preventDefault();
@@ -967,12 +1222,11 @@
     window.addEventListener("pointercancel", stopMining);
     ui.nogadaBtn.addEventListener("pointerleave", stopMining);
 
-    function drawMultiple(count) {
+    function drawOripa(count) {
       if (drawTickets < count || remain < count || isAnimating) return;
 
       isAnimating = true;
       updateUI();
-
       clearTimeout(hideCardTimeout);
 
       drawTickets -= count;
@@ -983,29 +1237,25 @@
       const results = [];
 
       for (let i = 0; i < count; i++) {
-        const idx = Math.floor(Math.random() * deck.length);
-        const card = deck.splice(idx, 1)[0];
+        const idx = Math.floor(Math.random() * oripaDeck.length);
+        const card = oripaDeck.splice(idx, 1)[0];
 
         remain--;
 
-        if (card.type === "hit") {
-          hitCount++;
+        if (card.rarity === "hit") {
+          oripaHitCount++;
           batchHits++;
 
-          const inventoryCard = {
-            id: Date.now() + "-" + Math.random(),
-            rank: card.rank,
+          addValuableCard({
+            source: "oripa",
+            sourceLabel: "오리파",
+            name: card.name,
+            rarity: "hit",
             baseValue: card.value,
-            currentValue: card.value,
-            grade: null,
-            multiplier: 1,
-            graded: false,
-            lost: false
-          };
-
-          hitInventory.push(inventoryCard);
+            currentValue: card.value
+          });
         } else {
-          baseCount++;
+          oripaBaseCount++;
         }
 
         totalEarned += card.value;
@@ -1013,13 +1263,242 @@
         results.push(card);
       }
 
-      ui.result.innerHTML = "팩 개봉 중... 📦 (" + count + "장)";
+      showCardOverlay(results, "ORIPA", function() {
+        if (batchHits > 0) {
+          ui.result.innerHTML =
+            "🎉 <span style='color:#e74c3c'>" +
+            count + "장 중 오리파 힛카드 " + batchHits + "장 획득! " +
+            "총 카드 가치 " + Math.floor(batchEarned).toLocaleString() + "원</span>";
+          triggerConfetti();
+        } else {
+          ui.result.innerHTML =
+            "<span style='color:#7f8c8d'>" +
+            count + "장 모두 베이스 카드입니다. " +
+            "총 카드 가치 " + Math.floor(batchEarned).toLocaleString() + "원</span>";
+        }
+
+        addOpportunityLog("오리파");
+        renderValuableCards();
+
+        if (remain <= 0) {
+          ui.result.innerHTML = "🚨 오리파 재고가 모두 소진되었습니다! 전체 정산을 눌러주세요.";
+          showBossPopup();
+        }
+      });
+    }
+
+    function openBox(boxId) {
+      if (isAnimating) return;
+
+      const boxConfig = boxConfigs.find(function(item) {
+        return item.id === boxId;
+      });
+
+      if (!boxConfig) return;
+
+      isAnimating = true;
+      updateUI();
+      clearTimeout(hideCardTimeout);
+
+      const cards = generateBoxCards(boxConfig);
+      const boxValue = cards.reduce(function(sum, card) {
+        return sum + card.value;
+      }, 0);
+
+      boxOpenCount++;
+      boxSpent += boxConfig.price;
+      boxEarned += boxValue;
+
+      totalSpent += boxConfig.price;
+      totalEarned += boxValue;
+
+      let hasBoxHitOrAbove = false;
+      let hasSecretOrSuper = false;
+
+      cards.forEach(function(card) {
+        if (card.rarity === "boxHit") {
+          boxHitCount++;
+          hasBoxHitOrAbove = true;
+        }
+
+        if (card.rarity === "secret") {
+          secretCount++;
+          hasBoxHitOrAbove = true;
+          hasSecretOrSuper = true;
+        }
+
+        if (card.rarity === "superHit") {
+          superHitCount++;
+          hasBoxHitOrAbove = true;
+          hasSecretOrSuper = true;
+        }
+
+        if (isGradableBoxRarity(card.rarity)) {
+          addValuableCard({
+            source: "box",
+            sourceLabel: "박스깡",
+            boxName: boxConfig.name,
+            name: boxConfig.name + " - " + getRarityLabel(card.rarity),
+            rarity: card.rarity,
+            baseValue: card.value,
+            currentValue: card.value
+          });
+        }
+      });
+
+      showCardOverlay(cards, "BOX", function() {
+        const boxRecovery = ((boxValue / boxConfig.price) * 100).toFixed(1);
+
+        if (hasSecretOrSuper) {
+          ui.result.innerHTML =
+            "💥 <span style='color:#8e44ad'>" +
+            boxConfig.name + " 대박! 회수 가치 " +
+            boxValue.toLocaleString() + "원 / 박스 회수율 " +
+            boxRecovery + "%</span>";
+          triggerConfetti();
+          triggerConfetti();
+        } else if (hasBoxHitOrAbove) {
+          ui.result.innerHTML =
+            "🎯 <span style='color:#e74c3c'>" +
+            boxConfig.name + "에서 박스힛 이상 획득! 회수 가치 " +
+            boxValue.toLocaleString() + "원 / 박스 회수율 " +
+            boxRecovery + "%</span>";
+          triggerConfetti();
+        } else {
+          ui.result.innerHTML =
+            "<span style='color:#7f8c8d'>" +
+            boxConfig.name + " 개봉 완료. 회수 가치 " +
+            boxValue.toLocaleString() + "원 / 박스 회수율 " +
+            boxRecovery + "%</span>";
+        }
+
+        addLog(
+          "<span class='log-amount'>-" + boxConfig.price.toLocaleString() + "원 지출:</span> " +
+          "📦 <b>" + boxConfig.name + "</b> 개봉. 회수 가치 " +
+          boxValue.toLocaleString() + "원, 박스 회수율 " + boxRecovery + "%."
+        );
+
+        renderValuableCards();
+      });
+    }
+
+    function generateBoxCards(boxConfig) {
+      const cards = [];
+
+      for (let i = 0; i < 7; i++) {
+        cards.push(createBoxCard("base", boxConfig));
+      }
+
+      for (let i = 0; i < 2; i++) {
+        const rarity = pickByProbability(boxConfig.rareSlot);
+        cards.push(createBoxCard(rarity, boxConfig));
+      }
+
+      const chaseRarity = pickByProbability(boxConfig.chaseSlot);
+      cards.push(createBoxCard(chaseRarity, boxConfig));
+
+      return cards;
+    }
+
+    function createBoxCard(rarity, boxConfig) {
+      const value = getCardValueByRarity(rarity, boxConfig.price);
+
+      return {
+        mode: "box",
+        rarity: rarity,
+        label: getRarityLabel(rarity),
+        name: getRarityLabel(rarity),
+        boxName: boxConfig.name,
+        value: value
+      };
+    }
+
+    function pickByProbability(probMap) {
+      const roll = Math.random() * 100;
+      let acc = 0;
+      const keys = Object.keys(probMap);
+
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        acc += probMap[key];
+
+        if (roll < acc) {
+          return key;
+        }
+      }
+
+      return keys[keys.length - 1];
+    }
+
+    function getCardValueByRarity(rarity, boxPrice) {
+      if (rarity === "base") {
+        return randomRangeByStep(boxPrice * 0.003, boxPrice * 0.012, 10);
+      }
+
+      if (rarity === "rare") {
+        return randomRangeByStep(boxPrice * 0.02, boxPrice * 0.05, 100);
+      }
+
+      if (rarity === "superRare") {
+        return randomRangeByStep(boxPrice * 0.06, boxPrice * 0.12, 100);
+      }
+
+      if (rarity === "boxHit") {
+        return randomRangeByStep(boxPrice * 0.9, boxPrice * 1.3, 1000);
+      }
+
+      if (rarity === "secret") {
+        return boxPrice * 5;
+      }
+
+      if (rarity === "superHit") {
+        return boxPrice * 20;
+      }
+
+      return 0;
+    }
+
+    function randomRangeByStep(min, max, step) {
+      const safeMin = Math.ceil(min / step) * step;
+      const safeMax = Math.floor(max / step) * step;
+      const count = Math.floor((safeMax - safeMin) / step) + 1;
+
+      if (count <= 1) {
+        return safeMin;
+      }
+
+      return safeMin + Math.floor(Math.random() * count) * step;
+    }
+
+    function isGradableBoxRarity(rarity) {
+      return rarity === "boxHit" || rarity === "secret" || rarity === "superHit";
+    }
+
+    function addValuableCard(cardData) {
+      valuableCards.push({
+        id: Date.now() + "-" + Math.random(),
+        source: cardData.source,
+        sourceLabel: cardData.sourceLabel,
+        boxName: cardData.boxName || "",
+        name: cardData.name,
+        rarity: cardData.rarity,
+        baseValue: cardData.baseValue,
+        currentValue: cardData.currentValue,
+        grade: null,
+        multiplier: 1,
+        graded: false,
+        lost: false
+      });
+    }
+
+    function showCardOverlay(cards, packLabel, afterComplete) {
+      ui.result.innerHTML = "팩 개봉 중... 📦 (" + cards.length + "장)";
       ui.packArea.innerHTML = "";
-      ui.packArea.className = count === 1 ? "single-mode" : "";
+      ui.packArea.className = cards.length === 1 ? "single-mode" : "";
       ui.packOverlay.style.opacity = "1";
       ui.packOverlay.style.display = "flex";
 
-      results.forEach(function(card, i) {
+      cards.forEach(function(card, i) {
         const wrapper = document.createElement("div");
         wrapper.className = "pack-wrapper";
 
@@ -1030,89 +1509,58 @@
               '<div class="card-back" id="card-result-' + i + '">결과</div>' +
             '</div>' +
           '</div>' +
-          '<div class="pack shake" id="pack-element-' + i + '">ORIPA</div>';
+          '<div class="pack shake" id="pack-element-' + i + '">' + packLabel + '</div>';
 
         ui.packArea.appendChild(wrapper);
       });
 
       setTimeout(function() {
-        results.forEach(function(card, i) {
+        cards.forEach(function(card, i) {
           document.getElementById("pack-element-" + i).classList.remove("shake");
           document.getElementById("card-element-" + i).classList.add("slide-up");
         });
 
         setTimeout(function() {
-          results.forEach(function(card, i) {
+          cards.forEach(function(card, i) {
             const resDiv = document.getElementById("card-result-" + i);
+            resDiv.className = "card-back card-rarity-" + card.rarity;
 
-            if (card.type === "hit") {
-              resDiv.className = "card-back holo-hit";
+            if (card.mode === "oripa" && card.rarity === "hit") {
               resDiv.innerHTML =
                 "✨HIT<br>" +
-                card.rank + "등 힛카드<br>" +
+                card.name + "<br>" +
                 formatWonValue(card.value) + " 상당";
-            } else {
-              resDiv.className = "card-back base-card";
+            } else if (card.mode === "oripa") {
               resDiv.innerHTML =
                 "BASE<br>" +
                 "베이스 카드<br>" +
                 card.value.toLocaleString() + "원 상당";
+            } else {
+              resDiv.innerHTML =
+                getRarityIcon(card.rarity) + "<br>" +
+                getRarityLabel(card.rarity) + "<br>" +
+                formatWonValue(card.value) + " 상당";
             }
 
             document.getElementById("card-inner-" + i).classList.add("flip");
           });
 
           setTimeout(function() {
-            if (batchHits > 0) {
-              ui.result.innerHTML =
-                "🎉 <span style='color:#e74c3c'>" +
-                count + "장 중 힛카드 " + batchHits + "장 획득! " +
-                "총 카드 가치 " + Math.floor(batchEarned).toLocaleString() + "원</span>";
-
-              triggerConfetti();
-              renderHitList();
-            } else {
-              ui.result.innerHTML =
-                "<span style='color:#7f8c8d'>" +
-                count + "장 모두 베이스 카드입니다. " +
-                "총 카드 가치 " + Math.floor(batchEarned).toLocaleString() + "원</span>";
-            }
-
             isAnimating = false;
             updateUI();
-            addOpportunityLog();
+
+            if (typeof afterComplete === "function") {
+              afterComplete();
+            }
 
             hideCardTimeout = setTimeout(function() {
               ui.packOverlay.style.opacity = "0";
 
               setTimeout(function() {
                 ui.packOverlay.style.display = "none";
-
-                if (remain <= 0) {
-                  ui.result.innerHTML = "🚨 재고가 모두 소진되었습니다! 정산 버튼을 눌러주세요.";
-
-                  setTimeout(function() {
-                    ui.bossPopup.style.display = "block";
-                    void ui.bossPopup.offsetWidth;
-                    ui.bossPopup.style.opacity = "1";
-
-                    triggerConfetti();
-                    triggerConfetti();
-
-                    setTimeout(function() {
-                      ui.bossPopup.style.opacity = "0";
-
-                      setTimeout(function() {
-                        ui.bossPopup.style.display = "none";
-                      }, 500);
-                    }, 4000);
-                  }, 500);
-                } else {
-                  ui.result.innerHTML = "다음 채굴을 시작하세요! ⛏️";
-                }
               }, 300);
-            }, count > 1 ? 1800 : 1000);
-          }, 400);
+            }, cards.length > 1 ? 1800 : 1000);
+          }, 450);
         }, 300);
       }, 600);
     }
@@ -1207,12 +1655,12 @@
       };
     }
 
-    function gradeHitCard(cardId) {
-      const card = hitInventory.find(function(item) {
+    function gradeValuableCard(cardId) {
+      const card = valuableCards.find(function(item) {
         return item.id === cardId;
       });
 
-      if (!card || card.graded) return;
+      if (!card || card.graded || isAnimating) return;
 
       const result = getRandomGradeResult();
 
@@ -1228,42 +1676,68 @@
       totalEarned = totalEarned - beforeValue + afterValue;
 
       updateUI();
-      renderHitList();
+      renderValuableCards();
 
       if (result.type === "lost") {
         ui.result.innerHTML =
           "📦💥 <span style='color:#111; background:#f1c40f; padding:3px 6px; border-radius:4px;'>분실 발생!</span> " +
-          card.rank + "등 힛카드가 그레이딩 과정에서 사라졌습니다... 카드 가치가 0원이 되었습니다.";
+          card.name + "가 그레이딩 과정에서 사라졌습니다... 카드 가치가 0원이 되었습니다.";
+
+        addLog(
+          "📦💥 <b>그레이딩 분실:</b> " +
+          card.name + "가 분실되어 회수 가치가 0원이 되었습니다."
+        );
       } else if (result.grade === 10) {
         ui.result.innerHTML =
           "💎 <span style='color:#e74c3c'>10점 대박!</span> " +
-          card.rank + "등 힛카드 가치가 10배로 상승했습니다!";
+          card.name + " 가치가 10배로 상승했습니다!";
+
+        addLog(
+          "💎 <b>그레이딩 10점:</b> " +
+          card.name + " 가치가 " +
+          formatWonValue(afterValue) + " 상당으로 상승했습니다."
+        );
 
         triggerConfetti();
         triggerConfetti();
       } else if (result.grade === 9) {
         ui.result.innerHTML =
-          "👍 9점! " + card.rank + "등 힛카드의 기준 가치가 유지됩니다.";
+          "👍 9점! " + card.name + "의 기준 가치가 유지됩니다.";
+
+        addLog(
+          "👍 <b>그레이딩 9점:</b> " +
+          card.name + " 기준 가치 유지."
+        );
       } else if (result.grade === 8) {
         ui.result.innerHTML =
-          "😐 8점... " + card.rank + "등 힛카드 가치가 0.8배로 조정되었습니다.";
+          "😐 8점... " + card.name + " 가치가 0.8배로 조정되었습니다.";
+
+        addLog(
+          "😐 <b>그레이딩 8점:</b> " +
+          card.name + " 가치가 0.8배로 조정되었습니다."
+        );
       } else {
         ui.result.innerHTML =
-          "🥶 낮은 등급... " + card.rank + "등 힛카드 가치가 0.5배로 떨어졌습니다.";
+          "🥶 낮은 등급... " + card.name + " 가치가 0.5배로 떨어졌습니다.";
+
+        addLog(
+          "🥶 <b>그레이딩 " + result.grade + "점:</b> " +
+          card.name + " 가치가 0.5배로 하락했습니다."
+        );
       }
     }
 
-    function renderHitList() {
-      if (hitInventory.length === 0) {
-        ui.hitList.innerHTML = '<div class="empty-hit">아직 획득한 힛카드가 없습니다.</div>';
+    function renderValuableCards() {
+      if (valuableCards.length === 0) {
+        ui.valuableList.innerHTML = '<div class="empty-card">아직 그레이딩 가능한 고가 카드가 없습니다.</div>';
         return;
       }
 
-      ui.hitList.innerHTML = "";
+      ui.valuableList.innerHTML = "";
 
-      hitInventory.forEach(function(card) {
+      valuableCards.slice().reverse().forEach(function(card) {
         const item = document.createElement("div");
-        item.className = "hit-card-item";
+        item.className = "valuable-item";
 
         let gradeHtml = "미그레이딩";
         let buttonHtml = "";
@@ -1284,26 +1758,57 @@
           buttonHtml = '<button class="grade-btn" disabled>그레이딩 완료</button>';
         } else {
           buttonHtml =
-            '<button class="grade-btn" onclick="gradeHitCard(\'' + card.id + '\')">그레이딩 보내기</button>';
+            '<button class="grade-btn" onclick="gradeValuableCard(\'' + card.id + '\')">그레이딩 보내기</button>';
         }
 
         item.innerHTML =
-          '<div class="hit-card-title">✨ ' + card.rank + "등 힛카드</div>" +
-          '<div class="hit-card-meta">기준 가치: ' + formatWonValue(card.baseValue) + " 상당</div>" +
-          '<div class="hit-card-meta">그레이딩 결과: ' + gradeHtml + "</div>" +
-          '<div class="hit-card-meta">현재 가치: <b>' + formatWonValue(card.currentValue) + " 상당</b></div>" +
+          '<div class="valuable-title">' +
+            '<span class="source-badge">' + card.sourceLabel + '</span>' +
+            getRarityIcon(card.rarity) + " " + card.name +
+          '</div>' +
+          '<div class="valuable-meta">기준 가치: ' + formatWonValue(card.baseValue) + " 상당</div>" +
+          '<div class="valuable-meta">그레이딩 결과: ' + gradeHtml + "</div>" +
+          '<div class="valuable-meta">현재 가치: <b>' + formatWonValue(card.currentValue) + " 상당</b></div>" +
           buttonHtml;
 
-        ui.hitList.appendChild(item);
+        ui.valuableList.appendChild(item);
       });
+    }
+
+    function getRarityLabel(rarity) {
+      if (rarity === "base") return "베이스";
+      if (rarity === "rare") return "레어";
+      if (rarity === "superRare") return "슈퍼레어";
+      if (rarity === "hit") return "힛카드";
+      if (rarity === "boxHit") return "박스힛";
+      if (rarity === "secret") return "시크릿";
+      if (rarity === "superHit") return "슈퍼힛";
+      return "카드";
+    }
+
+    function getRarityIcon(rarity) {
+      if (rarity === "base") return "BASE";
+      if (rarity === "rare") return "🔵 RARE";
+      if (rarity === "superRare") return "🟣 SR";
+      if (rarity === "hit") return "✨ HIT";
+      if (rarity === "boxHit") return "🎯 BOX HIT";
+      if (rarity === "secret") return "㊙️ SECRET";
+      if (rarity === "superHit") return "💥 SUPER HIT";
+      return "CARD";
     }
 
     function formatWonValue(value) {
       if (value >= 10000) {
-        return Math.floor(value / 10000).toLocaleString() + "만원";
+        const man = value / 10000;
+
+        if (Number.isInteger(man)) {
+          return man.toLocaleString() + "만원";
+        }
+
+        return man.toFixed(1).replace(".0", "") + "만원";
       }
 
-      return value.toLocaleString() + "원";
+      return Math.floor(value).toLocaleString() + "원";
     }
 
     function triggerConfetti() {
@@ -1350,18 +1855,8 @@
         cumulativeWarning = "🚨💥 <b>[경고! 신형 소형 SUV 1대 증발 - 누적 2,000만 원 돌파]</b> 당신은 지금 2천만 원짜리 도파민 휴지조각을 손에 쥐었습니다.";
       } else if (spent >= 10000000) {
         cumulativeWarning = "🚨💥 <b>[경고! 국산 중고차 1대 증발 - 누적 1,000만 원 돌파]</b> 상태 좋은 준중형 중고차를 일시불로 뽑을 수 있었던 거금이 증발했습니다.";
-      } else if (spent >= 9000000) {
-        cumulativeWarning = "🛑 <b>[누적 900만 원 돌파]</b> 한 가구의 1년 치 관리비와 공과금을 해결할 수 있었던 예산입니다.";
-      } else if (spent >= 8000000) {
-        cumulativeWarning = "🛑 <b>[누적 800만 원 돌파]</b> 장거리 여행과 고급 숙박을 충분히 즐길 수 있었던 기회비용입니다.";
-      } else if (spent >= 7000000) {
-        cumulativeWarning = "🛑 <b>[누적 700만 원 돌파]</b> 희귀 스포츠 카드나 트레이딩 카드를 확정 구매할 수 있었던 예산입니다.";
-      } else if (spent >= 6000000) {
-        cumulativeWarning = "🛑 <b>[누적 600만 원 돌파]</b> 명품 가방이나 고급 가전을 살 수 있었던 거금입니다.";
       } else if (spent >= 5000000) {
         cumulativeWarning = "🔥🚨 <b>[누적 500만 원 돌파]</b> 적립식 펀드나 배당 우량주에 넣을 수 있었던 황금 시드머니입니다.";
-      } else if (spent >= 4000000) {
-        cumulativeWarning = "🚨 <b>[누적 400만 원 돌파]</b> 고급 장비와 취미 생활 예산으로 충분했던 비용입니다.";
       } else if (spent >= 3000000) {
         cumulativeWarning = "🚨 <b>[누적 300만 원 돌파]</b> 온 가족이 좋은 리조트에서 쉬고 올 수 있었던 금액입니다.";
       } else if (spent >= 2000000) {
@@ -1385,13 +1880,21 @@
       return randomBase;
     }
 
-    function addOpportunityLog() {
+    function addOpportunityLog(modeLabel) {
+      const message = getOpportunityMessage(totalSpent);
+
+      addLog(
+        "<span class='log-amount'>현재 누적 사용액 " + totalSpent.toLocaleString() + "원:</span> " +
+        "[" + modeLabel + "] " + message
+      );
+    }
+
+    function addLog(html) {
       if (ui.logList.innerText.includes("아직 사용한 금액이 없습니다")) {
         ui.logList.innerHTML = "";
       }
 
       const li = document.createElement("li");
-      const logContent = getOpportunityMessage(totalSpent);
       const now = new Date();
 
       const timeStr =
@@ -1399,48 +1902,76 @@
         String(now.getMinutes()).padStart(2, "0") + ":" +
         String(now.getSeconds()).padStart(2, "0");
 
-      li.innerHTML =
-        "[" + timeStr + "] " +
-        "<span class='log-amount'>-" + totalSpent.toLocaleString() + "원째 소모 중:</span> " +
-        logContent;
-
+      li.innerHTML = "[" + timeStr + "] " + html;
       ui.logList.prepend(li);
+    }
+
+    function showBossPopup() {
+      setTimeout(function() {
+        ui.bossPopup.style.display = "block";
+        void ui.bossPopup.offsetWidth;
+        ui.bossPopup.style.opacity = "1";
+
+        triggerConfetti();
+        triggerConfetti();
+
+        setTimeout(function() {
+          ui.bossPopup.style.opacity = "0";
+
+          setTimeout(function() {
+            ui.bossPopup.style.display = "none";
+          }, 500);
+        }, 4000);
+      }, 500);
     }
 
     function endGame() {
       if (isAnimating || isMiningMode) return;
 
       if (totalSpent === 0) {
-        alert("아직 뽑기를 진행하지 않아 정산할 내역이 없습니다.");
+        alert("아직 진행한 내역이 없어 정산할 내용이 없습니다.");
         return;
       }
 
       const recoveryRate = ((totalEarned / totalSpent) * 100).toFixed(2);
 
       const finalMessage =
-        "[📊 오리파 최종 정산]\n\n" +
-        "💸 총 투자한 금액: " + totalSpent.toLocaleString() + "원\n" +
-        "💎 회수한 카드 가치: " + Math.floor(totalEarned).toLocaleString() + "원\n" +
-        "📈 투자 대비 회수율: " + recoveryRate + "%\n\n" +
-        "확인을 누르시면 모든 내역이 초기화됩니다. 현실로 돌아가세요!";
+        "[📊 최종 정산]\n\n" +
+        "💸 총 사용 금액: " + totalSpent.toLocaleString() + "원\n" +
+        "💎 총 회수 카드 가치: " + Math.floor(totalEarned).toLocaleString() + "원\n" +
+        "📈 전체 회수율: " + recoveryRate + "%\n\n" +
+        "🎁 오리파 힛카드: " + oripaHitCount + "장\n" +
+        "📦 개봉 박스: " + boxOpenCount + "박스\n" +
+        "🎯 박스힛: " + boxHitCount + "장\n" +
+        "㊙️ 시크릿: " + secretCount + "장\n" +
+        "💥 슈퍼힛: " + superHitCount + "장\n\n" +
+        "확인을 누르면 모든 내역이 초기화됩니다.";
 
       alert(finalMessage);
 
-      total = 2000;
-      remain = 2000;
-      hitCount = 0;
-      baseCount = 0;
-      nogada = 0;
-      drawTickets = 0;
       totalSpent = 0;
       totalEarned = 0;
-      hasAutoMiner = false;
       isAnimating = false;
-      isMiningMode = false;
-      hitInventory = [];
+
+      remain = ORIPA_TOTAL;
+      oripaHitCount = 0;
+      oripaBaseCount = 0;
+      nogada = 0;
+      drawTickets = 0;
+      hasAutoMiner = false;
+
+      boxOpenCount = 0;
+      boxSpent = 0;
+      boxEarned = 0;
+      boxHitCount = 0;
+      secretCount = 0;
+      superHitCount = 0;
+
+      valuableCards = [];
 
       clearInterval(miningTimer);
       miningTimer = null;
+      isMiningMode = false;
 
       ui.buyToolBtn.disabled = false;
       ui.buyToolBtn.innerHTML = "🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)";
@@ -1449,18 +1980,19 @@
       ui.nogadaBtn.innerHTML = "⛏️ 채굴하기";
       ui.pickaxe.className = "";
 
-      initDeck();
+      initOripaDeck();
 
       clearTimeout(hideCardTimeout);
       ui.packOverlay.style.display = "none";
       ui.packOverlay.style.opacity = "1";
       ui.packArea.innerHTML = "";
 
-      ui.result.innerHTML = "채굴을 시작하세요!";
+      ui.result.innerHTML = "오리파 또는 박스깡을 시작하세요!";
       ui.logList.innerHTML = '<li style="text-align:center; color:#999;">아직 사용한 금액이 없습니다.</li>';
 
       updateUI();
-      renderHitList();
+      renderValuableCards();
+      switchMode("oripa");
     }
 
     function shareLink() {
@@ -1468,7 +2000,7 @@
 
       if (navigator.clipboard) {
         navigator.clipboard.writeText(url).then(function() {
-          alert("주소가 클립보드에 복사되었습니다!\n친구들에게 뼈 때리는 도파민을 공유해 보세요. 💸");
+          alert("주소가 클립보드에 복사되었습니다!\n친구들에게 매운맛 카드깡을 공유해 보세요. 💸");
         }).catch(function() {
           fallbackCopy(url);
         });
@@ -1489,7 +2021,7 @@
 
       try {
         document.execCommand("copy");
-        alert("주소가 클립보드에 복사되었습니다!\n친구들에게 뼈 때리는 도파민을 공유해 보세요. 💸");
+        alert("주소가 클립보드에 복사되었습니다!\n친구들에게 매운맛 카드깡을 공유해 보세요. 💸");
       } catch (err) {
         alert("복사에 실패했습니다. 브라우저 주소창을 직접 복사해 주세요.");
       }
@@ -1497,8 +2029,9 @@
       document.body.removeChild(textArea);
     }
 
+    initOripaDeck();
     updateUI();
-    renderHitList();
+    renderValuableCards();
   </script>
 </body>
 </html>
