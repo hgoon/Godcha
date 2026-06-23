@@ -1,624 +1,1147 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>실전 오리파 게임</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; overflow-x: hidden; }
-        h1 { color: #333; }
-        
-        /* 통계 영역 스타일 */
-        .stats { display: flex; justify-content: center; gap: 15px; margin: 15px auto; max-width: 600px; flex-wrap: wrap; }
-        .box { border: 2px solid #ddd; padding: 10px; border-radius: 10px; background-color: white; flex: 1; min-width: 100px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .stat-label { font-size: 0.8em; color: #666; display: block; margin-bottom: 5px; }
-        .stat-value { font-size: 1.3em; font-weight: bold; color: #333; }
-        .hit-val { color: #e74c3c; } 
-        .miss-val { color: #7f8c8d; } 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>실전 오리파 게임</title>
 
-        /* 광산 애니메이션 영역 */
-        #mining-area { font-size: 3em; height: 1.2em; margin-top: 10px; position: relative; display: flex; justify-content: center; align-items: center; }
-        #pickaxe { display: inline-block; transform-origin: bottom right; }
-        
-        .swinging { animation: swing-once 0.15s ease-out; }
-        .turbo-swinging { animation: swing-once 0.06s linear infinite; }
-        @keyframes swing-once { 0% { transform: rotate(0deg); } 30% { transform: rotate(-40deg); } 70% { transform: rotate(20deg); } 100% { transform: rotate(0deg); } }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-        /* 컨트롤 영역 */
-        .controls { margin: 15px auto; padding: 15px; border-top: 1px solid #ccc; max-width: 600px; }
-        
-        button { 
-            padding: 10px 15px; 
-            font-size: 1em; 
-            cursor: pointer; 
-            border-radius: 5px; 
-            border: 1px solid #ccc; 
-            transition: background 0.2s, transform 0.1s;
-            touch-action: manipulation; 
-            -webkit-user-select: none;  
-            user-select: none;
-            margin: 5px; 
-        }
-        
-        #nogada-btn { background-color: #f1c40f; color: #333; font-weight: bold; width: 100%; max-width: 400px; display: inline-block; }
-        #nogada-btn:active { transform: scale(0.98); } 
-        
-        #draw-btn { background-color: #3498db; color: white; }
-        #draw-btn:hover { background-color: #2980b9; }
-        #draw-10-btn { background-color: #e67e22; color: white; font-weight: bold; }
-        #draw-10-btn:hover { background-color: #d35400; }
-        
-        #draw-btn:disabled, #draw-10-btn:disabled, #nogada-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; transform: none; }
-        #reset-btn { background-color: #e74c3c; color: white; font-weight: bold; }
-        #reset-btn:hover { background-color: #c0392b; }
-        #reset-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-        
-        #buy-tool-btn { 
-            display: block; 
-            width: 100%; 
-            margin: 10px 0 0 0; 
-            background-color: #9b59b6; 
-            color: white; 
-            font-weight: bold; 
-            border: 2px solid #8e44ad; 
-            box-sizing: border-box;
-        }
-        #buy-tool-btn:hover { background-color: #8e44ad; }
-        #buy-tool-btn:disabled { background-color: #95a5a6; border-color: #7f8c8d; cursor: not-allowed; transform: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      background-color: #f4f4f4;
+      overflow-x: hidden;
+      color: #222;
+    }
 
-        #nogada-gauge { font-size: 0.9em; color: #555; margin-bottom: 5px; }
+    h1 {
+      color: #333;
+      font-size: 2rem;
+      margin: 28px 0 22px;
+    }
 
-        /* 카드 팩 애니메이션 영역 */
-        /* 카드 팩 중앙 오버레이 영역 */
-        #pack-overlay {
-            position: fixed;
-            inset: 0;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.55);
-            z-index: 9997;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-            padding: 16px;
-            box-sizing: border-box;
-        }
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 15px auto;
+      max-width: 600px;
+      flex-wrap: wrap;
+    }
 
-        #pack-area { 
-            position: relative;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            width: 92vw;
-            max-width: 450px;
-            min-height: 220px;
-            padding: 90px 12px 22px;
-            box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.96);
-            border-radius: 18px;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.35);
-            transition: opacity 0.3s ease;
-            opacity: 1;
-        }
-        
-        .pack-wrapper { position: relative; width: 65px; height: 95px; display: flex; justify-content: center; align-items: flex-end; perspective: 1000px; }
-        .single-mode .pack-wrapper { transform: scale(1.6); margin: 20px auto; }
+    .box {
+      border: 2px solid #ddd;
+      padding: 10px;
+      border-radius: 10px;
+      background-color: white;
+      flex: 1;
+      min-width: 120px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
 
-        .pack { width: 100%; height: 90px; background: linear-gradient(135deg, #2c3e50, #000000); border-radius: 6px; z-index: 2; position: absolute; bottom: 0; box-shadow: 0 5px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: #f1c40f; font-weight: 900; font-size: 0.8em; border: 2px solid #f1c40f; letter-spacing: 1px; }
-        .card { width: 90%; height: 85px; position: absolute; bottom: 3px; z-index: 1; }
-        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
-        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid #ccc; box-sizing: border-box; padding: 2px; word-break: keep-all; font-size: 0.8em; flex-direction: column; text-align: center;}
-        .card-front { background: #34495e; color: white; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
-        .card-back { transform: rotateY(180deg); }
-        
-        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(1px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-2px, 0, 0); } 40%, 60% { transform: translate3d(2px, 0, 0); } }
-        
-        .slide-up { animation: slideUp 0.3s ease-out forwards; }
-        @keyframes slideUp { to { transform: translateY(-75px); z-index: 3; } } 
-        
-        .flip { transform: rotateY(180deg); }
-        .holo-hit { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%); border: 2px solid #ff758c; box-shadow: 0 0 10px rgba(255, 117, 140, 0.6); color: #c0392b; font-size: 0.9em; }
-        .miss-card { background: #ecf0f1; color: #7f8c8d; font-size: 0.8em; }
+    .stat-label {
+      font-size: 0.8em;
+      color: #666;
+      display: block;
+      margin-bottom: 5px;
+    }
 
-        /* 결과 및 재무 창 스타일 */
-        #result-area { height: 50px; font-size: 1.3em; margin: 15px; font-weight: bold; color: #2c3e50; display: flex; align-items: center; justify-content: center; }
-        #finance-area { font-size: 1em; color: #444; background: #eee; padding: 10px; border-radius: 5px; display: inline-block;}
+    .stat-value {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #333;
+    }
 
-        /* 기회비용 로그 영역 */
-        #log-container { margin: 30px auto; max-width: 600px; background: #fff; border: 1px solid #ddd; border-radius: 8px; text-align: left; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        #log-header { background: #e74c3c; color: white; padding: 10px 15px; font-weight: bold; font-size: 1em; margin: 0; }
-        #log-list { list-style: none; padding: 0; margin: 0; height: 260px; overflow-y: auto; background: #fafafa; }
-        #log-list li { padding: 10px 15px; border-bottom: 1px dashed #ccc; font-size: 0.9em; color: #555; animation: fadeIn 0.3s; line-height: 1.4; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-        .log-amount { color: #c0392b; font-weight: bold; }
-        .log-warning { color: #e67e22; font-weight: bold; }
+    .hit-val {
+      color: #e74c3c;
+    }
 
-        /* 꽃가루(Confetti) 스타일 */
-        .confetti { position: fixed; z-index: 9999; top: -15px; pointer-events: none; animation: fall linear forwards; }
-        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(105vh) rotate(720deg); } }
+    .miss-val {
+      color: #7f8c8d;
+    }
 
-        /* 공유하기 버튼 스타일 */
-        #share-btn { display: block; margin: 40px auto; width: 90%; max-width: 400px; background-color: #2ecc71; color: white; font-weight: bold; padding: 15px 20px; font-size: 1.1em; border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        #share-btn:hover { background-color: #27ae60; transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
+    #mining-area {
+      font-size: 3em;
+      height: 1.2em;
+      margin-top: 20px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+    }
 
-        /* 사장님 호갱 팝업 스타일 */
-        #boss-popup {
-            position: fixed; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9); 
-            color: #f1c40f; 
-            padding: 30px;
-            border-radius: 15px; 
-            font-size: 1.5em; 
-            font-weight: bold; 
-            z-index: 10000;
-            display: none; 
-            opacity: 0; 
-            transition: opacity 0.5s ease; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            border: 4px solid #f1c40f;
-            line-height: 1.5;
-            white-space: pre-wrap;
-            width: 80%;
-            max-width: 400px;
-        }
-    </style>
+    #pickaxe {
+      display: inline-block;
+      transform-origin: bottom right;
+    }
+
+    .swinging {
+      animation: swing-once 0.15s ease-out;
+    }
+
+    .turbo-swinging {
+      animation: swing-once 0.06s linear infinite;
+    }
+
+    @keyframes swing-once {
+      0% { transform: rotate(0deg); }
+      30% { transform: rotate(-40deg); }
+      70% { transform: rotate(20deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .controls {
+      margin: 15px auto;
+      padding: 15px;
+      border-top: 1px solid #ccc;
+      max-width: 600px;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 1em;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      transition: background 0.2s, transform 0.1s;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+      margin: 5px;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    #nogada-btn {
+      background-color: #f1c40f;
+      color: #333;
+      font-weight: bold;
+      width: 100%;
+      max-width: 400px;
+      display: inline-block;
+    }
+
+    #draw-btn {
+      background-color: #3498db;
+      color: white;
+    }
+
+    #draw-btn:hover {
+      background-color: #2980b9;
+    }
+
+    #draw-10-btn {
+      background-color: #e67e22;
+      color: white;
+      font-weight: bold;
+    }
+
+    #draw-10-btn:hover {
+      background-color: #d35400;
+    }
+
+    #draw-btn:disabled,
+    #draw-10-btn:disabled,
+    #nogada-btn:disabled {
+      background-color: #bdc3c7;
+      color: #777;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #reset-btn {
+      background-color: #e74c3c;
+      color: white;
+      font-weight: bold;
+    }
+
+    #reset-btn:hover {
+      background-color: #c0392b;
+    }
+
+    #reset-btn:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+    }
+
+    #buy-tool-btn {
+      display: block;
+      width: 100%;
+      margin: 10px 0 0 0;
+      background-color: #9b59b6;
+      color: white;
+      font-weight: bold;
+      border: 2px solid #8e44ad;
+    }
+
+    #buy-tool-btn:hover {
+      background-color: #8e44ad;
+    }
+
+    #buy-tool-btn:disabled {
+      background-color: #95a5a6;
+      border-color: #7f8c8d;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #nogada-gauge {
+      font-size: 0.9em;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    #pack-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 9997;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+      padding: 16px;
+    }
+
+    #pack-area {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      width: 92vw;
+      max-width: 450px;
+      min-height: 220px;
+      padding: 90px 12px 22px;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 18px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.35);
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .pack-wrapper {
+      position: relative;
+      width: 65px;
+      height: 95px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      perspective: 1000px;
+    }
+
+    .single-mode .pack-wrapper {
+      transform: scale(1.6);
+      margin: 20px auto;
+    }
+
+    .pack {
+      width: 100%;
+      height: 90px;
+      background: linear-gradient(135deg, #2c3e50, #000000);
+      border-radius: 6px;
+      z-index: 2;
+      position: absolute;
+      bottom: 0;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f1c40f;
+      font-weight: 900;
+      font-size: 0.8em;
+      border: 2px solid #f1c40f;
+      letter-spacing: 1px;
+    }
+
+    .card {
+      width: 90%;
+      height: 85px;
+      position: absolute;
+      bottom: 3px;
+      z-index: 1;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-style: preserve-3d;
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      border: 1px solid #ccc;
+      padding: 2px;
+      word-break: keep-all;
+      font-size: 0.8em;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .card-front {
+      background: #34495e;
+      color: white;
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255,255,255,0.1) 10px,
+        rgba(255,255,255,0.1) 20px
+      );
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+    }
+
+    .shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both infinite;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(1px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-2px, 0, 0); }
+      40%, 60% { transform: translate3d(2px, 0, 0); }
+    }
+
+    .slide-up {
+      animation: slideUp 0.3s ease-out forwards;
+    }
+
+    @keyframes slideUp {
+      to {
+        transform: translateY(-75px);
+        z-index: 3;
+      }
+    }
+
+    .flip {
+      transform: rotateY(180deg);
+    }
+
+    .holo-hit {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%);
+      border: 2px solid #ff758c;
+      box-shadow: 0 0 10px rgba(255, 117, 140, 0.6);
+      color: #c0392b;
+      font-size: 0.9em;
+    }
+
+    .miss-card {
+      background: #ecf0f1;
+      color: #7f8c8d;
+      font-size: 0.8em;
+    }
+
+    #result-area {
+      min-height: 50px;
+      font-size: 1.2em;
+      margin: 15px auto;
+      font-weight: bold;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 600px;
+      line-height: 1.4;
+    }
+
+    #finance-area {
+      font-size: 1em;
+      color: #444;
+      background: #eee;
+      padding: 10px;
+      border-radius: 8px;
+      display: inline-block;
+      line-height: 1.5;
+    }
+
+    #log-container {
+      margin: 30px auto;
+      max-width: 600px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      text-align: left;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #log-header {
+      background: #e74c3c;
+      color: white;
+      padding: 10px 15px;
+      font-weight: bold;
+      font-size: 1em;
+      margin: 0;
+    }
+
+    #log-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      height: 260px;
+      overflow-y: auto;
+      background: #fafafa;
+    }
+
+    #log-list li {
+      padding: 10px 15px;
+      border-bottom: 1px dashed #ccc;
+      font-size: 0.9em;
+      color: #555;
+      animation: fadeIn 0.3s;
+      line-height: 1.4;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .log-amount {
+      color: #c0392b;
+      font-weight: bold;
+    }
+
+    .log-warning {
+      color: #e67e22;
+      font-weight: bold;
+    }
+
+    .confetti {
+      position: fixed;
+      z-index: 9999;
+      top: -15px;
+      pointer-events: none;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+      100% {
+        transform: translateY(105vh) rotate(720deg);
+      }
+    }
+
+    #share-btn {
+      display: block;
+      margin: 40px auto;
+      width: 90%;
+      max-width: 400px;
+      background-color: #2ecc71;
+      color: white;
+      font-weight: bold;
+      padding: 15px 20px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    #share-btn:hover {
+      background-color: #27ae60;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    }
+
+    #boss-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: #f1c40f;
+      padding: 30px;
+      border-radius: 15px;
+      font-size: 1.5em;
+      font-weight: bold;
+      z-index: 10000;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      border: 4px solid #f1c40f;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .stats {
+        gap: 8px;
+      }
+
+      .box {
+        min-width: calc(50% - 8px);
+        padding: 9px;
+      }
+
+      #mining-area {
+        font-size: 2.6em;
+      }
+
+      .controls {
+        padding: 12px 0;
+      }
+
+      button {
+        font-size: 0.95em;
+        padding: 9px 12px;
+      }
+
+      #pack-area {
+        width: 94vw;
+        max-width: 380px;
+        min-height: 220px;
+        gap: 8px;
+        padding-top: 86px;
+      }
+
+      .pack-wrapper {
+        width: 58px;
+        height: 88px;
+      }
+
+      .pack {
+        height: 82px;
+        font-size: 0.72em;
+      }
+
+      .card {
+        height: 78px;
+      }
+
+      #result-area {
+        font-size: 1.05em;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <h1>실전 오리파 게임</h1>
-    
-    <div class="stats">
-        <div class="box"><span class="stat-label">전체 카드</span><span class="stat-value" id="total">2000</span></div>
-        <div class="box"><span class="stat-label">잔여 카드</span><span class="stat-value" id="remain">2000</span></div>
-        <div class="box"><span class="stat-label">당첨(힛)</span><span class="stat-value hit-val" id="hit">0</span> / 30</div>
-        <div class="box"><span class="stat-label">꽝</span><span class="stat-value miss-val" id="miss">0</span></div>
-    </div>
+  <h1>실전 오리파 게임</h1>
 
-    <div id="mining-area">
-        <span id="miner">👨‍🏭</span>
-        <span id="pickaxe">⛏️</span>
-        <span id="rock">💎</span>
-    </div>
+  <div class="stats">
+    <div class="box">
+      <span class="stat-label">전체 카드</span>
+      <span class="stat-value" id="total">2000</span>
+    </div>
+    <div class="box">
+      <span class="stat-label">잔여 카드</span>
+      <span class="stat-value" id="remain">2000</span>
+    </div>
+    <div class="box">
+      <span class="stat-label">당첨(힛)</span>
+      <span class="stat-value hit-val" id="hit">0</span> / 30
+    </div>
+    <div class="box">
+      <span class="stat-label">꽝</span>
+      <span class="stat-value miss-val" id="miss">0</span>
+    </div>
+  </div>
 
-    <div class="controls">
-        <div id="nogada-gauge">채굴 진행도: <span id="nogada-count">0</span> / 10</div>
-        <button id="nogada-btn">⛏️ 채굴하기</button>
-        <button id="draw-btn" onclick="drawMultiple(1)" disabled>🎁 1회 뽑기</button>
-        <button id="draw-10-btn" onclick="drawMultiple(10)" disabled>🎁 10연속 뽑기</button>
-        <button id="reset-btn" onclick="endGame()">🛑 정산하기</button>
-        
-        <button id="buy-tool-btn" onclick="buyTool()">🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)</button>
-    </div>
+  <div id="mining-area">
+    <span id="miner">👨‍🏭</span>
+    <span id="pickaxe">⛏️</span>
+    <span id="rock">💎</span>
+  </div>
 
-    <div id="pack-overlay">
-        <div id="pack-area"></div>
-    </div>
+  <div class="controls">
+    <div id="nogada-gauge">
+      채굴 진행도: <span id="nogada-count">0</span> / 10
+    </div>
 
-    <div id="result-area">채굴을 시작하세요!</div>
-    <div id="finance-area">💰 사용 금액: 0원 / 💎 획득 가치: 0원</div>
+    <button id="nogada-btn">⛏️ 채굴하기</button>
+    <button id="draw-btn" onclick="drawMultiple(1)" disabled>🎁 1회 뽑기</button>
+    <button id="draw-10-btn" onclick="drawMultiple(10)" disabled>🎁 10연속 뽑기</button>
+    <button id="reset-btn" onclick="endGame()">🛑 정산하기</button>
+    <button id="buy-tool-btn" onclick="buyTool()">🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)</button>
+  </div>
 
-    <div id="log-container">
-        <div id="log-header">📉 뼈맞는 실시간 누적 기회비용 로그</div>
-        <ul id="log-list">
-            <li style="text-align: center; color: #999;">아직 사용한 금액이 없습니다.</li>
-        </ul>
-    </div>
+  <div id="pack-overlay">
+    <div id="pack-area"></div>
+  </div>
 
-    <button id="share-btn" onclick="shareLink()">🔗 이 매운맛 게임 공유하기</button>
+  <div id="result-area">채굴을 시작하세요!</div>
+  <div id="finance-area">💰 사용 금액: 0원 / 💎 획득 가치: 0원</div>
 
-    <div id="boss-popup">👨‍💼(사장님)<br><br>아이구 호갱<br><span style="font-size:0.5em; color:#999; text-decoration:line-through;">(아차차)</span><br>아니 고객님!<br>남은 재고를 싹 털어주셔서<br>정말 감사합니다! 🙇‍♂️💸</div>
+  <div id="log-container">
+    <div id="log-header">📉 뼈맞는 실시간 누적 기회비용 로그</div>
+    <ul id="log-list">
+      <li style="text-align:center; color:#999;">아직 사용한 금액이 없습니다.</li>
+    </ul>
+  </div>
 
-    <script>
-        let total = 2000, remain = 2000, hitCount = 0, missCount = 0;
-        let nogada = 0, drawTickets = 0;
-        let totalSpent = 0, totalEarned = 0;
-        let isAnimating = false;
-        let hideCardTimeout; 
-        
-        let hasAutoMiner = false;
-        let miningTimer = null;
-        let isMiningMode = false;
-        
-        const minHit = 50000;
-        const maxHit = 1000000;
-        let hits = [];
-        let deck = [];
+  <button id="share-btn" onclick="shareLink()">🔗 이 매운맛 게임 공유하기</button>
 
-        function initDeck() {
-            hits = Array.from({length: 30}, (_, i) => maxHit - (i * (maxHit - minHit) / 29));
-            deck = [...hits, ...Array(1970).fill(1000)];
-        }
-        initDeck();
+  <div id="boss-popup">
+👨‍💼(사장님)
 
-        const random10kTexts = [
-            "뜨끈한 국밥 한 그릇을 참았습니다.",
-            "스타벅스 달달한 돌체라떼 두 잔 값을 태웠습니다.",
-            "잠실야구장 외야석 직관 티켓 한 장이 날아갔습니다.",
-            "치킨 한 마리 주문할 때 보탤 수 있는 요긴한 돈입니다.",
-            "이베이 싱글 카드 경매 비딩을 한 번 참은 셈입니다.",
-            "아이 까까와 주스 몇 봉지를 살 수 있는 돈이 증발했습니다.",
-            "고품질 3D 프린터용 레진 용액 일부가 날아갔습니다."
-        ];
+아이구 호갱
+<span style="font-size:0.5em; color:#999; text-decoration:line-through;">(아차차)</span>
+아니 고객님!
+남은 재고를 싹 털어주셔서
+정말 감사합니다! 🙇‍♂️💸
+  </div>
 
-        const ui = {
-            total: document.getElementById('total'),
-            remain: document.getElementById('remain'),
-            hit: document.getElementById('hit'),
-            miss: document.getElementById('miss'),
-            nogadaCount: document.getElementById('nogada-count'),
-            nogadaBtn: document.getElementById('nogada-btn'),
-            drawBtn: document.getElementById('draw-btn'),
-            draw10Btn: document.getElementById('draw-10-btn'), 
-            resetBtn: document.getElementById('reset-btn'),
-            buyToolBtn: document.getElementById('buy-tool-btn'),
-            result: document.getElementById('result-area'),
-            finance: document.getElementById('finance-area'),
-            pickaxe: document.getElementById('pickaxe'),
-            packOverlay: document.getElementById('pack-overlay'),
-            packArea: document.getElementById('pack-area'),
-            logList: document.getElementById('log-list'),
-            bossPopup: document.getElementById('boss-popup') 
-        };
+  <script>
+    let total = 2000;
+    let remain = 2000;
+    let hitCount = 0;
+    let missCount = 0;
+    let nogada = 0;
+    let drawTickets = 0;
+    let totalSpent = 0;
+    let totalEarned = 0;
+    let isAnimating = false;
+    let hideCardTimeout;
 
-        function updateUI() {
-            ui.total.innerText = total;
-            ui.remain.innerText = remain;
-            ui.hit.innerText = hitCount;
-            ui.miss.innerText = missCount;
-            ui.nogadaCount.innerText = nogada;
-            
-            ui.drawBtn.innerText = `🎁 1회 뽑기 (기회: ${drawTickets})`;
-            ui.draw10Btn.innerText = `🎁 10연뽑 (기회: ${Math.floor(drawTickets/10)})`;
-            
-            if (remain <= 0) {
-                ui.drawBtn.disabled = true;
-                ui.draw10Btn.disabled = true;
-                ui.nogadaBtn.disabled = true;
-                ui.buyToolBtn.disabled = true;
-                ui.resetBtn.disabled = false;
-                stopMining(); 
-            } 
-            else if (!isAnimating) {
-                ui.drawBtn.disabled = (drawTickets < 1 || remain < 1);
-                ui.draw10Btn.disabled = (drawTickets < 10 || remain < 10);
-                ui.nogadaBtn.disabled = false;
-                ui.resetBtn.disabled = false;
-                ui.buyToolBtn.disabled = hasAutoMiner;
-            } else {
-                ui.drawBtn.disabled = true;
-                ui.draw10Btn.disabled = true;
-                ui.nogadaBtn.disabled = true;
-                ui.resetBtn.disabled = true;
-                ui.buyToolBtn.disabled = true;
-            }
-            
-            const spentStr = totalSpent.toLocaleString();
-            const earnedStr = Math.floor(totalEarned).toLocaleString();
-            ui.finance.innerHTML = `💰 사용 금액: <b>${spentStr}원</b> / 💎 획득 가치: <b>${earnedStr}원</b>`;
-        }
+    let hasAutoMiner = false;
+    let miningTimer = null;
+    let isMiningMode = false;
 
-        function doNogada() {
-            nogada++;
-            if (nogada >= 10) {
-                drawTickets++;
-                nogada = 0;
-            }
-            updateUI();
-        }
+    const minHit = 50000;
+    const maxHit = 1000000;
 
-        function buyTool() {
-            if (hasAutoMiner || remain <= 0) return;
-            
-            hasAutoMiner = true;
-            totalSpent += 1000000; 
-            
-            ui.buyToolBtn.disabled = true;
-            ui.buyToolBtn.innerHTML = "🔥 장착 완료! 버튼을 꾹 누르면 뽑기 횟수가 폭발적으로 충전됩니다!";
-            ui.buyToolBtn.style.backgroundColor = "#27ae60";
-            ui.buyToolBtn.style.borderColor = "#2ecc71";
-            ui.nogadaBtn.innerHTML = "🚀 초고속 자동 기회 충전 (꾹~ 누르고 계세요!)";
+    let hits = [];
+    let deck = [];
 
-            if (totalSpent === 1000000) ui.logList.innerHTML = ""; 
-            const li = document.createElement('li');
-            const now = new Date();
-            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-            li.innerHTML = `[${timeStr}] <span class="log-amount">-1,000,000원 지출:</span> 🛠️ <b>초고속 자동 채굴기</b>를 구매했습니다! 돈을 들여 손가락 피로도를 없애고 뽑기 시드를 초고속 확보합니다.`;
-            ui.logList.prepend(li);
-            
-            updateUI();
-            
-            // [랜덤 팝업 구현] 두 개의 링크 중 하나를 랜덤으로 열기
-            const adUrls = ["https://soccer-dream-team.vercel.app", "https://naver.me/xgT4brsI"];
-            const randomAd = adUrls[Math.floor(Math.random() * adUrls.length)];
-            window.open(randomAd, "_blank");
-        }
+    function initDeck() {
+      hits = Array.from({ length: 30 }, function(_, i) {
+        return maxHit - (i * (maxHit - minHit) / 29);
+      });
 
-        function startMining(e) {
-            if (remain <= 0) return; 
-            if (e.type === 'touchstart') e.preventDefault(); 
-            if (isMiningMode) return;
-            isMiningMode = true;
-            
-            if (hasAutoMiner) {
-                ui.pickaxe.className = 'turbo-swinging';
-                miningTimer = setInterval(() => {
-                    doNogada();
-                }, 40); 
-            } else {
-                ui.pickaxe.classList.remove('swinging');
-                void ui.pickaxe.offsetWidth; 
-                ui.pickaxe.classList.add('swinging');
-                doNogada();
-            }
-            updateUI();
-        }
+      deck = [].concat(hits, Array(1970).fill(1000));
+    }
 
-        function stopMining() {
-            if (!isMiningMode) return;
-            isMiningMode = false;
-            clearInterval(miningTimer);
-            ui.pickaxe.className = ''; 
-            updateUI();
-        }
+    initDeck();
 
-        ui.nogadaBtn.addEventListener('mousedown', startMining);
-        ui.nogadaBtn.addEventListener('touchstart', startMining);
-        window.addEventListener('mouseup', stopMining);
-        window.addEventListener('touchend', stopMining);
-        ui.nogadaBtn.addEventListener('mouseleave', stopMining);
-        ui.nogadaBtn.addEventListener('touchcancel', stopMining);
+    const random10kTexts = [
+      "뜨끈한 국밥 한 그릇을 참았습니다.",
+      "스타벅스 달달한 돌체라떼 두 잔 값을 태웠습니다.",
+      "잠실야구장 외야석 직관 티켓 한 장이 날아갔습니다.",
+      "치킨 한 마리 주문할 때 보탤 수 있는 요긴한 돈입니다.",
+      "이베이 싱글 카드 경매 비딩을 한 번 참은 셈입니다.",
+      "아이 까까와 주스 몇 봉지를 살 수 있는 돈이 증발했습니다.",
+      "고품질 3D 프린터용 레진 용액 일부가 날아갔습니다."
+    ];
 
-        function drawMultiple(count) {
-            if (drawTickets < count || remain < count || isAnimating) return;
-            isAnimating = true;
-            updateUI(); 
+    const ui = {
+      total: document.getElementById("total"),
+      remain: document.getElementById("remain"),
+      hit: document.getElementById("hit"),
+      miss: document.getElementById("miss"),
+      nogadaCount: document.getElementById("nogada-count"),
+      nogadaBtn: document.getElementById("nogada-btn"),
+      drawBtn: document.getElementById("draw-btn"),
+      draw10Btn: document.getElementById("draw-10-btn"),
+      resetBtn: document.getElementById("reset-btn"),
+      buyToolBtn: document.getElementById("buy-tool-btn"),
+      result: document.getElementById("result-area"),
+      finance: document.getElementById("finance-area"),
+      pickaxe: document.getElementById("pickaxe"),
+      packOverlay: document.getElementById("pack-overlay"),
+      packArea: document.getElementById("pack-area"),
+      logList: document.getElementById("log-list"),
+      bossPopup: document.getElementById("boss-popup")
+    };
 
-            clearTimeout(hideCardTimeout);
+    function updateUI() {
+      ui.total.innerText = total;
+      ui.remain.innerText = remain;
+      ui.hit.innerText = hitCount;
+      ui.miss.innerText = missCount;
+      ui.nogadaCount.innerText = nogada;
 
-            drawTickets -= count;
-            const totalSpentNow = 10000 * count;
-            totalSpent += totalSpentNow;
-            
-            let batchHits = 0;
-            let batchEarned = 0;
-            let results = [];
+      ui.drawBtn.innerText = "🎁 1회 뽑기 (기회: " + drawTickets + ")";
+      ui.draw10Btn.innerText = "🎁 10연뽑 (기회: " + Math.floor(drawTickets / 10) + ")";
 
-            for(let i=0; i<count; i++) {
-                const idx = Math.floor(Math.random() * deck.length);
-                const prize = deck.splice(idx, 1)[0];
-                remain--;
-                const isHit = prize > 1000;
-                if (isHit) { hitCount++; batchHits++; } 
-                else { missCount++; }
-                totalEarned += prize;
-                batchEarned += prize;
-                results.push({ prize, isHit });
-            }
+      if (remain <= 0) {
+        ui.drawBtn.disabled = true;
+        ui.draw10Btn.disabled = true;
+        ui.nogadaBtn.disabled = true;
+        ui.buyToolBtn.disabled = true;
+        ui.resetBtn.disabled = false;
+        stopMining();
+      } else if (!isAnimating) {
+        ui.drawBtn.disabled = drawTickets < 1 || remain < 1;
+        ui.draw10Btn.disabled = drawTickets < 10 || remain < 10;
+        ui.nogadaBtn.disabled = false;
+        ui.resetBtn.disabled = false;
+        ui.buyToolBtn.disabled = hasAutoMiner;
+      } else {
+        ui.drawBtn.disabled = true;
+        ui.draw10Btn.disabled = true;
+        ui.nogadaBtn.disabled = true;
+        ui.resetBtn.disabled = true;
+        ui.buyToolBtn.disabled = true;
+      }
 
-            ui.result.innerHTML = `팩 개봉 중... 📦 (${count}장)`;
-            ui.packArea.innerHTML = '';
-            ui.packArea.className = (count === 1) ? 'single-mode' : '';
-            ui.packOverlay.style.opacity = '1';
-            ui.packOverlay.style.display = 'flex';
+      const spentStr = totalSpent.toLocaleString();
+      const earnedStr = Math.floor(totalEarned).toLocaleString();
+      const recoveryRate = totalSpent > 0 ? ((totalEarned / totalSpent) * 100).toFixed(1) : "0.0";
 
-            results.forEach((res, i) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'pack-wrapper';
-                wrapper.innerHTML = `
-                    <div class="card" id="card-element-${i}">
-                        <div class="card-inner" id="card-inner-${i}">
-                            <div class="card-front">?</div>
-                            <div class="card-back" id="card-result-${i}">결과</div>
-                        </div>
-                    </div>
-                    <div class="pack shake" id="pack-element-${i}">ORIPA</div>
-                `;
-                ui.packArea.appendChild(wrapper);
-            });
+      ui.finance.innerHTML =
+        "💰 사용 금액: <b>" + spentStr + "원</b> / " +
+        "💎 획득 가치: <b>" + earnedStr + "원</b><br>" +
+        "📈 회수율: <b>" + recoveryRate + "%</b>";
+    }
 
-            function formatPrize(p) {
-                if(p >= 10000) return Math.floor(p/10000) + '만';
-                return '1천';
-            }
-            
-            setTimeout(() => {
-                results.forEach((res, i) => {
-                    document.getElementById(`pack-element-${i}`).classList.remove('shake');
-                    document.getElementById(`card-element-${i}`).classList.add('slide-up');
-                });
-                
-                setTimeout(() => {
-                    results.forEach((res, i) => {
-                        const resDiv = document.getElementById(`card-result-${i}`);
-                        if (res.isHit) {
-                            resDiv.className = 'card-back holo-hit';
-                            resDiv.innerHTML = `✨HIT<br>${formatPrize(res.prize)}`;
-                        } else {
-                            resDiv.className = 'card-back miss-card';
-                            resDiv.innerHTML = `꽝<br>1천`;
-                        }
-                        document.getElementById(`card-inner-${i}`).classList.add('flip');
-                    });
-                    
-                    setTimeout(() => {
-                        if (batchHits > 0) {
-                            ui.result.innerHTML = `🎉 <span style='color:#e74c3c'>${count}장 중 ${batchHits}장 당첨! (${Math.floor(batchEarned).toLocaleString()}원)</span>`;
-                            triggerConfetti();
-                        } else {
-                            ui.result.innerHTML = `<span style='color:#7f8c8d'>아쉽습니다... ${count}장 모두 꽝 (${Math.floor(batchEarned).toLocaleString()}원)</span>`;
-                        }
-                        
-                        isAnimating = false;
-                        updateUI();
-                        addOpportunityLog();
+    function doNogada() {
+      nogada++;
 
-                        hideCardTimeout = setTimeout(() => {
-                            ui.packOverlay.style.opacity = '0';
-                            setTimeout(() => {
-                                ui.packOverlay.style.display = 'none';
-                                
-                                if (remain <= 0) {
-                                    ui.result.innerHTML = "🚨 재고가 모두 소진되었습니다! 정산 버튼을 눌러주세요.";
-                                    setTimeout(() => {
-                                        ui.bossPopup.style.display = 'block';
-                                        void ui.bossPopup.offsetWidth; 
-                                        ui.bossPopup.style.opacity = '1';
-                                        triggerConfetti(); 
-                                        triggerConfetti(); 
-                                        
-                                        setTimeout(() => {
-                                            ui.bossPopup.style.opacity = '0';
-                                            setTimeout(() => { ui.bossPopup.style.display = 'none'; }, 500);
-                                        }, 4000);
-                                    }, 500);
-                                } else {
-                                    ui.result.innerHTML = "다음 채굴을 시작하세요! ⛏️";
-                                }
+      if (nogada >= 10) {
+        drawTickets++;
+        nogada = 0;
+      }
 
-                            }, 300);
-                        }, count > 1 ? 1800 : 1000);
+      updateUI();
+    }
 
-                    }, 400);
-                }, 300);
-            }, 600);
-        }
+    function buyTool() {
+      if (hasAutoMiner || remain <= 0) return;
 
-        function triggerConfetti() {
-            const colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#ff758c'];
-            const count = 50; 
+      hasAutoMiner = true;
+      totalSpent += 1000000;
 
-            for (let i = 0; i < count; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                
-                const size = Math.random() * 6 + 4; 
-                confetti.style.width = size + 'px';
-                confetti.style.height = size + 'px';
-                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0%';
-                confetti.style.animationDuration = Math.random() * 1.2 + 0.8 + 's';
-                confetti.style.opacity = Math.random() * 0.7 + 0.3;
-                
-                document.body.appendChild(confetti);
-                setTimeout(() => { confetti.remove(); }, 2000);
-            }
-        }
+      ui.buyToolBtn.disabled = true;
+      ui.buyToolBtn.innerHTML = "🔥 장착 완료! 버튼을 꾹 누르면 뽑기 횟수가 폭발적으로 충전됩니다!";
+      ui.buyToolBtn.style.backgroundColor = "#27ae60";
+      ui.buyToolBtn.style.borderColor = "#2ecc71";
+      ui.nogadaBtn.innerHTML = "🚀 초고속 자동 기회 충전 (꾹~ 누르고 계세요!)";
 
-        function getOpportunityMessage(spent) {
-            const randomBase = random10kTexts[Math.floor(Math.random() * random10kTexts.length)];
-            let cumulativeWarning = "";
+      if (totalSpent === 1000000) {
+        ui.logList.innerHTML = "";
+      }
 
-            if (spent >= 20000000) { cumulativeWarning = `🚨💥 <b>[경고! 신형 소형 SUV 1대 증발 - 누적 2,000만 원 돌파]</b> 당신은 지금 2천만 원짜리 도파민 휴지조각을 손에 쥐었습니다. 신형 소형 SUV 풀옵션을 일시불로 뽑아 도로를 질주할 수 있었던 전 재산급 거금이 순식간에 공중분해 되었습니다.`; }
-            else if (spent >= 10000000) { cumulativeWarning = `🚨💥 <b>[경고! 국산 중고차 1대 증발 - 누적 1,000만 원 돌파]</b> 당신은 지금 1천만 원짜리 도파민 휴지조각을 손에 쥐었습니다. 상태 좋은 준중형 중고차를 일시불로 뽑아 도로를 질주할 수 있었던 전 재산급 거금이 순식간에 공중분해 되었습니다.`; }
-            else if (spent >= 9000000) { cumulativeWarning = `🛑 <b>[누적 900만 원 돌파]</b> 최고급 사양의 가정용 태양광 발전 시스템을 설치하거나, 한 가구의 1년 치 관리비와 공과금 전체를 한 방에 해결할 수 있었던 초거대 자산이 증발했습니다.`; }
-            else if (spent >= 8000000) { cumulativeWarning = `🛑 <b>[누적 800만 원 돌파]</b> 유럽이나 남미로 떠나는 전 일정 비즈니스 클래스 왕복 항공권과 5성급 호텔 장기 숙박권을 결제하여 평생 잊지 못할 추억을 만들 수 있었던 기회비용입니다.`; }
-            else if (spent >= 7000000) { cumulativeWarning = `🛑 <b>[누적 700만 원 돌파]</b> 희귀 소장 가치가 높은 전 세계 한정판 최고 등급(PSA 10) 스포츠 카드나 트레이딩 카드를 당당하게 현금으로 스카웃해 올 수 있었던 엄청난 예산입니다.`; }
-            else if (spent >= 6000000) { cumulativeWarning = `🛑 <b>[누적 600만 원 돌파]</b> 백화점 명품관에서 최고의 베스트셀러 가방을 웨이팅 없이 영접하거나, 최고급 사양의 풀세트 인테리어 가전을 싹 바꿀 수 있었던 거금입니다.`; }
-            else if (spent >= 5000000) { cumulativeWarning = `🔥🚨 <b>[누적 500만 원 돌파]</b> 적립식 펀드나 배당 우량주에 넣어두었다면 평생 따박따박 복리 이자를 낳았을 '황금 알을 낳는 거위'의 배를 통째로 갈라버린 수준입니다. 지갑의 비명이 들리지 않으십니까?`; }
-            else if (spent >= 4000000) { cumulativeWarning = `🚨 <b>[누적 400만 원 돌파]</b> 최고급 사양의 정밀 3D 프린터 장비와 수십 킬로그램의 원료 레진을 가득 쌓아두고 커스텀 피규어 공방을 차릴 수 있었던 비용입니다.`; }
-            else if (spent >= 3000000) { cumulativeWarning = `🚨 <b>[누적 300만 원 돌파]</b> 온 가족이 최고급 리조트에서 일주일 동안 머물며 초호화 효도 명품 여행을 완벽하게 다녀올 수 있었던 거금입니다.`; }
-            else if (spent >= 2000000) { cumulativeWarning = `🚨 <b>[누적 200만 원 돌파]</b> 최고 사양 커스텀 게이밍 PC 본체와 4K 모니터를 풀세트로 맞추거나, 매달 소중한 자산을 기계처럼 적립할 수 있었던 소중한 시드머니입니다.`; }
-            else if (spent >= 1000000) { cumulativeWarning = `💥 <b>[누적 100만 원 돌파]</b> 수집 시장에서 침만 흘리던 레전드 그레이딩 슬랩 카드를 확정 구매하거나, 최신형 스마트폰을 일시불로 사고도 남았을 거금입니다.`; }
-            else if (spent >= 500000) { cumulativeWarning = `🚨 <b>[누적 50만 원 돌파]</b> 온 가족이 여행지로 날아가 고급 렌트카를 빌리고 맛있는 음식을 배터지게 먹을 수 있는 거대한 예산이 증발했습니다.`; }
-            else if (spent >= 300000) { cumulativeWarning = `⚠️ <b>[누적 30만 원 돌파]</b> 고성능 3D 프린터 기기 한 대를 들여놓거나, 인기 비디오 게임 콘솔을 새 제품으로 영접할 수 있었던 금액입니다.`; }
-            else if (spent >= 100000) { cumulativeWarning = `📉 <b>[누적 10만 원 돌파]</b> 든든한 우량 주식이나 배당성장주를 적립식 매수할 기회를 고작 클릭 몇 번의 도파민과 맞바꿨습니다. 소중한 교재비나 외식 비용이 사라졌네요.`; }
-            else if (spent >= 50000) { cumulativeWarning = `💸 <b>[누적 5만 원 돌파]</b> 겉바속촉 브랜드 치킨을 무려 2마리 반이나 굶은 셈입니다. 슬슬 뇌절의 영역으로 진입하고 있습니다.`; }
+      const li = document.createElement("li");
+      const now = new Date();
+      const timeStr =
+        String(now.getHours()).padStart(2, "0") + ":" +
+        String(now.getMinutes()).padStart(2, "0") + ":" +
+        String(now.getSeconds()).padStart(2, "0");
 
-            return cumulativeWarning ? `${randomBase}<br><span class="log-warning">${cumulativeWarning}</span>` : randomBase;
-        }
+      li.innerHTML =
+        "[" + timeStr + "] " +
+        "<span class='log-amount'>-1,000,000원 지출:</span> " +
+        "🛠️ <b>초고속 자동 채굴기</b>를 구매했습니다! 돈을 들여 손가락 피로도를 없애고 뽑기 시드를 초고속 확보합니다.";
 
-        function addOpportunityLog() {
-            if (ui.logList.innerText.includes("아직 사용한 금액이 없습니다")) {
-                ui.logList.innerHTML = "";
-            }
+      ui.logList.prepend(li);
+      updateUI();
+    }
 
-            const li = document.createElement('li');
-            const logContent = getOpportunityMessage(totalSpent);
-            
-            const now = new Date();
-            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-            
-            li.innerHTML = `[${timeStr}] <span class="log-amount">-${totalSpent.toLocaleString()}원째 소모 중:</span> ${logContent}`;
-            ui.logList.prepend(li);
-        }
+    function startMining(e) {
+      if (remain <= 0) return;
 
-        function endGame() {
-            if (isAnimating || isMiningMode) return; 
+      if (e && e.cancelable) {
+        e.preventDefault();
+      }
 
-            if (totalSpent === 0) {
-                alert("아직 뽑기를 진행하지 않아 정산할 내역이 없습니다.");
-                return;
-            }
+      if (isMiningMode) return;
 
-            const recoveryRate = ((totalEarned / totalSpent) * 100).toFixed(2);
-            
-            const finalMessage = `[📊 오리파 최종 정산]\n\n` +
-                                 `💸 총 투자한 금액: ${totalSpent.toLocaleString()}원\n` +
-                                 `💎 획득한 당첨금: ${Math.floor(totalEarned).toLocaleString()}원\n` +
-                                 `📈 투자 대비 회수율: ${recoveryRate}%\n\n` +
-                                 `확인을 누르시면 모든 내역이 초기화됩니다. 현실로 돌아가세요!`;
-            
-            alert(finalMessage);
+      isMiningMode = true;
 
-            total = 2000;
-            remain = 2000;
-            hitCount = 0;
-            missCount = 0;
-            nogada = 0;
-            drawTickets = 0;
-            totalSpent = 0;
-            totalEarned = 0;
-            
-            hasAutoMiner = false;
-            ui.buyToolBtn.disabled = false;
-            ui.buyToolBtn.innerHTML = "🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)";
-            ui.buyToolBtn.style.backgroundColor = "";
-            ui.buyToolBtn.style.borderColor = "";
-            ui.nogadaBtn.innerHTML = "⛏️ 채굴하기";
+      if (hasAutoMiner) {
+        ui.pickaxe.className = "turbo-swinging";
 
-            initDeck();
+        miningTimer = setInterval(function() {
+          doNogada();
+        }, 80);
+      } else {
+        ui.pickaxe.classList.remove("swinging");
+        void ui.pickaxe.offsetWidth;
+        ui.pickaxe.classList.add("swinging");
+        doNogada();
+      }
 
-            clearTimeout(hideCardTimeout);
-            ui.packOverlay.style.display = 'none';
-            ui.packOverlay.style.opacity = '1';
-            ui.result.innerHTML = "채굴을 시작하세요!";
-            ui.logList.innerHTML = '<li style="text-align: center; color: #999;">아직 사용한 금액이 없습니다.</li>';
+      updateUI();
+    }
 
-            updateUI();
-        }
+    function stopMining() {
+      if (!isMiningMode) return;
 
-        function shareLink() {
-            const url = window.location.href;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(url).then(() => {
-                    alert("주소가 클립보드에 복사되었습니다!\n친구들에게 뼈 때리는 도파민을 공유해 보세요. 💸");
-                }).catch(() => { fallbackCopy(url); });
-            } else { fallbackCopy(url); }
-        }
+      isMiningMode = false;
+      clearInterval(miningTimer);
+      miningTimer = null;
+      ui.pickaxe.className = "";
+      updateUI();
+    }
 
-        function fallbackCopy(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";  
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                alert("주소가 클립보드에 복사되었습니다!\n친구들에게 뼈 때리는 도파민을 공유해 보세요. 💸");
-            } catch (err) {
-                alert("복사에 실패했습니다. 브라우저 주소창을 직접 복사해 주세요.");
-            }
-            document.body.removeChild(textArea);
-        }
+    ui.nogadaBtn.addEventListener("pointerdown", startMining);
+    window.addEventListener("pointerup", stopMining);
+    window.addEventListener("pointercancel", stopMining);
+    ui.nogadaBtn.addEventListener("pointerleave", stopMining);
 
-        updateUI();
-    </script>
+    function drawMultiple(count) {
+      if (drawTickets < count || remain < count || isAnimating) return;
+
+      isAnimating = true;
+      updateUI();
+
+      clearTimeout(hideCardTimeout);
+
+      drawTickets -= count;
+      totalSpent += 10000 * count;
+
+      let batchHits = 0;
+      let batchEarned = 0;
+      const results = [];
+
+      for (let i = 0; i < count; i++) {
+        const idx = Math.floor(Math.random() * deck.length);
+        const prize = deck.splice(idx, 1)[0];
+
+        remain--;
+
+        const isHit = prize > 1000;
+
+        if (isHit) {
+          hitCount++;
+          batchHits++;
+        } else {
+          missCount++;
+        }
+
+        totalEarned += prize;
+        batchEarned += prize;
+        results.push({ prize: prize, isHit: isHit });
+      }
+
+      ui.result.innerHTML = "팩 개봉 중... 📦 (" + count + "장)";
+      ui.packArea.innerHTML = "";
+      ui.packArea.className = count === 1 ? "single-mode" : "";
+      ui.packOverlay.style.opacity = "1";
+      ui.packOverlay.style.display = "flex";
+
+      results.forEach(function(res, i) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "pack-wrapper";
+
+        wrapper.innerHTML =
+          '<div class="card" id="card-element-' + i + '">' +
+            '<div class="card-inner" id="card-inner-' + i + '">' +
+              '<div class="card-front">?</div>' +
+              '<div class="card-back" id="card-result-' + i + '">결과</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="pack shake" id="pack-element-' + i + '">ORIPA</div>';
+
+        ui.packArea.appendChild(wrapper);
+      });
+
+      function formatPrize(p) {
+        if (p >= 10000) {
+          return Math.floor(p / 10000) + "만";
+        }
+
+        return "1천";
+      }
+
+      setTimeout(function() {
+        results.forEach(function(res, i) {
+          document.getElementById("pack-element-" + i).classList.remove("shake");
+          document.getElementById("card-element-" + i).classList.add("slide-up");
+        });
+
+        setTimeout(function() {
+          results.forEach(function(res, i) {
+            const resDiv = document.getElementById("card-result-" + i);
+
+            if (res.isHit) {
+              resDiv.className = "card-back holo-hit";
+              resDiv.innerHTML = "✨HIT<br>" + formatPrize(res.prize);
+            } else {
+              resDiv.className = "card-back miss-card";
+              resDiv.innerHTML = "꽝<br>1천";
+            }
+
+            document.getElementById("card-inner-" + i).classList.add("flip");
+          });
+
+          setTimeout(function() {
+            if (batchHits > 0) {
+              ui.result.innerHTML =
+                "🎉 <span style='color:#e74c3c'>" +
+                count + "장 중 " + batchHits + "장 당첨! (" +
+                Math.floor(batchEarned).toLocaleString() + "원)</span>";
+
+              triggerConfetti();
+            } else {
+              ui.result.innerHTML =
+                "<span style='color:#7f8c8d'>아쉽습니다... " +
+                count + "장 모두 꽝 (" +
+                Math.floor(batchEarned).toLocaleString() + "원)</span>";
+            }
+
+            isAnimating = false;
+            updateUI();
+            addOpportunityLog();
+
+            hideCardTimeout = setTimeout(function() {
+              ui.packOverlay.style.opacity = "0";
+
+              setTimeout(function() {
+                ui.packOverlay.style.display = "none";
+
+                if (remain <= 0) {
+                  ui.result.innerHTML = "🚨 재고가 모두 소진되었습니다! 정산 버튼을 눌러주세요.";
+
+                  setTimeout(function() {
+                    ui.bossPopup.style.display = "block";
+                    void ui.bossPopup.offsetWidth;
+                    ui.bossPopup.style.opacity = "1";
+
+                    triggerConfetti();
+                    triggerConfetti();
+
+                    setTimeout(function() {
+                      ui.bossPopup.style.opacity = "0";
+
+                      setTimeout(function() {
+                        ui.bossPopup.style.display = "none";
+                      }, 500);
+                    }, 4000);
+                  }, 500);
+                } else {
+                  ui.result.innerHTML = "다음 채굴을 시작하세요! ⛏️";
+                }
+              }, 300);
+            }, count > 1 ? 1800 : 1000);
+          }, 400);
+        }, 300);
+      }, 600);
+    }
+
+    function triggerConfetti() {
+      const colors = [
+        "#f1c40f",
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#9b59b6",
+        "#e67e22",
+        "#1abc9c",
+        "#ff758c"
+      ];
+
+      const count = 50;
+
+      for (let i = 0; i < count; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+        const size = Math.random() * 6 + 4;
+        confetti.style.width = size + "px";
+        confetti.style.height = size + "px";
+        confetti.style.borderRadius = Math.random() > 0.5 ? "50%" : "0%";
+        confetti.style.animationDuration = Math.random() * 1.2 + 0.8 + "s";
+        confetti.style.opacity = Math.random() * 0.7 + 0.3;
+
+        document.body.appendChild(confetti);
+
+        setTimeout(function() {
+          confetti.remove();
+        }, 2000);
+      }
+    }
+
+    function getOpportunityMessage(spent) {
+      const randomBase = random10kTexts[Math.floor(Math.random() * random10kTexts.length)];
+      let cumulativeWarning = "";
+
+      if (spent >= 20000000) {
+        cumulativeWarning = "🚨💥 <b>[경고! 신형 소형 SUV 1대 증발 - 누적 2,000만 원 돌파]</b> 당신은 지금 2천만 원짜리 도파민 휴지조각을 손에 쥐었습니다.";
+      } else if (spent >= 10000000) {
+        cumulativeWarning = "🚨💥 <b>[경고! 국산 중고차 1대 증발 - 누적 1,000만 원 돌파]</b> 상태 좋은 준중형 중고차를 일시불로 뽑을 수 있었던 거금이 증발했습니다.";
+      } else if (spent >= 9000000) {
+        cumulativeWarning = "🛑 <b>[누적 900만 원 돌파]</b> 한 가구의 1년 치 관리비와 공과금을 해결할 수 있었던 예산입니다.";
+      } else if (spent >= 8000000) {
+        cumulativeWarning = "🛑 <b>[누적 800만 원 돌파]</b> 장거리 여행과 고급 숙박을 충분히 즐길 수 있었던 기회비용입니다.";
+      } else if (spent >= 7000000) {
+        cumulativeWarning = "🛑 <b>[누적 700만 원 돌파]</b> 희귀 스포츠 카드나 트레이딩 카드를 확정 구매할 수 있었던 예산입니다.";
+      } else if (spent >= 6000000) {
+        cumulativeWarning = "🛑 <b>[누적 600만 원 돌파]</b> 명품 가방이나 고급 가전을 살 수 있었던 거금입니다.";
+      } else if (spent >= 5000000) {
+        cumulativeWarning = "🔥🚨 <b>[누적 500만 원 돌파]</b> 적립식 펀드나 배당 우량주에 넣을 수 있었던 황금 시드머니입니다.";
+      } else if (spent >= 4000000) {
+        cumulativeWarning = "🚨 <b>[누적 400만 원 돌파]</b> 고급 장비와 취미 생활 예산으로 충분했던 비용입니다.";
+      } else if (spent >= 3000000) {
+        cumulativeWarning = "🚨 <b>[누적 300만 원 돌파]</b> 온 가족이 좋은 리조트에서 쉬고 올 수 있었던 금액입니다.";
+      } else if (spent >= 2000000) {
+        cumulativeWarning = "🚨 <b>[누적 200만 원 돌파]</b> 게이밍 PC와 모니터를 맞출 수 있었던 소중한 시드머니입니다.";
+      } else if (spent >= 1000000) {
+        cumulativeWarning = "💥 <b>[누적 100만 원 돌파]</b> 레전드 그레이딩 슬랩 카드나 최신 스마트폰을 살 수 있었던 금액입니다.";
+      } else if (spent >= 500000) {
+        cumulativeWarning = "🚨 <b>[누적 50만 원 돌파]</b> 가족 여행 경비로도 쓸 수 있었던 예산이 증발했습니다.";
+      } else if (spent >= 300000) {
+        cumulativeWarning = "⚠️ <b>[누적 30만 원 돌파]</b> 게임 콘솔이나 취미 장비를 살 수 있었던 금액입니다.";
+      } else if (spent >= 100000) {
+        cumulativeWarning = "📉 <b>[누적 10만 원 돌파]</b> 우량주를 적립식 매수할 기회를 도파민과 맞바꿨습니다.";
+      } else if (spent >= 50000) {
+        cumulativeWarning = "💸 <b>[누적 5만 원 돌파]</b> 치킨 여러 마리 값이 사라졌습니다.";
+      }
+
+      if (cumulativeWarning) {
+        return randomBase + "<br><span class='log-warning'>" + cumulativeWarning + "</span>";
+      }
+
+      return randomBase;
+    }
+
+    function addOpportunityLog() {
+      if (ui.logList.innerText.includes("아직 사용한 금액이 없습니다")) {
+        ui.logList.innerHTML = "";
+      }
+
+      const li = document.createElement("li");
+      const logContent = getOpportunityMessage(totalSpent);
+      const now = new Date();
+
+      const timeStr =
+        String(now.getHours()).padStart(2, "0") + ":" +
+        String(now.getMinutes()).padStart(2, "0") + ":" +
+        String(now.getSeconds()).padStart(2, "0");
+
+      li.innerHTML =
+        "[" + timeStr + "] " +
+        "<span class='log-amount'>-" + totalSpent.toLocaleString() + "원째 소모 중:</span> " +
+        logContent;
+
+      ui.logList.prepend(li);
+    }
+
+    function endGame() {
+      if (isAnimating || isMiningMode) return;
+
+      if (totalSpent === 0) {
+        alert("아직 뽑기를 진행하지 않아 정산할 내역이 없습니다.");
+        return;
+      }
+
+      const recoveryRate = ((totalEarned / totalSpent) * 100).toFixed(2);
+
+      const finalMessage =
+        "[📊 오리파 최종 정산]\n\n" +
+        "💸 총 투자한 금액: " + totalSpent.toLocaleString() + "원\n" +
+        "💎 회수한 카드 가치: " + Math.floor(totalEarned).toLocaleString() + "원\n" +
+        "📈 투자 대비 회수율: " + recoveryRate + "%\n\n" +
+        "확인을 누르시면 모든 내역이 초기화됩니다. 현실로 돌아가세요!";
+
+      alert(finalMessage);
+
+      total = 2000;
+      remain = 2000;
+      hitCount = 0;
+      missCount = 0;
+      nogada = 0;
+      drawTickets = 0;
+      totalSpent = 0;
+      totalEarned = 0;
+      hasAutoMiner = false;
+      isAnimating = false;
+      isMiningMode = false;
+
+      clearInterval(miningTimer);
+      miningTimer = null;
+
+      ui.buyToolBtn.disabled = false;
+      ui.buyToolBtn.innerHTML = "🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)";
+      ui.buyToolBtn.style.backgroundColor = "";
+      ui.buyToolBtn.style.borderColor = "";
+      ui.nogadaBtn.innerHTML = "⛏️ 채굴하기";
+      ui.pickaxe.className = "";
+
+      initDeck();
+
+      clearTimeout(hideCardTimeout);
+      ui.packOverlay.style.display = "none";
+      ui.packOverlay.style.opacity = "1";
+      ui.packArea.innerHTML = "";
+
+      ui.result.innerHTML = "채굴을 시작하세요!";
+      ui.logList.innerHTML = '<li style="text-align:center; color:#999;">아직 사용한 금액이 없습니다.</li>';
+
+      updateUI();
+    }
+
+    function shareLink() {
+      const url = window.location.href;
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+          alert("주소가 클립보드에 복사되었습니다!\n친구들에게 뼈 때리는 도파민을 공유해 보세요. 💸");
+        }).catch(function() {
+          fallbackCopy(url);
+        });
+      } else {
+        fallbackCopy(url);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        document.execCommand("copy");
+        alert("주소가 클립보드에 복사되었습니다!\n친구들에게 뼈 때리는 도파민을 공유해 보세요. 💸");
+      } catch (err) {
+        alert("복사에 실패했습니다. 브라우저 주소창을 직접 복사해 주세요.");
+      }
+
+      document.body.removeChild(textArea);
+    }
+
+    updateUI();
+  </script>
 </body>
 </html>
