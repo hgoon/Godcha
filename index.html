@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- [수정됨] 화면 확대 완벽 차단 메타 태그 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>포켓몬 오리파 광산</title>
     <style>
         body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; }
@@ -24,18 +25,28 @@
 
         /* 컨트롤 영역 */
         .controls { margin: 20px; padding: 20px; border-top: 1px solid #ccc; }
-        button { padding: 10px 20px; font-size: 1em; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; transition: background 0.2s; }
+        
+        /* [수정됨] 버튼 광클 방지 (touch-action) 추가 */
+        button { 
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            border-radius: 5px; 
+            border: 1px solid #ccc; 
+            transition: background 0.2s;
+            touch-action: manipulation; /* 핵심: 더블 탭 확대 방지 */
+            -webkit-user-select: none;  /* 글자 드래그 방지 */
+            user-select: none;
+        }
+        
         #nogada-btn { background-color: #f1c40f; color: #333; font-weight: bold; }
         #nogada-btn:hover { background-color: #f39c12; }
         #draw-btn { background-color: #3498db; color: white; margin-left: 10px; }
         #draw-btn:hover { background-color: #2980b9; }
         #draw-btn:disabled, #nogada-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-        
-        /* [추가] 초기화 버튼 스타일 */
         #reset-btn { background-color: #e74c3c; color: white; margin-left: 10px; font-weight: bold; }
         #reset-btn:hover { background-color: #c0392b; }
         #reset-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-
         #nogada-gauge { font-size: 0.9em; color: #555; margin-bottom: 10px; }
 
         /* 카드 팩 애니메이션 영역 */
@@ -88,7 +99,6 @@
         <div id="nogada-gauge">채굴 진행도: <span id="nogada-count">0</span> / 10</div>
         <button id="nogada-btn" onclick="doNogada()">⛏️ 채굴하기</button>
         <button id="draw-btn" onclick="drawCard()" disabled>🎁 뽑기 (기회: 0)</button>
-        <!-- [추가] 정산 및 초기화 버튼 -->
         <button id="reset-btn" onclick="endGame()">🛑 뽑기 종료 및 정산</button>
     </div>
 
@@ -124,7 +134,6 @@
         let hits = [];
         let deck = [];
 
-        // 덱 생성 함수 분리
         function initDeck() {
             hits = Array.from({length: 30}, (_, i) => maxHit - (i * (maxHit - minHit) / 29));
             deck = [...hits, ...Array(970).fill(1000)];
@@ -174,7 +183,7 @@
                 ui.nogadaBtn.disabled = false;
                 ui.resetBtn.disabled = false;
             } else {
-                ui.resetBtn.disabled = true; // 애니메이션 중에는 정산 버튼 잠금
+                ui.resetBtn.disabled = true;
             }
             
             const spentStr = totalSpent.toLocaleString();
@@ -237,7 +246,7 @@
         function drawCard() {
             if (drawTickets <= 0 || remain <= 0 || isAnimating) return;
             isAnimating = true;
-            updateUI(); // 버튼 잠금 상태 즉시 반영
+            updateUI(); 
 
             clearTimeout(hideCardTimeout);
 
@@ -299,19 +308,16 @@
             }, 600);
         }
 
-        // [핵심 추가] 게임 종료, 정산 및 초기화 함수
         function endGame() {
-            if (isAnimating) return; // 애니메이션 도중에는 실행 불가
+            if (isAnimating) return; 
 
             if (totalSpent === 0) {
                 alert("아직 뽑기를 진행하지 않아 정산할 내역이 없습니다.");
                 return;
             }
 
-            // 회수율 계산 (당첨금 / 투자금 * 100)
             const recoveryRate = ((totalEarned / totalSpent) * 100).toFixed(2);
             
-            // 결과 알림창 띄우기
             const finalMessage = `[📊 오리파 최종 정산]\n\n` +
                                  `💸 총 투자한 금액: ${totalSpent.toLocaleString()}원\n` +
                                  `💎 획득한 당첨금: ${Math.floor(totalEarned).toLocaleString()}원\n` +
@@ -320,7 +326,6 @@
             
             alert(finalMessage);
 
-            // 데이터 초기화
             total = 1000;
             remain = 1000;
             hitCount = 0;
@@ -330,10 +335,8 @@
             totalSpent = 0;
             totalEarned = 0;
 
-            // 덱 초기화
             initDeck();
 
-            // 애니메이션 및 텍스트 UI 초기화
             clearTimeout(hideCardTimeout);
             ui.packArea.style.display = 'none';
             ui.result.innerHTML = "채굴을 시작하세요!";
