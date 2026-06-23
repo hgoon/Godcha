@@ -2,7 +2,6 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <!-- [수정됨] 화면 확대 완벽 차단 메타 태그 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>포켓몬 오리파 광산</title>
     <style>
@@ -26,7 +25,6 @@
         /* 컨트롤 영역 */
         .controls { margin: 20px; padding: 20px; border-top: 1px solid #ccc; }
         
-        /* [수정됨] 버튼 광클 방지 (touch-action) 추가 */
         button { 
             padding: 10px 20px; 
             font-size: 1em; 
@@ -34,8 +32,8 @@
             border-radius: 5px; 
             border: 1px solid #ccc; 
             transition: background 0.2s;
-            touch-action: manipulation; /* 핵심: 더블 탭 확대 방지 */
-            -webkit-user-select: none;  /* 글자 드래그 방지 */
+            touch-action: manipulation; 
+            -webkit-user-select: none;  
             user-select: none;
         }
         
@@ -83,8 +81,9 @@
     <h1>포켓몬 오리파 광산</h1>
     
     <div class="stats">
-        <div class="box"><span class="stat-label">전체 카드</span><span class="stat-value" id="total">1000</span></div>
-        <div class="box"><span class="stat-label">잔여 카드</span><span class="stat-value" id="remain">1000</span></div>
+        <!-- [수정됨] 전체 카드 2000장으로 표기 변경 -->
+        <div class="box"><span class="stat-label">전체 카드</span><span class="stat-value" id="total">2000</span></div>
+        <div class="box"><span class="stat-label">잔여 카드</span><span class="stat-value" id="remain">2000</span></div>
         <div class="box"><span class="stat-label">당첨(힛)</span><span class="stat-value hit-val" id="hit">0</span> / 30</div>
         <div class="box"><span class="stat-label">꽝</span><span class="stat-value miss-val" id="miss">0</span></div>
     </div>
@@ -123,12 +122,14 @@
     </div>
 
     <script>
-        let total = 1000, remain = 1000, hitCount = 0, missCount = 0;
+        // [수정됨] 초기 카드 수 2000으로 세팅
+        let total = 2000, remain = 2000, hitCount = 0, missCount = 0;
         let nogada = 0, drawTickets = 0;
         let totalSpent = 0, totalEarned = 0;
         let isAnimating = false;
         let hideCardTimeout; 
         
+        // [수정됨] 대망의 1등 100만원, 30등 5만원 원복
         const minHit = 50000;
         const maxHit = 1000000;
         let hits = [];
@@ -136,7 +137,8 @@
 
         function initDeck() {
             hits = Array.from({length: 30}, (_, i) => maxHit - (i * (maxHit - minHit) / 29));
-            deck = [...hits, ...Array(970).fill(1000)];
+            // [수정됨] 꽝 카드를 1970장(2000-30)으로 늘려서 확률 희석
+            deck = [...hits, ...Array(1970).fill(1000)];
         }
         initDeck();
 
@@ -210,7 +212,8 @@
             const randomBase = random10kTexts[Math.floor(Math.random() * random10kTexts.length)];
             let cumulativeWarning = "";
 
-            if (spent >= 10000000) { cumulativeWarning = `🚨💥 <b>[경고! 국산 중고차 1대 증발 - 누적 1,000만 원 돌파]</b> 당신은 지금 1천만 원짜리 도파민 휴지조각을 손에 쥐었습니다. 상태 좋은 아반떼나 모닝 중고차를 일시불로 뽑아 도로를 질주할 수 있었던 전 재산급 거금이 순식간에 공중분해 되었습니다.`; }
+            if (spent >= 20000000) { cumulativeWarning = `🚨💥 <b>[경고! 신형 소형 SUV 1대 증발 - 누적 2,000만 원 돌파]</b> 당신은 지금 2천만 원짜리 도파민 휴지조각을 손에 쥐었습니다. 신형 캐스퍼나 셀토스 풀옵션을 일시불로 뽑아 도로를 질주할 수 있었던 전 재산급 거금이 순식간에 공중분해 되었습니다.`; }
+            else if (spent >= 10000000) { cumulativeWarning = `🚨💥 <b>[경고! 국산 중고차 1대 증발 - 누적 1,000만 원 돌파]</b> 당신은 지금 1천만 원짜리 도파민 휴지조각을 손에 쥐었습니다. 상태 좋은 아반떼나 모닝 중고차를 일시불로 뽑아 도로를 질주할 수 있었던 전 재산급 거금이 순식간에 공중분해 되었습니다.`; }
             else if (spent >= 9000000) { cumulativeWarning = `🛑 <b>[누적 900만 원 돌파]</b> 최고급 사양의 가정용 태양광 발전 시스템을 설치하거나, 한 가구의 1년 치 관리비와 공과금 전체를 한 방에 해결할 수 있었던 초거대 자산이 증발했습니다.`; }
             else if (spent >= 8000000) { cumulativeWarning = `🛑 <b>[누적 800만 원 돌파]</b> 유럽이나 남미로 떠나는 전 일정 비즈니스 클래스 왕복 항공권과 5성급 호텔 장기 숙박권을 결제하여 평생 잊지 못할 추억을 만들 수 있었던 기회비용입니다.`; }
             else if (spent >= 7000000) { cumulativeWarning = `🛑 <b>[누적 700만 원 돌파]</b> 리오넬 메시나 쇼헤이 오타니의 루키 시즌 최고 등급(PSA 10) 친필 싸인 카드를 수집가들 사이에서 당당하게 현금으로 스카웃해 올 수 있었던 엄청난 예산입니다.`; }
@@ -326,8 +329,9 @@
             
             alert(finalMessage);
 
-            total = 1000;
-            remain = 1000;
+            // [수정됨] 리셋 시 2000장으로 복구
+            total = 2000;
+            remain = 2000;
             hitCount = 0;
             missCount = 0;
             nogada = 0;
