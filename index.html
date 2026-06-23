@@ -62,7 +62,7 @@
       color: #e74c3c;
     }
 
-    .miss-val {
+    .base-val {
       color: #7f8c8d;
     }
 
@@ -295,9 +295,10 @@
       border: 1px solid #ccc;
       padding: 2px;
       word-break: keep-all;
-      font-size: 0.8em;
+      font-size: 0.78em;
       flex-direction: column;
       text-align: center;
+      line-height: 1.25;
     }
 
     .card-front {
@@ -347,13 +348,14 @@
       border: 2px solid #ff758c;
       box-shadow: 0 0 10px rgba(255, 117, 140, 0.6);
       color: #c0392b;
-      font-size: 0.9em;
+      font-size: 0.82em;
     }
 
-    .miss-card {
-      background: #ecf0f1;
+    .base-card {
+      background: linear-gradient(135deg, #ecf0f1 0%, #ffffff 100%);
       color: #7f8c8d;
-      font-size: 0.8em;
+      border: 2px solid #bdc3c7;
+      font-size: 0.78em;
     }
 
     #result-area {
@@ -574,13 +576,13 @@
     </div>
 
     <div class="box">
-      <span class="stat-label">당첨(힛)</span>
+      <span class="stat-label">힛카드</span>
       <span class="stat-value hit-val" id="hit">0</span> / 30
     </div>
 
     <div class="box">
-      <span class="stat-label">꽝</span>
-      <span class="stat-value miss-val" id="miss">0</span>
+      <span class="stat-label">베이스 카드</span>
+      <span class="stat-value base-val" id="base">0</span>
     </div>
   </div>
 
@@ -609,7 +611,7 @@
   <div id="result-area">채굴을 시작하세요!</div>
 
   <div id="finance-area">
-    💰 사용 금액: 0원 / 💎 획득 가치: 0원
+    💰 사용 금액: 0원 / 💎 획득 카드 가치: 0원
   </div>
 
   <div id="log-container">
@@ -635,7 +637,7 @@
     let total = 2000;
     let remain = 2000;
     let hitCount = 0;
-    let missCount = 0;
+    let baseCount = 0;
     let nogada = 0;
     let drawTickets = 0;
     let totalSpent = 0;
@@ -647,18 +649,46 @@
     let miningTimer = null;
     let isMiningMode = false;
 
-    const minHit = 50000;
-    const maxHit = 1000000;
-
-    let hits = [];
     let deck = [];
 
-    function initDeck() {
-      hits = Array.from({ length: 30 }, function(_, i) {
-        return maxHit - (i * (maxHit - minHit) / 29);
-      });
+    const hitValueTable = [
+      1000000, 900000, 800000, 700000, 600000,
+      500000, 400000, 300000, 200000, 100000,
+      100000, 100000, 100000, 100000, 100000,
+      100000, 100000, 100000, 100000, 100000,
+      100000, 100000, 100000, 100000, 100000,
+      100000, 100000, 100000, 100000, 100000
+    ];
 
-      deck = [].concat(hits, Array(1970).fill(1000));
+    function getRandomBaseValue() {
+      const baseValues = [
+        10, 20, 30, 40, 50,
+        60, 70, 80, 90, 100,
+        200, 300, 400, 500, 600,
+        700, 800, 900, 1000
+      ];
+
+      return baseValues[Math.floor(Math.random() * baseValues.length)];
+    }
+
+    function initDeck() {
+      deck = [];
+
+      for (let i = 0; i < 30; i++) {
+        deck.push({
+          type: "hit",
+          rank: i + 1,
+          value: hitValueTable[i]
+        });
+      }
+
+      for (let i = 0; i < 1970; i++) {
+        deck.push({
+          type: "base",
+          rank: null,
+          value: getRandomBaseValue()
+        });
+      }
     }
 
     initDeck();
@@ -677,7 +707,7 @@
       total: document.getElementById("total"),
       remain: document.getElementById("remain"),
       hit: document.getElementById("hit"),
-      miss: document.getElementById("miss"),
+      base: document.getElementById("base"),
       nogadaCount: document.getElementById("nogada-count"),
       nogadaBtn: document.getElementById("nogada-btn"),
       drawBtn: document.getElementById("draw-btn"),
@@ -697,7 +727,7 @@
       ui.total.innerText = total;
       ui.remain.innerText = remain;
       ui.hit.innerText = hitCount;
-      ui.miss.innerText = missCount;
+      ui.base.innerText = baseCount;
       ui.nogadaCount.innerText = nogada;
 
       ui.drawBtn.innerText = "🎁 1회 뽑기 (기회: " + drawTickets + ")";
@@ -730,7 +760,7 @@
 
       ui.finance.innerHTML =
         "💰 사용 금액: <b>" + spentStr + "원</b> / " +
-        "💎 획득 가치: <b>" + earnedStr + "원</b><br>" +
+        "💎 획득 카드 가치: <b>" + earnedStr + "원</b><br>" +
         "📈 회수율: <b>" + recoveryRate + "%</b>";
     }
 
@@ -840,30 +870,27 @@
       totalSpent += 10000 * count;
 
       let batchHits = 0;
+      let batchBase = 0;
       let batchEarned = 0;
       const results = [];
 
       for (let i = 0; i < count; i++) {
         const idx = Math.floor(Math.random() * deck.length);
-        const prize = deck.splice(idx, 1)[0];
+        const card = deck.splice(idx, 1)[0];
 
         remain--;
 
-        const isHit = prize > 1000;
-
-        if (isHit) {
+        if (card.type === "hit") {
           hitCount++;
           batchHits++;
         } else {
-          missCount++;
+          baseCount++;
+          batchBase++;
         }
 
-        totalEarned += prize;
-        batchEarned += prize;
-        results.push({
-          prize: prize,
-          isHit: isHit
-        });
+        totalEarned += card.value;
+        batchEarned += card.value;
+        results.push(card);
       }
 
       ui.result.innerHTML = "팩 개봉 중... 📦 (" + count + "장)";
@@ -872,7 +899,7 @@
       ui.packOverlay.style.opacity = "1";
       ui.packOverlay.style.display = "flex";
 
-      results.forEach(function(res, i) {
+      results.forEach(function(card, i) {
         const wrapper = document.createElement("div");
         wrapper.className = "pack-wrapper";
 
@@ -888,30 +915,28 @@
         ui.packArea.appendChild(wrapper);
       });
 
-      function formatPrize(p) {
-        if (p >= 10000) {
-          return Math.floor(p / 10000) + "만";
-        }
-
-        return "1천";
-      }
-
       setTimeout(function() {
-        results.forEach(function(res, i) {
+        results.forEach(function(card, i) {
           document.getElementById("pack-element-" + i).classList.remove("shake");
           document.getElementById("card-element-" + i).classList.add("slide-up");
         });
 
         setTimeout(function() {
-          results.forEach(function(res, i) {
+          results.forEach(function(card, i) {
             const resDiv = document.getElementById("card-result-" + i);
 
-            if (res.isHit) {
+            if (card.type === "hit") {
               resDiv.className = "card-back holo-hit";
-              resDiv.innerHTML = "✨HIT<br>" + formatPrize(res.prize);
+              resDiv.innerHTML =
+                "✨HIT<br>" +
+                card.rank + "등 힛카드<br>" +
+                formatWonValue(card.value) + " 상당";
             } else {
-              resDiv.className = "card-back miss-card";
-              resDiv.innerHTML = "꽝<br>1천";
+              resDiv.className = "card-back base-card";
+              resDiv.innerHTML =
+                "BASE<br>" +
+                "베이스 카드<br>" +
+                card.value.toLocaleString() + "원 상당";
             }
 
             document.getElementById("card-inner-" + i).classList.add("flip");
@@ -921,15 +946,15 @@
             if (batchHits > 0) {
               ui.result.innerHTML =
                 "🎉 <span style='color:#e74c3c'>" +
-                count + "장 중 " + batchHits + "장 당첨! (" +
-                Math.floor(batchEarned).toLocaleString() + "원)</span>";
+                count + "장 중 힛카드 " + batchHits + "장 획득! " +
+                "총 카드 가치 " + Math.floor(batchEarned).toLocaleString() + "원</span>";
 
               triggerConfetti();
             } else {
               ui.result.innerHTML =
-                "<span style='color:#7f8c8d'>아쉽습니다... " +
-                count + "장 모두 꽝 (" +
-                Math.floor(batchEarned).toLocaleString() + "원)</span>";
+                "<span style='color:#7f8c8d'>" +
+                count + "장 모두 베이스 카드입니다. " +
+                "총 카드 가치 " + Math.floor(batchEarned).toLocaleString() + "원</span>";
             }
 
             isAnimating = false;
@@ -969,6 +994,14 @@
           }, 400);
         }, 300);
       }, 600);
+    }
+
+    function formatWonValue(value) {
+      if (value >= 10000) {
+        return Math.floor(value / 10000).toLocaleString() + "만원";
+      }
+
+      return value.toLocaleString() + "원";
     }
 
     function triggerConfetti() {
@@ -1094,7 +1127,7 @@
       total = 2000;
       remain = 2000;
       hitCount = 0;
-      missCount = 0;
+      baseCount = 0;
       nogada = 0;
       drawTickets = 0;
       totalSpent = 0;
