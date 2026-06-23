@@ -381,6 +381,106 @@
       line-height: 1.5;
     }
 
+    #hit-list-container {
+      margin: 24px auto 0;
+      max-width: 600px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      text-align: left;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #hit-list-header {
+      background: #2c3e50;
+      color: white;
+      padding: 11px 15px;
+      font-weight: bold;
+      font-size: 1em;
+    }
+
+    #hit-list {
+      padding: 10px;
+      background: #fbfbfb;
+    }
+
+    .empty-hit {
+      text-align: center;
+      color: #999;
+      padding: 18px 10px;
+      font-size: 0.92em;
+    }
+
+    .hit-card-item {
+      background: white;
+      border: 1px solid #ddd;
+      border-left: 5px solid #e74c3c;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      line-height: 1.45;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .hit-card-title {
+      font-weight: bold;
+      color: #c0392b;
+      font-size: 1.02em;
+      margin-bottom: 4px;
+    }
+
+    .hit-card-meta {
+      font-size: 0.9em;
+      color: #555;
+      margin: 2px 0;
+    }
+
+    .grade-btn {
+      margin: 8px 0 0 0;
+      background: #34495e;
+      color: white;
+      font-size: 0.9em;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .grade-btn:hover {
+      background: #2c3e50;
+    }
+
+    .grade-btn:disabled {
+      background: #bdc3c7;
+      color: #777;
+      cursor: not-allowed;
+    }
+
+    .grade-result-10 {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    .grade-result-normal {
+      color: #2980b9;
+      font-weight: bold;
+    }
+
+    .grade-result-low {
+      color: #7f8c8d;
+      font-weight: bold;
+    }
+
+    .grade-result-lost {
+      color: #111;
+      background: #f1c40f;
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
     #log-container {
       margin: 30px auto;
       max-width: 600px;
@@ -614,6 +714,13 @@
     💰 사용 금액: 0원 / 💎 획득 카드 가치: 0원
   </div>
 
+  <div id="hit-list-container">
+    <div id="hit-list-header">🏆 획득한 힛카드 현황</div>
+    <div id="hit-list">
+      <div class="empty-hit">아직 획득한 힛카드가 없습니다.</div>
+    </div>
+  </div>
+
   <div id="log-container">
     <div id="log-header">📉 뼈맞는 실시간 누적 기회비용 로그</div>
     <ul id="log-list">
@@ -650,6 +757,7 @@
     let isMiningMode = false;
 
     let deck = [];
+    let hitInventory = [];
 
     const hitValueTable = [
       1000000, 900000, 800000, 700000, 600000,
@@ -719,6 +827,7 @@
       pickaxe: document.getElementById("pickaxe"),
       packOverlay: document.getElementById("pack-overlay"),
       packArea: document.getElementById("pack-area"),
+      hitList: document.getElementById("hit-list"),
       logList: document.getElementById("log-list"),
       bossPopup: document.getElementById("boss-popup")
     };
@@ -870,7 +979,6 @@
       totalSpent += 10000 * count;
 
       let batchHits = 0;
-      let batchBase = 0;
       let batchEarned = 0;
       const results = [];
 
@@ -883,9 +991,21 @@
         if (card.type === "hit") {
           hitCount++;
           batchHits++;
+
+          const inventoryCard = {
+            id: Date.now() + "-" + Math.random(),
+            rank: card.rank,
+            baseValue: card.value,
+            currentValue: card.value,
+            grade: null,
+            multiplier: 1,
+            graded: false,
+            lost: false
+          };
+
+          hitInventory.push(inventoryCard);
         } else {
           baseCount++;
-          batchBase++;
         }
 
         totalEarned += card.value;
@@ -950,6 +1070,7 @@
                 "총 카드 가치 " + Math.floor(batchEarned).toLocaleString() + "원</span>";
 
               triggerConfetti();
+              renderHitList();
             } else {
               ui.result.innerHTML =
                 "<span style='color:#7f8c8d'>" +
@@ -994,6 +1115,187 @@
           }, 400);
         }, 300);
       }, 600);
+    }
+
+    function getRandomGradeResult() {
+      const roll = Math.random() * 100;
+
+      if (roll < 0.1) {
+        return {
+          type: "lost",
+          grade: "분실",
+          multiplier: 0
+        };
+      }
+
+      if (roll < 3.1) {
+        return {
+          type: "graded",
+          grade: 10,
+          multiplier: 10
+        };
+      }
+
+      if (roll < 45) {
+        return {
+          type: "graded",
+          grade: 9,
+          multiplier: 1
+        };
+      }
+
+      if (roll < 87) {
+        return {
+          type: "graded",
+          grade: 8,
+          multiplier: 0.8
+        };
+      }
+
+      if (roll < 92) {
+        return {
+          type: "graded",
+          grade: 7,
+          multiplier: 0.5
+        };
+      }
+
+      if (roll < 95) {
+        return {
+          type: "graded",
+          grade: 6,
+          multiplier: 0.5
+        };
+      }
+
+      if (roll < 97) {
+        return {
+          type: "graded",
+          grade: 5,
+          multiplier: 0.5
+        };
+      }
+
+      if (roll < 98) {
+        return {
+          type: "graded",
+          grade: 4,
+          multiplier: 0.5
+        };
+      }
+
+      if (roll < 99) {
+        return {
+          type: "graded",
+          grade: 3,
+          multiplier: 0.5
+        };
+      }
+
+      if (roll < 99.5) {
+        return {
+          type: "graded",
+          grade: 2,
+          multiplier: 0.5
+        };
+      }
+
+      return {
+        type: "graded",
+        grade: 1,
+        multiplier: 0.5
+      };
+    }
+
+    function gradeHitCard(cardId) {
+      const card = hitInventory.find(function(item) {
+        return item.id === cardId;
+      });
+
+      if (!card || card.graded) return;
+
+      const result = getRandomGradeResult();
+
+      const beforeValue = card.currentValue;
+      const afterValue = Math.floor(card.baseValue * result.multiplier);
+
+      card.grade = result.grade;
+      card.multiplier = result.multiplier;
+      card.currentValue = afterValue;
+      card.graded = true;
+      card.lost = result.type === "lost";
+
+      totalEarned = totalEarned - beforeValue + afterValue;
+
+      updateUI();
+      renderHitList();
+
+      if (result.type === "lost") {
+        ui.result.innerHTML =
+          "📦💥 <span style='color:#111; background:#f1c40f; padding:3px 6px; border-radius:4px;'>분실 발생!</span> " +
+          card.rank + "등 힛카드가 그레이딩 과정에서 사라졌습니다... 카드 가치가 0원이 되었습니다.";
+      } else if (result.grade === 10) {
+        ui.result.innerHTML =
+          "💎 <span style='color:#e74c3c'>10점 대박!</span> " +
+          card.rank + "등 힛카드 가치가 10배로 상승했습니다!";
+
+        triggerConfetti();
+        triggerConfetti();
+      } else if (result.grade === 9) {
+        ui.result.innerHTML =
+          "👍 9점! " + card.rank + "등 힛카드의 기준 가치가 유지됩니다.";
+      } else if (result.grade === 8) {
+        ui.result.innerHTML =
+          "😐 8점... " + card.rank + "등 힛카드 가치가 0.8배로 조정되었습니다.";
+      } else {
+        ui.result.innerHTML =
+          "🥶 낮은 등급... " + card.rank + "등 힛카드 가치가 0.5배로 떨어졌습니다.";
+      }
+    }
+
+    function renderHitList() {
+      if (hitInventory.length === 0) {
+        ui.hitList.innerHTML = '<div class="empty-hit">아직 획득한 힛카드가 없습니다.</div>';
+        return;
+      }
+
+      ui.hitList.innerHTML = "";
+
+      hitInventory.forEach(function(card) {
+        const item = document.createElement("div");
+        item.className = "hit-card-item";
+
+        let gradeHtml = "미그레이딩";
+        let buttonHtml = "";
+
+        if (card.graded) {
+          if (card.lost) {
+            gradeHtml = '<span class="grade-result-lost">📦 분실</span>';
+          } else if (card.grade === 10) {
+            gradeHtml = '<span class="grade-result-10">10점 / 10배</span>';
+          } else if (card.grade === 9) {
+            gradeHtml = '<span class="grade-result-normal">9점 / 1배</span>';
+          } else if (card.grade === 8) {
+            gradeHtml = '<span class="grade-result-normal">8점 / 0.8배</span>';
+          } else {
+            gradeHtml = '<span class="grade-result-low">' + card.grade + "점 / 0.5배</span>";
+          }
+
+          buttonHtml = '<button class="grade-btn" disabled>그레이딩 완료</button>';
+        } else {
+          buttonHtml =
+            '<button class="grade-btn" onclick="gradeHitCard(\'' + card.id + '\')">그레이딩 보내기</button>';
+        }
+
+        item.innerHTML =
+          '<div class="hit-card-title">✨ ' + card.rank + "등 힛카드</div>" +
+          '<div class="hit-card-meta">기준 가치: ' + formatWonValue(card.baseValue) + " 상당</div>" +
+          '<div class="hit-card-meta">그레이딩 결과: ' + gradeHtml + "</div>" +
+          '<div class="hit-card-meta">현재 가치: <b>' + formatWonValue(card.currentValue) + " 상당</b></div>" +
+          buttonHtml;
+
+        ui.hitList.appendChild(item);
+      });
     }
 
     function formatWonValue(value) {
@@ -1135,6 +1437,7 @@
       hasAutoMiner = false;
       isAnimating = false;
       isMiningMode = false;
+      hitInventory = [];
 
       clearInterval(miningTimer);
       miningTimer = null;
@@ -1157,6 +1460,7 @@
       ui.logList.innerHTML = '<li style="text-align:center; color:#999;">아직 사용한 금액이 없습니다.</li>';
 
       updateUI();
+      renderHitList();
     }
 
     function shareLink() {
@@ -1194,6 +1498,7 @@
     }
 
     updateUI();
+    renderHitList();
   </script>
 </body>
 </html>
