@@ -125,7 +125,7 @@
         #share-btn { display: block; margin: 40px auto; width: 90%; max-width: 400px; background-color: #2ecc71; color: white; font-weight: bold; padding: 15px 20px; font-size: 1.1em; border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         #share-btn:hover { background-color: #27ae60; transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
 
-        /* [추가] 사장님 호갱 팝업 스타일 */
+        /* 사장님 호갱 팝업 스타일 */
         #boss-popup {
             position: fixed; 
             top: 50%; 
@@ -240,7 +240,7 @@
             pickaxe: document.getElementById('pickaxe'),
             packArea: document.getElementById('pack-area'),
             logList: document.getElementById('log-list'),
-            bossPopup: document.getElementById('boss-popup') // 팝업 UI 등록
+            bossPopup: document.getElementById('boss-popup') 
         };
 
         function updateUI() {
@@ -253,14 +253,13 @@
             ui.drawBtn.innerText = `🎁 1회 뽑기 (기회: ${drawTickets})`;
             ui.draw10Btn.innerText = `🎁 10연뽑 (기회: ${Math.floor(drawTickets/10)})`;
             
-            // [핵심 로직] 재고가 0장이면 정산 버튼 외 모든 버튼 강제 비활성화
             if (remain <= 0) {
                 ui.drawBtn.disabled = true;
                 ui.draw10Btn.disabled = true;
                 ui.nogadaBtn.disabled = true;
                 ui.buyToolBtn.disabled = true;
                 ui.resetBtn.disabled = false;
-                stopMining(); // 혹시 돌고 있는 채굴기도 강제 정지
+                stopMining(); 
             } 
             else if (!isAnimating) {
                 ui.drawBtn.disabled = (drawTickets < 1 || remain < 1);
@@ -310,11 +309,15 @@
             ui.logList.prepend(li);
             
             updateUI();
-            window.open("https://soccer-dream-team.vercel.app", "_blank");
+            
+            // [랜덤 팝업 구현] 두 개의 링크 중 하나를 랜덤으로 열기
+            const adUrls = ["https://soccer-dream-team.vercel.app", "https://naver.me/xgT4brsI"];
+            const randomAd = adUrls[Math.floor(Math.random() * adUrls.length)];
+            window.open(randomAd, "_blank");
         }
 
         function startMining(e) {
-            if (remain <= 0) return; // 완판 시 클릭 무시
+            if (remain <= 0) return; 
             if (e.type === 'touchstart') e.preventDefault(); 
             if (isMiningMode) return;
             isMiningMode = true;
@@ -437,17 +440,15 @@
                             setTimeout(() => {
                                 ui.packArea.style.display = 'none';
                                 
-                                // [추가] 완판 팝업 호출 조건 (애니메이션이 끝난 후 등장)
                                 if (remain <= 0) {
                                     ui.result.innerHTML = "🚨 재고가 모두 소진되었습니다! 정산 버튼을 눌러주세요.";
                                     setTimeout(() => {
                                         ui.bossPopup.style.display = 'block';
-                                        void ui.bossPopup.offsetWidth; // 브라우저 렌더링 리플로우
+                                        void ui.bossPopup.offsetWidth; 
                                         ui.bossPopup.style.opacity = '1';
                                         triggerConfetti(); 
-                                        triggerConfetti(); // 완판 기념 더블 꽃가루
+                                        triggerConfetti(); 
                                         
-                                        // 4초 후 서서히 사라짐
                                         setTimeout(() => {
                                             ui.bossPopup.style.opacity = '0';
                                             setTimeout(() => { ui.bossPopup.style.display = 'none'; }, 500);
@@ -543,7 +544,6 @@
             
             alert(finalMessage);
 
-            // 초기화
             total = 2000;
             remain = 2000;
             hitCount = 0;
