@@ -3,68 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>포켓몬 오리파 광산</title>
+    <title>실전 오리파 게임</title>
     <style>
         body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; overflow-x: hidden; }
         h1 { color: #333; }
         
         /* 통계 영역 스타일 */
-        .stats { display: flex; justify-content: center; gap: 15px; margin: 20px auto; max-width: 600px; flex-wrap: wrap; }
-        .box { border: 2px solid #ddd; padding: 15px; border-radius: 10px; background-color: white; flex: 1; min-width: 120px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .stats { display: flex; justify-content: center; gap: 15px; margin: 15px auto; max-width: 600px; flex-wrap: wrap; }
+        .box { border: 2px solid #ddd; padding: 10px; border-radius: 10px; background-color: white; flex: 1; min-width: 100px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .stat-label { font-size: 0.8em; color: #666; display: block; margin-bottom: 5px; }
-        .stat-value { font-size: 1.5em; font-weight: bold; color: #333; }
+        .stat-value { font-size: 1.3em; font-weight: bold; color: #333; }
         .hit-val { color: #e74c3c; } 
         .miss-val { color: #7f8c8d; } 
 
         /* 광산 애니메이션 영역 */
-        #mining-area { font-size: 3em; height: 1.2em; margin-top: 20px; position: relative; display: flex; justify-content: center; align-items: center; }
+        #mining-area { font-size: 3em; height: 1.2em; margin-top: 10px; position: relative; display: flex; justify-content: center; align-items: center; }
         #pickaxe { display: inline-block; transform-origin: bottom right; }
-        .swinging { animation: swing 0.15s ease-out; }
-        @keyframes swing { 0% { transform: rotate(0deg); } 30% { transform: rotate(-40deg); } 70% { transform: rotate(20deg); } 100% { transform: rotate(0deg); } }
+        
+        .swinging { animation: swing-once 0.15s ease-out; }
+        .turbo-swinging { animation: swing-once 0.06s linear infinite; }
+        @keyframes swing-once { 0% { transform: rotate(0deg); } 30% { transform: rotate(-40deg); } 70% { transform: rotate(20deg); } 100% { transform: rotate(0deg); } }
 
         /* 컨트롤 영역 */
-        .controls { margin: 20px; padding: 20px; border-top: 1px solid #ccc; }
+        .controls { margin: 15px auto; padding: 15px; border-top: 1px solid #ccc; max-width: 600px; }
         
         button { 
-            padding: 10px 20px; 
+            padding: 10px 15px; 
             font-size: 1em; 
             cursor: pointer; 
             border-radius: 5px; 
             border: 1px solid #ccc; 
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
             touch-action: manipulation; 
             -webkit-user-select: none;  
             user-select: none;
+            margin: 5px; 
         }
         
-        #nogada-btn { background-color: #f1c40f; color: #333; font-weight: bold; }
-        #nogada-btn:hover { background-color: #f39c12; }
-        #draw-btn { background-color: #3498db; color: white; margin-left: 10px; }
+        #nogada-btn { background-color: #f1c40f; color: #333; font-weight: bold; width: 100%; max-width: 400px; display: inline-block; }
+        #nogada-btn:active { transform: scale(0.98); } 
+        
+        #draw-btn { background-color: #3498db; color: white; }
         #draw-btn:hover { background-color: #2980b9; }
-        #draw-btn:disabled, #nogada-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-        #reset-btn { background-color: #e74c3c; color: white; margin-left: 10px; font-weight: bold; }
+        #draw-10-btn { background-color: #e67e22; color: white; font-weight: bold; }
+        #draw-10-btn:hover { background-color: #d35400; }
+        
+        #draw-btn:disabled, #draw-10-btn:disabled, #nogada-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; transform: none; }
+        #reset-btn { background-color: #e74c3c; color: white; font-weight: bold; }
         #reset-btn:hover { background-color: #c0392b; }
         #reset-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-        #nogada-gauge { font-size: 0.9em; color: #555; margin-bottom: 10px; }
+        
+        #buy-tool-btn { 
+            display: block; 
+            width: 100%; 
+            margin: 10px 0 0 0; 
+            background-color: #9b59b6; 
+            color: white; 
+            font-weight: bold; 
+            border: 2px solid #8e44ad; 
+            box-sizing: border-box;
+        }
+        #buy-tool-btn:hover { background-color: #8e44ad; }
+        #buy-tool-btn:disabled { background-color: #95a5a6; border-color: #7f8c8d; cursor: not-allowed; transform: none; }
+
+        #nogada-gauge { font-size: 0.9em; color: #555; margin-bottom: 5px; }
 
         /* 카드 팩 애니메이션 영역 */
-        #pack-area { position: relative; height: 180px; display: none; justify-content: center; align-items: flex-end; margin: 20px auto; width: 200px; transition: opacity 0.3s ease; opacity: 1; }
-        .pack { width: 100px; height: 140px; background: linear-gradient(135deg, #2c3e50, #000000); border-radius: 8px; z-index: 2; position: absolute; bottom: 0; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: #f1c40f; font-weight: 900; font-size: 1.2em; border: 3px solid #f1c40f; letter-spacing: 2px; }
-        .card { width: 90px; height: 130px; position: absolute; bottom: 5px; z-index: 1; perspective: 1000px; }
+        #pack-area { 
+            position: relative; 
+            display: none; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 10px; 
+            margin: 20px auto; 
+            width: 100%; 
+            max-width: 450px; 
+            padding-top: 80px; 
+            transition: opacity 0.3s ease; 
+            opacity: 1; 
+        }
+        
+        .pack-wrapper { position: relative; width: 65px; height: 95px; display: flex; justify-content: center; align-items: flex-end; perspective: 1000px; }
+        .single-mode .pack-wrapper { transform: scale(1.6); margin: 20px auto; }
+
+        .pack { width: 100%; height: 90px; background: linear-gradient(135deg, #2c3e50, #000000); border-radius: 6px; z-index: 2; position: absolute; bottom: 0; box-shadow: 0 5px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: #f1c40f; font-weight: 900; font-size: 0.8em; border: 2px solid #f1c40f; letter-spacing: 1px; }
+        .card { width: 90%; height: 85px; position: absolute; bottom: 3px; z-index: 1; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
-        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #ccc; box-sizing: border-box; padding: 5px; word-break: keep-all; font-size: 0.9em; flex-direction: column; }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid #ccc; box-sizing: border-box; padding: 2px; word-break: keep-all; font-size: 0.8em; flex-direction: column; text-align: center;}
         .card-front { background: #34495e; color: white; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
         .card-back { transform: rotateY(180deg); }
+        
         .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(1px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-2px, 0, 0); } 40%, 60% { transform: translate3d(2px, 0, 0); } }
+        
         .slide-up { animation: slideUp 0.3s ease-out forwards; }
-        @keyframes slideUp { to { bottom: 160px; z-index: 3; } }
+        @keyframes slideUp { to { transform: translateY(-75px); z-index: 3; } } 
+        
         .flip { transform: rotateY(180deg); }
-        .holo-hit { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%); border: 3px solid #ff758c; box-shadow: 0 0 20px rgba(255, 117, 140, 0.6); color: #c0392b; font-size: 1.1em; }
-        .miss-card { background: #ecf0f1; color: #7f8c8d; }
+        .holo-hit { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%); border: 2px solid #ff758c; box-shadow: 0 0 10px rgba(255, 117, 140, 0.6); color: #c0392b; font-size: 0.9em; }
+        .miss-card { background: #ecf0f1; color: #7f8c8d; font-size: 0.8em; }
 
         /* 결과 및 재무 창 스타일 */
-        #result-area { height: 60px; font-size: 1.5em; margin: 20px; font-weight: bold; color: #2c3e50; display: flex; align-items: center; justify-content: center; }
+        #result-area { height: 50px; font-size: 1.3em; margin: 15px; font-weight: bold; color: #2c3e50; display: flex; align-items: center; justify-content: center; }
         #finance-area { font-size: 1em; color: #444; background: #eee; padding: 10px; border-radius: 5px; display: inline-block;}
 
         /* 기회비용 로그 영역 */
@@ -76,22 +117,41 @@
         .log-amount { color: #c0392b; font-weight: bold; }
         .log-warning { color: #e67e22; font-weight: bold; }
 
-        /* [추가] 꽃가루(Confetti) 스타일 및 애니메이션 */
-        .confetti {
-            position: fixed;
-            z-index: 9999;
-            top: -15px;
-            pointer-events: none;
-            animation: fall linear forwards;
-        }
-        @keyframes fall {
-            0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(105vh) rotate(720deg); }
+        /* 꽃가루(Confetti) 스타일 */
+        .confetti { position: fixed; z-index: 9999; top: -15px; pointer-events: none; animation: fall linear forwards; }
+        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(105vh) rotate(720deg); } }
+
+        /* 공유하기 버튼 스타일 */
+        #share-btn { display: block; margin: 40px auto; width: 90%; max-width: 400px; background-color: #2ecc71; color: white; font-weight: bold; padding: 15px 20px; font-size: 1.1em; border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #share-btn:hover { background-color: #27ae60; transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
+
+        /* [추가] 사장님 호갱 팝업 스타일 */
+        #boss-popup {
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9); 
+            color: #f1c40f; 
+            padding: 30px;
+            border-radius: 15px; 
+            font-size: 1.5em; 
+            font-weight: bold; 
+            z-index: 10000;
+            display: none; 
+            opacity: 0; 
+            transition: opacity 0.5s ease; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border: 4px solid #f1c40f;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            width: 80%;
+            max-width: 400px;
         }
     </style>
 </head>
 <body>
-    <h1>포켓몬 오리파 광산</h1>
+    <h1>실전 오리파 게임</h1>
     
     <div class="stats">
         <div class="box"><span class="stat-label">전체 카드</span><span class="stat-value" id="total">2000</span></div>
@@ -108,20 +168,15 @@
 
     <div class="controls">
         <div id="nogada-gauge">채굴 진행도: <span id="nogada-count">0</span> / 10</div>
-        <button id="nogada-btn" onclick="doNogada()">⛏️ 채굴하기</button>
-        <button id="draw-btn" onclick="drawCard()" disabled>🎁 뽑기 (기회: 0)</button>
-        <button id="reset-btn" onclick="endGame()">🛑 뽑기 종료 및 정산</button>
+        <button id="nogada-btn">⛏️ 채굴하기</button>
+        <button id="draw-btn" onclick="drawMultiple(1)" disabled>🎁 1회 뽑기</button>
+        <button id="draw-10-btn" onclick="drawMultiple(10)" disabled>🎁 10연속 뽑기</button>
+        <button id="reset-btn" onclick="endGame()">🛑 정산하기</button>
+        
+        <button id="buy-tool-btn" onclick="buyTool()">🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)</button>
     </div>
 
-    <div id="pack-area">
-        <div id="card-element" class="card">
-            <div class="card-inner" id="card-inner">
-                <div class="card-front">?</div>
-                <div class="card-back" id="card-result">결과</div>
-            </div>
-        </div>
-        <div id="pack-element" class="pack">ORIPA</div>
-    </div>
+    <div id="pack-area"></div>
 
     <div id="result-area">채굴을 시작하세요!</div>
     <div id="finance-area">💰 사용 금액: 0원 / 💎 획득 가치: 0원</div>
@@ -133,12 +188,20 @@
         </ul>
     </div>
 
+    <button id="share-btn" onclick="shareLink()">🔗 이 매운맛 게임 공유하기</button>
+
+    <div id="boss-popup">👨‍💼(사장님)<br><br>아이구 호갱<br><span style="font-size:0.5em; color:#999; text-decoration:line-through;">(아차차)</span><br>아니 고객님!<br>남은 재고를 싹 털어주셔서<br>정말 감사합니다! 🙇‍♂️💸</div>
+
     <script>
         let total = 2000, remain = 2000, hitCount = 0, missCount = 0;
         let nogada = 0, drawTickets = 0;
         let totalSpent = 0, totalEarned = 0;
         let isAnimating = false;
         let hideCardTimeout; 
+        
+        let hasAutoMiner = false;
+        let miningTimer = null;
+        let isMiningMode = false;
         
         const minHit = 50000;
         const maxHit = 1000000;
@@ -169,16 +232,15 @@
             nogadaCount: document.getElementById('nogada-count'),
             nogadaBtn: document.getElementById('nogada-btn'),
             drawBtn: document.getElementById('draw-btn'),
+            draw10Btn: document.getElementById('draw-10-btn'), 
             resetBtn: document.getElementById('reset-btn'),
+            buyToolBtn: document.getElementById('buy-tool-btn'),
             result: document.getElementById('result-area'),
             finance: document.getElementById('finance-area'),
             pickaxe: document.getElementById('pickaxe'),
             packArea: document.getElementById('pack-area'),
-            packEl: document.getElementById('pack-element'),
-            cardEl: document.getElementById('card-element'),
-            cardInner: document.getElementById('card-inner'),
-            cardResult: document.getElementById('card-result'),
-            logList: document.getElementById('log-list')
+            logList: document.getElementById('log-list'),
+            bossPopup: document.getElementById('boss-popup') // 팝업 UI 등록
         };
 
         function updateUI() {
@@ -187,14 +249,31 @@
             ui.hit.innerText = hitCount;
             ui.miss.innerText = missCount;
             ui.nogadaCount.innerText = nogada;
-            ui.drawBtn.innerText = `🎁 뽑기 (기회: ${drawTickets})`;
             
-            if (!isAnimating) {
-                ui.drawBtn.disabled = (drawTickets <= 0 || remain <= 0);
+            ui.drawBtn.innerText = `🎁 1회 뽑기 (기회: ${drawTickets})`;
+            ui.draw10Btn.innerText = `🎁 10연뽑 (기회: ${Math.floor(drawTickets/10)})`;
+            
+            // [핵심 로직] 재고가 0장이면 정산 버튼 외 모든 버튼 강제 비활성화
+            if (remain <= 0) {
+                ui.drawBtn.disabled = true;
+                ui.draw10Btn.disabled = true;
+                ui.nogadaBtn.disabled = true;
+                ui.buyToolBtn.disabled = true;
+                ui.resetBtn.disabled = false;
+                stopMining(); // 혹시 돌고 있는 채굴기도 강제 정지
+            } 
+            else if (!isAnimating) {
+                ui.drawBtn.disabled = (drawTickets < 1 || remain < 1);
+                ui.draw10Btn.disabled = (drawTickets < 10 || remain < 10);
                 ui.nogadaBtn.disabled = false;
                 ui.resetBtn.disabled = false;
+                ui.buyToolBtn.disabled = hasAutoMiner;
             } else {
+                ui.drawBtn.disabled = true;
+                ui.draw10Btn.disabled = true;
+                ui.nogadaBtn.disabled = true;
                 ui.resetBtn.disabled = true;
+                ui.buyToolBtn.disabled = true;
             }
             
             const spentStr = totalSpent.toLocaleString();
@@ -203,12 +282,6 @@
         }
 
         function doNogada() {
-            if (isAnimating) return;
-            
-            ui.pickaxe.classList.remove('swinging');
-            void ui.pickaxe.offsetWidth; 
-            ui.pickaxe.classList.add('swinging');
-
             nogada++;
             if (nogada >= 10) {
                 drawTickets++;
@@ -217,35 +290,200 @@
             updateUI();
         }
 
-        // [추가] 꽃가루 생성 자바스크립트 엔진
+        function buyTool() {
+            if (hasAutoMiner || remain <= 0) return;
+            
+            hasAutoMiner = true;
+            totalSpent += 1000000; 
+            
+            ui.buyToolBtn.disabled = true;
+            ui.buyToolBtn.innerHTML = "🔥 장착 완료! 버튼을 꾹 누르면 뽑기 횟수가 폭발적으로 충전됩니다!";
+            ui.buyToolBtn.style.backgroundColor = "#27ae60";
+            ui.buyToolBtn.style.borderColor = "#2ecc71";
+            ui.nogadaBtn.innerHTML = "🚀 초고속 자동 기회 충전 (꾹~ 누르고 계세요!)";
+
+            if (totalSpent === 1000000) ui.logList.innerHTML = ""; 
+            const li = document.createElement('li');
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            li.innerHTML = `[${timeStr}] <span class="log-amount">-1,000,000원 지출:</span> 🛠️ <b>초고속 자동 채굴기</b>를 구매했습니다! 돈을 들여 손가락 피로도를 없애고 뽑기 시드를 초고속 확보합니다.`;
+            ui.logList.prepend(li);
+            
+            updateUI();
+            window.open("https://soccer-dream-team.vercel.app", "_blank");
+        }
+
+        function startMining(e) {
+            if (remain <= 0) return; // 완판 시 클릭 무시
+            if (e.type === 'touchstart') e.preventDefault(); 
+            if (isMiningMode) return;
+            isMiningMode = true;
+            
+            if (hasAutoMiner) {
+                ui.pickaxe.className = 'turbo-swinging';
+                miningTimer = setInterval(() => {
+                    doNogada();
+                }, 40); 
+            } else {
+                ui.pickaxe.classList.remove('swinging');
+                void ui.pickaxe.offsetWidth; 
+                ui.pickaxe.classList.add('swinging');
+                doNogada();
+            }
+            updateUI();
+        }
+
+        function stopMining() {
+            if (!isMiningMode) return;
+            isMiningMode = false;
+            clearInterval(miningTimer);
+            ui.pickaxe.className = ''; 
+            updateUI();
+        }
+
+        ui.nogadaBtn.addEventListener('mousedown', startMining);
+        ui.nogadaBtn.addEventListener('touchstart', startMining);
+        window.addEventListener('mouseup', stopMining);
+        window.addEventListener('touchend', stopMining);
+        ui.nogadaBtn.addEventListener('mouseleave', stopMining);
+        ui.nogadaBtn.addEventListener('touchcancel', stopMining);
+
+        function drawMultiple(count) {
+            if (drawTickets < count || remain < count || isAnimating) return;
+            isAnimating = true;
+            updateUI(); 
+
+            clearTimeout(hideCardTimeout);
+
+            drawTickets -= count;
+            const totalSpentNow = 10000 * count;
+            totalSpent += totalSpentNow;
+            
+            let batchHits = 0;
+            let batchEarned = 0;
+            let results = [];
+
+            for(let i=0; i<count; i++) {
+                const idx = Math.floor(Math.random() * deck.length);
+                const prize = deck.splice(idx, 1)[0];
+                remain--;
+                const isHit = prize > 1000;
+                if (isHit) { hitCount++; batchHits++; } 
+                else { missCount++; }
+                totalEarned += prize;
+                batchEarned += prize;
+                results.push({ prize, isHit });
+            }
+
+            ui.result.innerHTML = `팩 개봉 중... 📦 (${count}장)`;
+            ui.packArea.innerHTML = '';
+            ui.packArea.className = (count === 1) ? 'single-mode' : '';
+            ui.packArea.style.opacity = '1';
+            ui.packArea.style.display = 'flex';
+
+            results.forEach((res, i) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'pack-wrapper';
+                wrapper.innerHTML = `
+                    <div class="card" id="card-element-${i}">
+                        <div class="card-inner" id="card-inner-${i}">
+                            <div class="card-front">?</div>
+                            <div class="card-back" id="card-result-${i}">결과</div>
+                        </div>
+                    </div>
+                    <div class="pack shake" id="pack-element-${i}">ORIPA</div>
+                `;
+                ui.packArea.appendChild(wrapper);
+            });
+
+            function formatPrize(p) {
+                if(p >= 10000) return Math.floor(p/10000) + '만';
+                return '1천';
+            }
+            
+            setTimeout(() => {
+                results.forEach((res, i) => {
+                    document.getElementById(`pack-element-${i}`).classList.remove('shake');
+                    document.getElementById(`card-element-${i}`).classList.add('slide-up');
+                });
+                
+                setTimeout(() => {
+                    results.forEach((res, i) => {
+                        const resDiv = document.getElementById(`card-result-${i}`);
+                        if (res.isHit) {
+                            resDiv.className = 'card-back holo-hit';
+                            resDiv.innerHTML = `✨HIT<br>${formatPrize(res.prize)}`;
+                        } else {
+                            resDiv.className = 'card-back miss-card';
+                            resDiv.innerHTML = `꽝<br>1천`;
+                        }
+                        document.getElementById(`card-inner-${i}`).classList.add('flip');
+                    });
+                    
+                    setTimeout(() => {
+                        if (batchHits > 0) {
+                            ui.result.innerHTML = `🎉 <span style='color:#e74c3c'>${count}장 중 ${batchHits}장 당첨! (${Math.floor(batchEarned).toLocaleString()}원)</span>`;
+                            triggerConfetti();
+                        } else {
+                            ui.result.innerHTML = `<span style='color:#7f8c8d'>아쉽습니다... ${count}장 모두 꽝 (${Math.floor(batchEarned).toLocaleString()}원)</span>`;
+                        }
+                        
+                        isAnimating = false;
+                        updateUI();
+                        addOpportunityLog();
+
+                        hideCardTimeout = setTimeout(() => {
+                            ui.packArea.style.opacity = '0';
+                            setTimeout(() => {
+                                ui.packArea.style.display = 'none';
+                                
+                                // [추가] 완판 팝업 호출 조건 (애니메이션이 끝난 후 등장)
+                                if (remain <= 0) {
+                                    ui.result.innerHTML = "🚨 재고가 모두 소진되었습니다! 정산 버튼을 눌러주세요.";
+                                    setTimeout(() => {
+                                        ui.bossPopup.style.display = 'block';
+                                        void ui.bossPopup.offsetWidth; // 브라우저 렌더링 리플로우
+                                        ui.bossPopup.style.opacity = '1';
+                                        triggerConfetti(); 
+                                        triggerConfetti(); // 완판 기념 더블 꽃가루
+                                        
+                                        // 4초 후 서서히 사라짐
+                                        setTimeout(() => {
+                                            ui.bossPopup.style.opacity = '0';
+                                            setTimeout(() => { ui.bossPopup.style.display = 'none'; }, 500);
+                                        }, 4000);
+                                    }, 500);
+                                } else {
+                                    ui.result.innerHTML = "다음 채굴을 시작하세요! ⛏️";
+                                }
+
+                            }, 300);
+                        }, count > 1 ? 1800 : 1000);
+
+                    }, 400);
+                }, 300);
+            }, 600);
+        }
+
         function triggerConfetti() {
             const colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#ff758c'];
-            const count = 80; // 떨어질 꽃가루 개수
+            const count = 50; 
 
             for (let i = 0; i < count; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
-                
-                // 무작위 속성 설정
                 confetti.style.left = Math.random() * 100 + 'vw';
                 confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 
-                // 무작위 크기 (사각형 또는 원형)
-                const size = Math.random() * 8 + 6; 
+                const size = Math.random() * 6 + 4; 
                 confetti.style.width = size + 'px';
                 confetti.style.height = size + 'px';
                 confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0%';
-                
-                // 무작위 낙하 속도 및 투명도
-                confetti.style.animationDuration = Math.random() * 1.5 + 1.2 + 's';
+                confetti.style.animationDuration = Math.random() * 1.2 + 0.8 + 's';
                 confetti.style.opacity = Math.random() * 0.7 + 0.3;
                 
                 document.body.appendChild(confetti);
-                
-                // 화면 밖으로 나가면 메모리 확보를 위해 요소 자동 삭제
-                setTimeout(() => {
-                    confetti.remove();
-                }, 2700);
+                setTimeout(() => { confetti.remove(); }, 2000);
             }
         }
 
@@ -273,7 +511,7 @@
         }
 
         function addOpportunityLog() {
-            if (totalSpent === 10000) {
+            if (ui.logList.innerText.includes("아직 사용한 금액이 없습니다")) {
                 ui.logList.innerHTML = "";
             }
 
@@ -287,75 +525,8 @@
             ui.logList.prepend(li);
         }
 
-        function drawCard() {
-            if (drawTickets <= 0 || remain <= 0 || isAnimating) return;
-            isAnimating = true;
-            updateUI(); 
-
-            clearTimeout(hideCardTimeout);
-
-            drawTickets--;
-            totalSpent += 10000;
-            
-            const idx = Math.floor(Math.random() * deck.length);
-            const prize = deck.splice(idx, 1)[0];
-            
-            remain--;
-            const isHit = prize > 1000;
-            if (isHit) { hitCount++; } else { missCount++; }
-            totalEarned += prize;
-
-            ui.result.innerHTML = "팩 개봉 중... 📦";
-            
-            ui.packArea.style.opacity = '1';
-            ui.packArea.style.display = 'flex';
-            ui.packEl.className = 'pack shake';
-            ui.cardEl.className = 'card';
-            ui.cardInner.className = 'card-inner';
-            
-            setTimeout(() => {
-                ui.packEl.classList.remove('shake');
-                ui.cardEl.classList.add('slide-up');
-                
-                setTimeout(() => {
-                    if (isHit) {
-                        ui.cardResult.className = 'card-back holo-hit';
-                        ui.cardResult.innerHTML = `✨HIT✨<br>${Math.floor(prize).toLocaleString()}원`;
-                    } else {
-                        ui.cardResult.className = 'card-back miss-card';
-                        ui.cardResult.innerHTML = `꽝<br>1,000원`;
-                    }
-                    
-                    ui.cardInner.classList.add('flip');
-                    
-                    setTimeout(() => {
-                        if (isHit) {
-                            ui.result.innerHTML = `🎉 <span style='color:#e74c3c'>${Math.floor(prize).toLocaleString()}원</span> 가치 당첨!`;
-                            // [핵심 연출] 당첨 결과 오픈 시점에 꽃가루 효과 발사!
-                            triggerConfetti();
-                        } else {
-                            ui.result.innerHTML = "<span style='color:#7f8c8d'>아쉽습니다... 꽝 (1,000원)</span>";
-                        }
-                        
-                        isAnimating = false;
-                        updateUI();
-                        addOpportunityLog();
-
-                        hideCardTimeout = setTimeout(() => {
-                            ui.packArea.style.opacity = '0';
-                            setTimeout(() => {
-                                ui.packArea.style.display = 'none';
-                                ui.result.innerHTML = "다음 채굴을 시작하세요! ⛏️";
-                            }, 300);
-                        }, 1000);
-
-                    }, 400);
-                }, 300);
-            }, 600);
-        }
-
         function endGame() {
-            if (isAnimating) return; 
+            if (isAnimating || isMiningMode) return; 
 
             if (totalSpent === 0) {
                 alert("아직 뽑기를 진행하지 않아 정산할 내역이 없습니다.");
@@ -372,6 +543,7 @@
             
             alert(finalMessage);
 
+            // 초기화
             total = 2000;
             remain = 2000;
             hitCount = 0;
@@ -380,6 +552,13 @@
             drawTickets = 0;
             totalSpent = 0;
             totalEarned = 0;
+            
+            hasAutoMiner = false;
+            ui.buyToolBtn.disabled = false;
+            ui.buyToolBtn.innerHTML = "🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)";
+            ui.buyToolBtn.style.backgroundColor = "";
+            ui.buyToolBtn.style.borderColor = "";
+            ui.nogadaBtn.innerHTML = "⛏️ 채굴하기";
 
             initDeck();
 
@@ -389,6 +568,31 @@
             ui.logList.innerHTML = '<li style="text-align: center; color: #999;">아직 사용한 금액이 없습니다.</li>';
 
             updateUI();
+        }
+
+        function shareLink() {
+            const url = window.location.href;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert("주소가 클립보드에 복사되었습니다!\n친구들에게 뼈 때리는 도파민을 공유해 보세요. 💸");
+                }).catch(() => { fallbackCopy(url); });
+            } else { fallbackCopy(url); }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";  
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert("주소가 클립보드에 복사되었습니다!\n친구들에게 뼈 때리는 도파민을 공유해 보세요. 💸");
+            } catch (err) {
+                alert("복사에 실패했습니다. 브라우저 주소창을 직접 복사해 주세요.");
+            }
+            document.body.removeChild(textArea);
         }
 
         updateUI();
