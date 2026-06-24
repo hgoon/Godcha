@@ -4,13 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>실전 오리파 & 박스깡 게임</title>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -41,9 +38,7 @@
       user-select: none;
     }
 
-    button:active {
-      transform: scale(0.98);
-    }
+    button:active { transform: scale(0.98); }
 
     button:disabled {
       background: #bdc3c7 !important;
@@ -63,10 +58,7 @@
       box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }
 
-    .auth-screen h2 {
-      margin: 0 0 10px;
-      color: #2c3e50;
-    }
+    .auth-screen h2 { margin: 0 0 10px; color: #2c3e50; }
 
     .auth-desc {
       margin-bottom: 18px;
@@ -102,9 +94,7 @@
       line-height: 1.45;
     }
 
-    #game-screen {
-      display: none;
-    }
+    #game-screen { display: none; }
 
     .player-panel {
       max-width: 600px;
@@ -164,9 +154,7 @@
       border-top: 1px solid rgba(241,196,15,0.45);
     }
 
-    .my-cumulative-panel.collapsed .my-cumulative-detail {
-      display: none;
-    }
+    .my-cumulative-panel.collapsed .my-cumulative-detail { display: none; }
 
     .my-cumulative-title {
       margin-bottom: 8px;
@@ -202,9 +190,7 @@
       word-break: keep-all;
     }
 
-    #my-best-hit {
-      color: #e74c3c;
-    }
+    #my-best-hit, #my-lost-count { color: #e74c3c; }
 
     .hit-ticker {
       display: none;
@@ -301,7 +287,7 @@
       border: 1px solid #ddd;
       border-radius: 10px;
       color: #2c3e50;
-      font-size: 1.1em;
+      font-size: 1.05em;
       font-weight: bold;
       line-height: 1.4;
     }
@@ -338,17 +324,9 @@
       font-weight: bold;
     }
 
-    .hit-val {
-      color: #e74c3c;
-    }
-
-    .base-val {
-      color: #7f8c8d;
-    }
-
-    .secret-val {
-      color: #8e44ad;
-    }
+    .hit-val { color: #e74c3c; }
+    .base-val { color: #7f8c8d; }
+    .secret-val { color: #8e44ad; }
 
     #mining-area {
       display: flex;
@@ -365,13 +343,8 @@
       transform-origin: bottom right;
     }
 
-    .swinging {
-      animation: swing-once 0.15s ease-out;
-    }
-
-    .turbo-swinging {
-      animation: swing-once 0.06s linear infinite;
-    }
+    .swinging { animation: swing-once 0.15s ease-out; }
+    .turbo-swinging { animation: swing-once 0.06s linear infinite; }
 
     @keyframes swing-once {
       0% { transform: rotate(0deg); }
@@ -395,16 +368,8 @@
       font-weight: bold;
     }
 
-    #draw-btn {
-      background: #3498db;
-      color: white;
-    }
-
-    #draw-10-btn {
-      background: #e67e22;
-      color: white;
-      font-weight: bold;
-    }
+    #draw-btn { background: #3498db; color: white; }
+    #draw-10-btn { background: #e67e22; color: white; font-weight: bold; }
 
     #buy-tool-btn {
       display: block;
@@ -547,9 +512,7 @@
       font-weight: 900;
     }
 
-    .remain-summary-card.soldout .remain-summary-count {
-      color: #777;
-    }
+    .remain-summary-card.soldout .remain-summary-count { color: #777; }
 
     .last-one-summary {
       max-width: 600px;
@@ -597,9 +560,7 @@
       text-align: center;
     }
 
-    .prize-table tr:nth-child(even) td {
-      background: #f7f5fb;
-    }
+    .prize-table tr:nth-child(even) td { background: #f7f5fb; }
 
     .box-oripa-board-wrap {
       max-width: 600px;
@@ -646,10 +607,7 @@
       margin: 0;
     }
 
-    .box-oripa-cell.opened {
-      cursor: default;
-      border-width: 2px;
-    }
+    .box-oripa-cell.opened { cursor: default; border-width: 2px; }
 
     .box-oripa-cell.prizeLegend {
       background: linear-gradient(135deg, #111 0%, #6c3483 45%, #f1c40f 100%);
@@ -864,13 +822,8 @@
       );
     }
 
-    .card-back {
-      transform: rotateY(180deg);
-    }
-
-    .shake {
-      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both infinite;
-    }
+    .card-back { transform: rotateY(180deg); }
+    .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
 
     @keyframes shake {
       10%, 90% { transform: translate3d(-1px, 0, 0); }
@@ -879,20 +832,13 @@
       40%, 60% { transform: translate3d(2px, 0, 0); }
     }
 
-    .slide-up {
-      animation: slideUp 0.3s ease-out forwards;
-    }
+    .slide-up { animation: slideUp 0.3s ease-out forwards; }
 
     @keyframes slideUp {
-      to {
-        transform: translateY(-75px);
-        z-index: 3;
-      }
+      to { transform: translateY(-75px); z-index: 3; }
     }
 
-    .flip {
-      transform: rotateY(180deg);
-    }
+    .flip { transform: rotateY(180deg); }
 
     .card-rarity-base {
       background: linear-gradient(135deg, #ecf0f1 0%, #fff 100%);
@@ -983,8 +929,7 @@
       text-align: left;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-
-    #valuable-header,
+        #valuable-header,
     #ranking-header {
       padding: 11px 15px;
       background: #2c3e50;
@@ -1065,21 +1010,21 @@
     }
 
     .ranking-tabs {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 6px;
       padding: 10px;
       background: #f5f5f5;
     }
 
     .ranking-tab {
-      flex: 1;
       margin: 0;
       padding: 8px 4px;
       background: #e9ecef;
       color: #555;
       border: none;
       border-radius: 8px;
-      font-size: 0.82em;
+      font-size: 0.78em;
       font-weight: bold;
     }
 
@@ -1094,9 +1039,7 @@
       line-height: 1.45;
     }
 
-    .ranking-item:last-child {
-      border-bottom: none;
-    }
+    .ranking-item:last-child { border-bottom: none; }
 
     .rank-no {
       display: inline-block;
@@ -1150,15 +1093,8 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .log-amount {
-      color: #c0392b;
-      font-weight: bold;
-    }
-
-    .log-warning {
-      color: #e67e22;
-      font-weight: bold;
-    }
+    .log-amount { color: #c0392b; font-weight: bold; }
+    .log-warning { color: #e67e22; font-weight: bold; }
 
     .confetti {
       position: fixed;
@@ -1220,9 +1156,7 @@
         padding: 8px 9px;
       }
 
-      .my-cumulative-grid {
-        grid-template-columns: 1fr;
-      }
+      .my-cumulative-grid { grid-template-columns: 1fr; }
 
       .hit-ticker {
         height: 34px;
@@ -1244,26 +1178,17 @@
         padding: 9px;
       }
 
-      #mining-area {
-        font-size: 2.6em;
-      }
+      #mining-area { font-size: 2.6em; }
 
       button {
         padding: 9px 11px;
         font-size: 0.93em;
       }
 
-      .remain-summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+      .remain-summary-grid { grid-template-columns: repeat(2, 1fr); }
 
-      .box-oripa-board-wrap {
-        padding: 9px;
-      }
-
-      .box-oripa-board {
-        gap: 4px;
-      }
+      .box-oripa-board-wrap { padding: 9px; }
+      .box-oripa-board { gap: 4px; }
 
       .box-oripa-cell {
         padding: 2px;
@@ -1289,23 +1214,17 @@
         font-size: 0.68em;
       }
 
-      .card {
-        height: 78px;
-      }
+      .card { height: 78px; }
 
       .card-front,
-      .card-back {
-        font-size: 0.68em;
-      }
+      .card-back { font-size: 0.68em; }
 
-      .prize-table {
-        font-size: 0.78em;
-      }
+      .prize-table { font-size: 0.78em; }
 
       .prize-table th,
-      .prize-table td {
-        padding: 6px 4px;
-      }
+      .prize-table td { padding: 6px 4px; }
+
+      .ranking-tabs { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -1339,9 +1258,7 @@
 
       <div class="my-cumulative-panel collapsed" id="my-cumulative-panel">
         <button class="my-cumulative-summary" type="button" onclick="toggleMyCumulativePanel()">
-          <span id="my-cumulative-summary-text">
-            📊 내 누계  사용 0원 · 회수 0원 · 0.0%
-          </span>
+          <span id="my-cumulative-summary-text">📊 내 누계  사용 0원 · 회수 0원 · 0.0% · 분실 0회</span>
           <span id="my-cumulative-toggle-icon">▼</span>
         </button>
 
@@ -1368,15 +1285,18 @@
               <span class="my-cumulative-label">최고 힛</span>
               <b id="my-best-hit">없음</b>
             </div>
+
+            <div>
+              <span class="my-cumulative-label">그레이딩 분실</span>
+              <b id="my-lost-count">0회</b>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <div id="global-hit-ticker" class="hit-ticker">
-      <div id="global-hit-ticker-track" class="hit-ticker-track">
-        🔥 아직 이번 회차 주요 힛 기록이 없습니다.
-      </div>
+      <div id="global-hit-ticker-track" class="hit-ticker-track">🔥 아직 이번 회차 주요 힛 기록이 없습니다.</div>
     </div>
 
     <div class="mode-tabs">
@@ -1386,9 +1306,7 @@
     </div>
 
     <div class="common-panel">
-      <div id="finance-area">
-        💰 총 사용 금액: 0원 / 💎 총 회수 카드 가치: 0원
-      </div>
+      <div id="finance-area">💰 총 사용 금액: 0원 / 💎 총 회수 카드 가치: 0원</div>
       <button id="reset-btn" onclick="endGame()">🛑 전체 정산하기</button>
     </div>
 
@@ -1424,10 +1342,7 @@
       </div>
 
       <div class="controls">
-        <div id="nogada-gauge">
-          채굴 진행도: <span id="nogada-count">0</span> / 10
-        </div>
-
+        <div id="nogada-gauge">채굴 진행도: <span id="nogada-count">0</span> / 10</div>
         <button id="nogada-btn">⛏️ 채굴하기</button>
         <button id="draw-btn" onclick="drawOripa(1)" disabled>🎁 1회 뽑기</button>
         <button id="draw-10-btn" onclick="drawOripa(10)" disabled>🎁 10연속 뽑기</button>
@@ -1526,9 +1441,7 @@
         <div class="empty-card">잔여 힛 정보를 불러오는 중입니다.</div>
       </div>
 
-      <div id="last-one-summary" class="last-one-summary">
-        🎁 라스트원상 정보를 불러오는 중입니다.
-      </div>
+      <div id="last-one-summary" class="last-one-summary">🎁 라스트원상 정보를 불러오는 중입니다.</div>
 
       <div class="section-title">🎟️ 실시간 공통 박스 오리파</div>
 
@@ -1592,9 +1505,10 @@
       <div id="ranking-header">🏅 전체 랭킹</div>
 
       <div class="ranking-tabs">
-        <button id="rank-money-tab" class="ranking-tab active" onclick="switchRanking('money')">💸 돈쓴 랭킹</button>
+        <button id="rank-money-tab" class="ranking-tab active" onclick="switchRanking('money')">💸 돈쓴</button>
         <button id="rank-recovery-tab" class="ranking-tab" onclick="switchRanking('recovery')">📈 회수율</button>
-        <button id="rank-hit-tab" class="ranking-tab" onclick="switchRanking('hit')">💎 최고 힛</button>
+        <button id="rank-hit-tab" class="ranking-tab" onclick="switchRanking('hit')">💎 최고힛</button>
+        <button id="rank-lost-tab" class="ranking-tab" onclick="switchRanking('lost')">📦 분실왕</button>
       </div>
 
       <div id="ranking-list">
@@ -1621,8 +1535,7 @@
 정말 감사합니다! 🙇‍♂️💸
     </div>
   </div>
-
-  <script>
+    <script>
     const SUPABASE_URL = "https://ydgnnikfmesvosghsdeg.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZ25uaWtmbWVzdm9zZ2hzZGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MzI3NTcsImV4cCI6MjA5NzQwODc1N30.2fZgjUNFJVm3PrUsfqeO8Eu9UwyFoHYj9ao1Js6VFCg";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1638,6 +1551,7 @@
 
     let sessionBestHitName = "";
     let sessionBestHitValue = 0;
+    let gradingLostCount = 0;
 
     const ORIPA_TOTAL = 2000;
     let remain = 2000;
@@ -1729,6 +1643,7 @@
       myTotalEarned: document.getElementById("my-total-earned"),
       myRecoveryRate: document.getElementById("my-recovery-rate"),
       myBestHit: document.getElementById("my-best-hit"),
+      myLostCount: document.getElementById("my-lost-count"),
       myCumulativePanel: document.getElementById("my-cumulative-panel"),
       myCumulativeSummaryText: document.getElementById("my-cumulative-summary-text"),
       myCumulativeToggleIcon: document.getElementById("my-cumulative-toggle-icon"),
@@ -1780,6 +1695,7 @@
       rankMoneyTab: document.getElementById("rank-money-tab"),
       rankRecoveryTab: document.getElementById("rank-recovery-tab"),
       rankHitTab: document.getElementById("rank-hit-tab"),
+      rankLostTab: document.getElementById("rank-lost-tab"),
 
       logList: document.getElementById("log-list"),
       bossPopup: document.getElementById("boss-popup")
@@ -1873,7 +1789,7 @@
       try {
         const { data, error } = await supabaseClient
           .from("oripa_rankings")
-          .select("total_spent,total_earned,best_hit_name,best_hit_value,oripa_hit_count,box_open_count,box_oripa_count")
+          .select("total_spent,total_earned,best_hit_name,best_hit_value,grading_lost_count,oripa_hit_count,box_open_count,box_oripa_count")
           .eq("nickname", currentNickname)
           .eq("pin_hash", currentPinHash)
           .maybeSingle();
@@ -1888,7 +1804,8 @@
             total_spent: 0,
             total_earned: 0,
             best_hit_name: null,
-            best_hit_value: 0
+            best_hit_value: 0,
+            grading_lost_count: 0
           });
           return;
         }
@@ -1902,6 +1819,7 @@
     function renderMyCumulativeStats(data) {
       const totalSpentValue = Number(data.total_spent || 0);
       const totalEarnedValue = Number(data.total_earned || 0);
+      const lostCountValue = Number(data.grading_lost_count || 0);
       const recoveryRate = totalSpentValue > 0
         ? ((totalEarnedValue / totalSpentValue) * 100).toFixed(1)
         : "0.0";
@@ -1909,10 +1827,12 @@
       const spentText = totalSpentValue.toLocaleString() + "원";
       const earnedText = totalEarnedValue.toLocaleString() + "원";
       const recoveryText = recoveryRate + "%";
+      const lostText = lostCountValue.toLocaleString() + "회";
 
       ui.myTotalSpent.innerText = spentText;
       ui.myTotalEarned.innerText = earnedText;
       ui.myRecoveryRate.innerText = recoveryText;
+      ui.myLostCount.innerText = lostText;
 
       if (data.best_hit_name && Number(data.best_hit_value || 0) > 0) {
         ui.myBestHit.innerText =
@@ -1925,7 +1845,8 @@
         ui.myCumulativeSummaryText.innerText =
           "📊 내 누계  사용 " + compactWon(totalSpentValue) +
           " · 회수 " + compactWon(totalEarnedValue) +
-          " · " + recoveryText;
+          " · " + recoveryText +
+          " · 분실 " + lostText;
       }
     }
 
@@ -2287,572 +2208,6 @@
       void ui.globalHitTickerTrack.offsetWidth;
       ui.globalHitTickerTrack.style.animation = "";
     }
-
-    async function drawBoxOripaByPosition(position) {
-      if (isAnimating || !activeBoxOripaRound || !currentNickname) return;
-
-      const target = boxOripaBoard.find(function(item) {
-        return item.position === position;
-      });
-
-      if (!target || target.opened) return;
-
-      isAnimating = true;
-      updateUI();
-
-      try {
-        const { data, error } = await supabaseClient.rpc("draw_box_oripa_cell", {
-          p_round_id: activeBoxOripaRound.id,
-          p_position: position,
-          p_nickname: currentNickname
-        });
-
-        if (error) throw error;
-
-        const result = Array.isArray(data) ? data[0] : data;
-
-        if (!result || !result.ok) {
-          alert(result ? result.message : "이미 선택된 칸입니다.");
-          await loadActiveBoxOripaRound();
-          isAnimating = false;
-          updateUI();
-          return;
-        }
-
-        const prizeValue = Number(result.prize_value || 0);
-        const lastOneValue = Number(result.last_one_prize_value || 0);
-        const earnedNow = prizeValue + lastOneValue;
-
-        const prizeCard = {
-          mode: "boxOripa",
-          number: result.prize_number,
-          rarity: result.rarity,
-          name: result.prize_name,
-          value: prizeValue
-        };
-
-        const overlayCards = [prizeCard];
-
-        if (result.is_last_one && lastOneValue > 0) {
-          overlayCards.push({
-            mode: "boxOripa",
-            number: "LAST",
-            rarity: "prizeLegend",
-            name: result.last_one_prize_name || "라스트원상 레전드 미개봉 박스",
-            value: lastOneValue
-          });
-        }
-
-        boxOripaSold++;
-        boxOripaEarned += earnedNow;
-        totalSpent += BOX_ORIPA_PRICE;
-        totalEarned += earnedNow;
-
-        updateSessionBestHit(result.prize_name, prizeValue);
-
-        if (result.is_last_one && lastOneValue > 0) {
-          updateSessionBestHit(result.last_one_prize_name || "라스트원상 레전드 미개봉 박스", lastOneValue);
-        }
-
-        showCardOverlay(overlayCards, "BOX<br>ORIPA", async function() {
-          const recovery = ((earnedNow / BOX_ORIPA_PRICE) * 100).toFixed(1);
-
-          if (result.is_last_one) {
-            ui.result.innerHTML =
-              "🎉 <span style='color:#e74c3c'>라스트원상 당첨!</span><br>" +
-              "기본 보상: " + result.prize_number + "번 " + result.prize_name +
-              " / " + formatWonValue(prizeValue) + " 상당<br>" +
-              "라스트원상: " + (result.last_one_prize_name || "레전드 미개봉 박스") +
-              " / " + formatWonValue(lastOneValue) + " 상당<br>" +
-              "총 회수 가치 " + earnedNow.toLocaleString() + "원 / 회수율 " + recovery + "%";
-
-            triggerConfetti();
-            triggerConfetti();
-          } else if (result.prize_number <= 3) {
-            ui.result.innerHTML =
-              "🏆 <span style='color:#8e44ad'>박스 오리파 " +
-              result.prize_number + "번! " + result.prize_name +
-              " 당첨! 회수 가치 " + prizeValue.toLocaleString() +
-              "원 / 회수율 " + recovery + "%</span>";
-
-            triggerConfetti();
-            triggerConfetti();
-          } else if (result.prize_number <= 30) {
-            ui.result.innerHTML =
-              "🎉 <span style='color:#e74c3c'>박스 오리파 " +
-              result.prize_number + "번! " + result.prize_name +
-              " 당첨! 회수 가치 " + prizeValue.toLocaleString() +
-              "원 / 회수율 " + recovery + "%</span>";
-
-            triggerConfetti();
-          } else {
-            ui.result.innerHTML =
-              "🥶 <span style='color:#7f8c8d'>박스 오리파 " +
-              result.prize_number + "번. " + result.prize_name +
-              " 당첨. 회수 가치 " + prizeValue.toLocaleString() +
-              "원 / 회수율 " + recovery + "%</span>";
-          }
-
-          addLog(
-            "<span class='log-amount'>-100,000원 지출:</span> " +
-            "🎟️ <b>박스 오리파 " + result.prize_number + "번</b> - " +
-            result.prize_name + " 당첨. 회수 가치 " +
-            earnedNow.toLocaleString() + "원, 회수율 " + recovery + "%."
-          );
-
-          addOpportunityLog("박스 오리파");
-
-          await loadActiveBoxOripaRound();
-          updateUI();
-        });
-      } catch (err) {
-        console.error(err);
-        alert("박스 오리파 선택 중 오류가 발생했습니다.");
-        isAnimating = false;
-        updateUI();
-      }
-    }
-
-    async function loadRankings() {
-      if (currentRankingMode === "money") {
-        const { data, error } = await supabaseClient
-          .from("oripa_money_ranking")
-          .select("*");
-
-        if (error) {
-          console.error(error);
-          return;
-        }
-
-        renderRankingMoney(data || []);
-      }
-
-      if (currentRankingMode === "recovery") {
-        const { data, error } = await supabaseClient
-          .from("oripa_recovery_ranking")
-          .select("*");
-
-        if (error) {
-          console.error(error);
-          return;
-        }
-
-        renderRankingRecovery(data || []);
-      }
-
-      if (currentRankingMode === "hit") {
-        const { data, error } = await supabaseClient
-          .from("oripa_best_hit_ranking")
-          .select("*");
-
-        if (error) {
-          console.error(error);
-          return;
-        }
-
-        renderRankingHit(data || []);
-      }
-    }
-
-    function switchRanking(mode) {
-      currentRankingMode = mode;
-
-      ui.rankMoneyTab.classList.toggle("active", mode === "money");
-      ui.rankRecoveryTab.classList.toggle("active", mode === "recovery");
-      ui.rankHitTab.classList.toggle("active", mode === "hit");
-
-      ui.rankingList.innerHTML = '<div class="empty-card">랭킹을 불러오는 중입니다.</div>';
-      loadRankings();
-    }
-
-    function renderRankingMoney(rows) {
-      if (!rows.length) {
-        ui.rankingList.innerHTML = '<div class="empty-card">아직 돈쓴 랭킹이 없습니다.</div>';
-        return;
-      }
-
-      ui.rankingList.innerHTML = rows.map(function(row, index) {
-        return (
-          '<div class="ranking-item">' +
-            '<span class="rank-no">' + (index + 1) + '위</span>' +
-            '<span class="rank-name">' + escapeHtml(row.nickname) + '</span>' +
-            '<span class="rank-meta">총 사용 ' + Number(row.total_spent).toLocaleString() + '원 / 총 회수 ' + Number(row.total_earned).toLocaleString() + '원</span>' +
-          '</div>'
-        );
-      }).join("");
-    }
-
-    function renderRankingRecovery(rows) {
-      if (!rows.length) {
-        ui.rankingList.innerHTML = '<div class="empty-card">아직 회수율 랭킹이 없습니다.</div>';
-        return;
-      }
-
-      ui.rankingList.innerHTML = rows.map(function(row, index) {
-        return (
-          '<div class="ranking-item">' +
-            '<span class="rank-no">' + (index + 1) + '위</span>' +
-            '<span class="rank-name">' + escapeHtml(row.nickname) + '</span>' +
-            '<span class="rank-meta">회수율 ' + Number(row.recovery_rate).toFixed(1) + '% / 사용 ' + Number(row.total_spent).toLocaleString() + '원 / 회수 ' + Number(row.total_earned).toLocaleString() + '원</span>' +
-          '</div>'
-        );
-      }).join("");
-    }
-
-    function renderRankingHit(rows) {
-      if (!rows.length) {
-        ui.rankingList.innerHTML = '<div class="empty-card">아직 최고 힛 랭킹이 없습니다.</div>';
-        return;
-      }
-
-      ui.rankingList.innerHTML = rows.map(function(row, index) {
-        return (
-          '<div class="ranking-item">' +
-            '<span class="rank-no">' + (index + 1) + '위</span>' +
-            '<span class="rank-name">' + escapeHtml(row.nickname) + '</span>' +
-            '<span class="rank-meta">' + escapeHtml(row.best_hit_name || "최고 힛") + ' / ' + Number(row.best_hit_value).toLocaleString() + '원 상당</span>' +
-          '</div>'
-        );
-      }).join("");
-    }
-
-    function updateSessionBestHit(name, value) {
-      const safeValue = Number(value || 0);
-
-      if (safeValue > sessionBestHitValue) {
-        sessionBestHitName = name;
-        sessionBestHitValue = safeValue;
-      }
-    }
-
-    function getRandomBaseValue() {
-      const baseValues = [
-        10, 20, 30, 40, 50,
-        60, 70, 80, 90, 100,
-        200, 300, 400, 500, 600,
-        700, 800, 900, 1000
-      ];
-
-      return baseValues[Math.floor(Math.random() * baseValues.length)];
-    }
-
-    function switchMode(mode) {
-      currentMode = mode;
-
-      if (mode !== "oripa") {
-        stopMining();
-      }
-
-      ui.oripaSection.style.display = mode === "oripa" ? "block" : "none";
-      ui.boxSection.style.display = mode === "box" ? "block" : "none";
-      ui.boxOripaSection.style.display = mode === "boxOripa" ? "block" : "none";
-
-      ui.oripaTab.classList.toggle("active", mode === "oripa");
-      ui.boxTab.classList.toggle("active", mode === "box");
-      ui.boxOripaTab.classList.toggle("active", mode === "boxOripa");
-
-      if (!isAnimating) {
-        if (mode === "oripa") {
-          ui.result.innerHTML = "오리파 채굴을 시작하세요! ⛏️";
-        } else if (mode === "box") {
-          ui.result.innerHTML = "박스를 선택해 박스깡을 시작하세요! 📦";
-        } else {
-          ui.result.innerHTML = "실시간 박스 오리파 뽑기판에서 원하는 위치를 선택하세요! 🎟️";
-          renderBoxOripaRemainSummary();
-          loadActiveBoxOripaRound();
-        }
-      }
-
-      updateUI();
-    }
-
-    function updateUI() {
-      ui.oripaTotal.innerText = ORIPA_TOTAL;
-      ui.remain.innerText = remain;
-      ui.oripaHit.innerText = oripaHitCount;
-      ui.oripaBase.innerText = oripaBaseCount;
-      ui.nogadaCount.innerText = nogada;
-
-      ui.boxOpenCount.innerText = boxOpenCount;
-      ui.boxHitCount.innerText = boxHitCount;
-      ui.secretCount.innerText = secretCount;
-      ui.superHitCount.innerText = superHitCount;
-
-      if (activeBoxOripaRound) {
-        ui.boxOripaRoundNo.innerText = activeBoxOripaRound.round_no;
-        ui.boxOripaBoardTitleRound.innerText = activeBoxOripaRound.round_no;
-      } else {
-        ui.boxOripaRoundNo.innerText = "-";
-        ui.boxOripaBoardTitleRound.innerText = "-";
-      }
-
-      ui.boxOripaRemain.innerText = getBoxOripaRemainCount();
-      ui.boxOripaSold.innerText = boxOripaSold;
-
-      ui.drawBtn.innerText = "🎁 1회 뽑기 (기회: " + drawTickets + ")";
-      ui.draw10Btn.innerText = "🎁 10연뽑 (기회: " + Math.floor(drawTickets / 10) + ")";
-
-      const spentStr = totalSpent.toLocaleString();
-      const earnedStr = Math.floor(totalEarned).toLocaleString();
-      const recoveryRate = totalSpent > 0 ? ((totalEarned / totalSpent) * 100).toFixed(1) : "0.0";
-
-      ui.finance.innerHTML =
-        "💰 총 사용 금액: <b>" + spentStr + "원</b> / " +
-        "💎 총 회수 카드 가치: <b>" + earnedStr + "원</b><br>" +
-        "📈 현재 플레이 회수율: <b>" + recoveryRate + "%</b>";
-
-      if (remain <= 0) {
-        ui.drawBtn.disabled = true;
-        ui.draw10Btn.disabled = true;
-        ui.nogadaBtn.disabled = true;
-        ui.buyToolBtn.disabled = true;
-        stopMining();
-      } else if (!isAnimating) {
-        ui.drawBtn.disabled = drawTickets < 1 || remain < 1;
-        ui.draw10Btn.disabled = drawTickets < 10 || remain < 10;
-        ui.nogadaBtn.disabled = false;
-        ui.buyToolBtn.disabled = hasAutoMiner;
-      } else {
-        ui.drawBtn.disabled = true;
-        ui.draw10Btn.disabled = true;
-        ui.nogadaBtn.disabled = true;
-        ui.buyToolBtn.disabled = true;
-      }
-
-      const boxButtons = document.querySelectorAll(".box-open-btn");
-      boxButtons.forEach(function(btn) {
-        btn.disabled = isAnimating;
-      });
-
-      const cells = document.querySelectorAll(".box-oripa-cell");
-      cells.forEach(function(cell) {
-        if (!cell.classList.contains("opened")) {
-          cell.disabled = isAnimating || getBoxOripaRemainCount() <= 0;
-        }
-      });
-    }
-
-    function doNogada() {
-      nogada++;
-
-      if (nogada >= 10) {
-        drawTickets++;
-        nogada = 0;
-      }
-
-      updateUI();
-    }
-
-    function buyTool() {
-      if (hasAutoMiner || remain <= 0 || isAnimating) return;
-
-      hasAutoMiner = true;
-      totalSpent += 1000000;
-
-      ui.buyToolBtn.disabled = true;
-      ui.buyToolBtn.innerHTML = "🔥 장착 완료! 버튼을 꾹 누르면 뽑기 횟수가 폭발적으로 충전됩니다!";
-      ui.buyToolBtn.style.backgroundColor = "#27ae60";
-      ui.buyToolBtn.style.borderColor = "#2ecc71";
-      ui.nogadaBtn.innerHTML = "🚀 초고속 자동 기회 충전 (꾹~ 누르고 계세요!)";
-
-      addLog(
-        "<span class='log-amount'>-1,000,000원 지출:</span> " +
-        "🛠️ <b>초고속 자동 채굴기</b>를 구매했습니다! 돈을 들여 손가락 피로도를 없애고 뽑기 시드를 초고속 확보합니다."
-      );
-
-      updateUI();
-
-      const adUrls = [
-        "https://soccer-dream-team.vercel.app",
-        "https://naver.me/xgT4brsI"
-      ];
-
-      const randomAd = adUrls[Math.floor(Math.random() * adUrls.length)];
-      window.open(randomAd, "_blank");
-    }
-
-    function startMining(e) {
-      if (remain <= 0 || isAnimating || currentMode !== "oripa") return;
-
-      if (e && e.cancelable) {
-        e.preventDefault();
-      }
-
-      if (isMiningMode) return;
-
-      isMiningMode = true;
-
-      if (hasAutoMiner) {
-        ui.pickaxe.className = "turbo-swinging";
-
-        miningTimer = setInterval(function() {
-          doNogada();
-        }, 80);
-      } else {
-        ui.pickaxe.classList.remove("swinging");
-        void ui.pickaxe.offsetWidth;
-        ui.pickaxe.classList.add("swinging");
-        doNogada();
-      }
-
-      updateUI();
-    }
-
-    function stopMining() {
-      if (!isMiningMode) return;
-
-      isMiningMode = false;
-      clearInterval(miningTimer);
-      miningTimer = null;
-      ui.pickaxe.className = "";
-      updateUI();
-    }
-
-    ui.nogadaBtn.addEventListener("pointerdown", startMining);
-    window.addEventListener("pointerup", stopMining);
-    window.addEventListener("pointercancel", stopMining);
-    ui.nogadaBtn.addEventListener("pointerleave", stopMining);
-
-    function drawOripa(count) {
-      if (drawTickets < count || remain < count || isAnimating) return;
-
-      isAnimating = true;
-      updateUI();
-      clearTimeout(hideCardTimeout);
-
-      drawTickets -= count;
-      totalSpent += 10000 * count;
-
-      let batchHits = 0;
-      let batchEarned = 0;
-      const results = [];
-
-      for (let i = 0; i < count; i++) {
-        const idx = Math.floor(Math.random() * oripaDeck.length);
-        const card = oripaDeck.splice(idx, 1)[0];
-
-        remain--;
-
-        if (card.rarity === "hit") {
-          oripaHitCount++;
-          batchHits++;
-          updateSessionBestHit(card.name, card.value);
-
-          addValuableCard({
-            source: "oripa",
-            sourceLabel: "오리파",
-            name: card.name,
-            rarity: "hit",
-            baseValue: card.value,
-            currentValue: card.value
-          });
-        } else {
-          oripaBaseCount++;
-        }
-
-        totalEarned += card.value;
-        batchEarned += card.value;
-        results.push(card);
-      }
-
-      showCardOverlay(results, "ORIPA", function() {
-        if (batchHits > 0) {
-          ui.result.innerHTML =
-            "🎉 <span style='color:#e74c3c'>" +
-            count + "장 중 오리파 힛카드 " + batchHits + "장 획득! " +
-            "총 카드 가치 " + Math.floor(batchEarned).toLocaleString() + "원</span>";
-
-          triggerConfetti();
-        } else {
-          ui.result.innerHTML =
-            "<span style='color:#7f8c8d'>" +
-            count + "장 모두 베이스 카드입니다. " +
-            "총 카드 가치 " + Math.floor(batchEarned).toLocaleString() + "원</span>";
-        }
-
-        addOpportunityLog("오리파");
-        renderValuableCards();
-
-        if (remain <= 0) {
-          ui.result.innerHTML = "🚨 오리파 재고가 모두 소진되었습니다! 전체 정산을 눌러주세요.";
-          showBossPopup();
-        }
-      });
-    }
-
-    function openBox(boxId) {
-      if (isAnimating) return;
-
-      const boxConfig = boxConfigs.find(function(item) {
-        return item.id === boxId;
-      });
-
-      if (!boxConfig) return;
-
-      isAnimating = true;
-      updateUI();
-      clearTimeout(hideCardTimeout);
-
-      const cards = generateBoxCards(boxConfig);
-      const boxValue = cards.reduce(function(sum, card) {
-        return sum + card.value;
-      }, 0);
-
-      boxOpenCount++;
-      boxSpent += boxConfig.price;
-      boxEarned += boxValue;
-
-      totalSpent += boxConfig.price;
-      totalEarned += boxValue;
-
-      let hasSecretOrSuper = false;
-
-      cards.forEach(function(card) {
-        if (card.rarity === "boxHit") boxHitCount++;
-
-        if (card.rarity === "secret") {
-          secretCount++;
-          hasSecretOrSuper = true;
-        }
-
-        if (card.rarity === "superHit") {
-          superHitCount++;
-          hasSecretOrSuper = true;
-        }
-
-        if (isGradableBoxRarity(card.rarity)) {
-          updateSessionBestHit(boxConfig.name + " - " + getRarityLabel(card.rarity), card.value);
-
-          addValuableCard({
-            source: "box",
-            sourceLabel: "박스깡",
-            boxName: boxConfig.name,
-            name: boxConfig.name + " - " + getRarityLabel(card.rarity),
-            rarity: card.rarity,
-            baseValue: card.value,
-            currentValue: card.value
-          });
-        }
-      });
-
-      showCardOverlay(cards, "BOX", function() {
-        const boxRecovery = ((boxValue / boxConfig.price) * 100).toFixed(1);
-
-        if (hasSecretOrSuper) {
-          ui.result.innerHTML =
-            "💥 <span style='color:#8e44ad'>" +
-            boxConfig.name + " 대박! 회수 가치 " +
-            boxValue.toLocaleString() + "원 / 박스 회수율 " +
-            boxRecovery + "%</span>";
-
-          triggerConfetti();
-          triggerConfetti();
-        } else {
-          ui.result.innerHTML =
-            "🎯 <span style='color:#e74c3c'>" +
-            boxConfig.name + " 박스힛 슬롯 개봉 완료! 회수 가치 " +
-            boxValue.toLocaleString() + "원 / 박스 회수율 " +
-            boxRecovery + "%</span>";
         }
 
         addLog(
@@ -3076,6 +2431,10 @@
         totalEarned = totalEarned - beforeValue + afterValue;
       }
 
+      if (result.type === "lost") {
+        gradingLostCount++;
+      }
+
       if (afterValue > 0) {
         updateSessionBestHit(card.name + " 그레이딩 " + result.grade + "점", afterValue);
       }
@@ -3090,7 +2449,7 @@
 
         addLog(
           "📦💥 <b>그레이딩 분실:</b> " +
-          card.name + "가 분실되어 회수 가치가 0원이 되었습니다."
+          card.name + "가 분실되어 회수 가치가 0원이 되었습니다. 이번 플레이 분실 " + gradingLostCount + "회."
         );
       } else if (result.grade === 10) {
         ui.result.innerHTML =
@@ -3363,7 +2722,8 @@
         "💸 총 사용 금액: " + totalSpent.toLocaleString() + "원\n" +
         "💎 총 회수 카드 가치: " + Math.floor(totalEarned).toLocaleString() + "원\n" +
         "📈 현재 플레이 회수율: " + recoveryRate + "%\n" +
-        "💎 최고 단일 힛: " + (sessionBestHitName || "없음") + " / " + sessionBestHitValue.toLocaleString() + "원\n\n" +
+        "💎 최고 단일 힛: " + (sessionBestHitName || "없음") + " / " + sessionBestHitValue.toLocaleString() + "원\n" +
+        "📦 그레이딩 분실: " + gradingLostCount + "회\n\n" +
         "🎁 오리파 힛카드: " + oripaHitCount + "장\n" +
         "📦 개봉 박스: " + boxOpenCount + "박스\n" +
         "🎯 박스힛: " + boxHitCount + "장\n" +
@@ -3387,7 +2747,8 @@
           p_best_hit_value: Math.floor(sessionBestHitValue),
           p_oripa_hit_count: oripaHitCount,
           p_box_open_count: boxOpenCount,
-          p_box_oripa_count: boxOripaSold
+          p_box_oripa_count: boxOripaSold,
+          p_grading_lost_count: gradingLostCount
         });
 
         if (error) throw error;
@@ -3418,6 +2779,7 @@
 
       sessionBestHitName = "";
       sessionBestHitValue = 0;
+      gradingLostCount = 0;
 
       oripaHitCount = 0;
       oripaBaseCount = 0;
@@ -3517,3 +2879,4 @@
   </script>
 </body>
 </html>
+  
