@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>실전 오리파 & 박스깡 게임</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -25,6 +27,71 @@
       font-size: 1.9rem;
       margin: 22px 0 18px;
       line-height: 1.25;
+    }
+
+    .auth-screen {
+      max-width: 480px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 16px;
+      padding: 24px 18px;
+      border: 1px solid #ddd;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .auth-screen h2 {
+      margin: 0 0 10px;
+      color: #2c3e50;
+    }
+
+    .auth-desc {
+      font-size: 0.92em;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 13px 12px;
+      border: 1px solid #ccc;
+      border-radius: 9px;
+      font-size: 1em;
+      margin-bottom: 10px;
+    }
+
+    .auth-btn {
+      width: 100%;
+      border: none;
+      background: #2c3e50;
+      color: white;
+      font-weight: bold;
+      padding: 13px 16px;
+      border-radius: 9px;
+      font-size: 1em;
+    }
+
+    .auth-note {
+      margin-top: 12px;
+      font-size: 0.8em;
+      color: #777;
+      line-height: 1.45;
+    }
+
+    #game-screen {
+      display: none;
+    }
+
+    .player-panel {
+      max-width: 600px;
+      margin: 0 auto 12px;
+      background: #fff7dc;
+      border: 1px solid #f1c40f;
+      color: #5f4300;
+      border-radius: 12px;
+      padding: 10px;
+      font-weight: bold;
+      line-height: 1.45;
     }
 
     .mode-tabs {
@@ -139,7 +206,6 @@
       font-size: 3em;
       height: 1.2em;
       margin-top: 18px;
-      position: relative;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -388,10 +454,7 @@
       cursor: pointer;
       line-height: 1.2;
       min-width: 0;
-    }
-
-    .box-oripa-cell:hover {
-      filter: brightness(1.08);
+      flex-direction: column;
     }
 
     .box-oripa-cell.opened {
@@ -454,6 +517,51 @@
       display: block;
       font-size: 0.74em;
       opacity: 0.92;
+    }
+
+    .cell-opener {
+      display: block;
+      font-size: 0.65em;
+      opacity: 0.78;
+      margin-top: 2px;
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .live-log {
+      max-width: 600px;
+      margin: 12px auto;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .live-log-header {
+      background: #24184d;
+      color: white;
+      font-weight: bold;
+      padding: 10px 12px;
+    }
+
+    .live-log-list {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .live-log-list li {
+      padding: 9px 12px;
+      border-bottom: 1px dashed #ddd;
+      font-size: 0.86em;
+      line-height: 1.4;
+      color: #444;
     }
 
     #pack-overlay {
@@ -685,7 +793,9 @@
       border: 2px solid #bdc3c7;
     }
 
-    #valuable-container {
+    #valuable-container,
+    #ranking-container,
+    #log-container {
       margin: 24px auto 0;
       max-width: 600px;
       background: #fff;
@@ -696,7 +806,8 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
-    #valuable-header {
+    #valuable-header,
+    #ranking-header {
       background: #2c3e50;
       color: white;
       padding: 11px 15px;
@@ -785,15 +896,62 @@
       font-weight: bold;
     }
 
-    #log-container {
-      margin: 30px auto;
-      max-width: 600px;
-      background: #fff;
-      border: 1px solid #ddd;
+    .ranking-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 10px;
+      background: #f5f5f5;
+    }
+
+    .ranking-tab {
+      flex: 1;
+      border: none;
+      background: #e9ecef;
+      color: #555;
+      font-size: 0.82em;
+      font-weight: bold;
+      padding: 8px 4px;
       border-radius: 8px;
-      text-align: left;
-      overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      margin: 0;
+    }
+
+    .ranking-tab.active {
+      background: #e74c3c;
+      color: white;
+    }
+
+    #ranking-list {
+      padding: 10px;
+    }
+
+    .ranking-item {
+      border-bottom: 1px dashed #ddd;
+      padding: 10px 4px;
+      line-height: 1.45;
+    }
+
+    .ranking-item:last-child {
+      border-bottom: none;
+    }
+
+    .rank-no {
+      display: inline-block;
+      min-width: 34px;
+      font-weight: bold;
+      color: #e74c3c;
+    }
+
+    .rank-name {
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .rank-meta {
+      display: block;
+      font-size: 0.85em;
+      color: #666;
+      margin-left: 36px;
+      margin-top: 2px;
     }
 
     #log-header {
@@ -1001,235 +1159,279 @@
 </head>
 
 <body>
-  <h1>실전 오리파 & 박스깡</h1>
+  <div id="auth-screen" class="auth-screen">
+    <h1>실전 오리파 & 박스깡</h1>
+    <h2>닉네임을 입력하세요</h2>
+    <div class="auth-desc">
+      랭킹과 박스 오리파 실시간 공통판에 사용할 닉네임입니다.<br>
+      기존 닉네임은 같은 4자리 PIN으로 이어서 사용할 수 있습니다.
+    </div>
 
-  <div class="mode-tabs">
-    <button id="oripa-tab" class="mode-tab active" onclick="switchMode('oripa')">🎁 오리파</button>
-    <button id="box-tab" class="mode-tab" onclick="switchMode('box')">📦 박스깡</button>
-    <button id="box-oripa-tab" class="mode-tab" onclick="switchMode('boxOripa')">🎟️ 박스 오리파</button>
+    <input id="nickname-input" class="auth-input" maxlength="12" placeholder="닉네임 예: 오리파중독자" />
+    <input id="pin-input" class="auth-input" maxlength="4" inputmode="numeric" type="password" placeholder="4자리 PIN" />
+    <button id="auth-start-btn" class="auth-btn" onclick="startWithNickname()">게임 시작</button>
+
+    <div class="auth-note">
+      ※ 로그인 없는 재미용 랭킹입니다.<br>
+      ※ 같은 닉네임을 다시 쓰려면 처음 입력한 PIN이 필요합니다.
+    </div>
   </div>
 
-  <div class="common-panel">
-    <div id="finance-area">
-      💰 총 사용 금액: 0원 / 💎 총 회수 카드 가치: 0원
-    </div>
-    <button id="reset-btn" onclick="endGame()">🛑 전체 정산하기</button>
-  </div>
+  <div id="game-screen">
+    <h1>실전 오리파 & 박스깡</h1>
 
-  <div id="result-area">오리파 또는 박스깡을 시작하세요!</div>
-
-  <section id="oripa-section">
-    <div class="stats">
-      <div class="box">
-        <span class="stat-label">전체 오리파 카드</span>
-        <span class="stat-value" id="oripa-total">2000</span>
-      </div>
-
-      <div class="box">
-        <span class="stat-label">잔여 카드</span>
-        <span class="stat-value" id="remain">2000</span>
-      </div>
-
-      <div class="box">
-        <span class="stat-label">오리파 힛카드</span>
-        <span class="stat-value hit-val" id="oripa-hit">0</span> / 30
-      </div>
-
-      <div class="box">
-        <span class="stat-label">베이스 카드</span>
-        <span class="stat-value base-val" id="oripa-base">0</span>
-      </div>
+    <div class="player-panel">
+      👤 플레이어: <span id="current-player-name">-</span><br>
+      <span style="font-size:0.84em; color:#777;">정산하기를 눌러야 랭킹에 누적 저장됩니다.</span>
     </div>
 
-    <div id="mining-area">
-      <span id="miner">👨‍🏭</span>
-      <span id="pickaxe">⛏️</span>
-      <span id="rock">💎</span>
+    <div class="mode-tabs">
+      <button id="oripa-tab" class="mode-tab active" onclick="switchMode('oripa')">🎁 오리파</button>
+      <button id="box-tab" class="mode-tab" onclick="switchMode('box')">📦 박스깡</button>
+      <button id="box-oripa-tab" class="mode-tab" onclick="switchMode('boxOripa')">🎟️ 박스 오리파</button>
     </div>
 
-    <div class="controls">
-      <div id="nogada-gauge">
-        채굴 진행도: <span id="nogada-count">0</span> / 10
+    <div class="common-panel">
+      <div id="finance-area">
+        💰 총 사용 금액: 0원 / 💎 총 회수 카드 가치: 0원
       </div>
-
-      <button id="nogada-btn">⛏️ 채굴하기</button>
-      <button id="draw-btn" onclick="drawOripa(1)" disabled>🎁 1회 뽑기</button>
-      <button id="draw-10-btn" onclick="drawOripa(10)" disabled>🎁 10연속 뽑기</button>
-      <button id="buy-tool-btn" onclick="buyTool()">🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)</button>
-    </div>
-  </section>
-
-  <section id="box-section" style="display:none;">
-    <div class="stats">
-      <div class="box">
-        <span class="stat-label">개봉 박스</span>
-        <span class="stat-value" id="box-open-count">0</span>
-      </div>
-
-      <div class="box">
-        <span class="stat-label">박스힛</span>
-        <span class="stat-value hit-val" id="box-hit-count">0</span>
-      </div>
-
-      <div class="box">
-        <span class="stat-label">시크릿</span>
-        <span class="stat-value secret-val" id="secret-count">0</span>
-      </div>
-
-      <div class="box">
-        <span class="stat-label">슈퍼힛</span>
-        <span class="stat-value secret-val" id="super-hit-count">0</span>
-      </div>
+      <button id="reset-btn" onclick="endGame()">🛑 전체 정산하기</button>
     </div>
 
-    <div class="section-title">📦 박스깡 선택</div>
+    <div id="result-area">오리파 또는 박스깡을 시작하세요!</div>
 
-    <div class="box-product-list">
-      <div class="box-product">
-        <div class="box-product-title">라이트 박스 - 40,000원</div>
-        <div class="box-product-desc">
-          10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
-          박스힛 슬롯: 박스힛 94.9% / 시크릿 5% / 슈퍼힛 0.1%
+    <section id="oripa-section">
+      <div class="stats">
+        <div class="box">
+          <span class="stat-label">전체 오리파 카드</span>
+          <span class="stat-value" id="oripa-total">2000</span>
         </div>
-        <button class="box-open-btn light" onclick="openBox('light')">라이트 박스 개봉</button>
-      </div>
 
-      <div class="box-product">
-        <div class="box-product-title">스탠다드 박스 - 90,000원</div>
-        <div class="box-product-desc">
-          10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
-          박스힛 슬롯: 박스힛 94.85% / 시크릿 5% / 슈퍼힛 0.15%
+        <div class="box">
+          <span class="stat-label">잔여 카드</span>
+          <span class="stat-value" id="remain">2000</span>
         </div>
-        <button class="box-open-btn standard" onclick="openBox('standard')">스탠다드 박스 개봉</button>
-      </div>
 
-      <div class="box-product">
-        <div class="box-product-title">프리미엄 박스 - 120,000원</div>
-        <div class="box-product-desc">
-          10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
-          박스힛 슬롯: 박스힛 94.8% / 시크릿 5% / 슈퍼힛 0.2%
+        <div class="box">
+          <span class="stat-label">오리파 힛카드</span>
+          <span class="stat-value hit-val" id="oripa-hit">0</span> / 30
         </div>
-        <button class="box-open-btn premium" onclick="openBox('premium')">프리미엄 박스 개봉</button>
-      </div>
 
-      <div class="box-product">
-        <div class="box-product-title">하이엔드 박스 - 190,000원</div>
-        <div class="box-product-desc">
-          10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
-          박스힛 슬롯: 박스힛 94.7% / 시크릿 5% / 슈퍼힛 0.3%
+        <div class="box">
+          <span class="stat-label">베이스 카드</span>
+          <span class="stat-value base-val" id="oripa-base">0</span>
         </div>
-        <button class="box-open-btn highend" onclick="openBox('highend')">하이엔드 박스 개봉</button>
+      </div>
+
+      <div id="mining-area">
+        <span id="miner">👨‍🏭</span>
+        <span id="pickaxe">⛏️</span>
+        <span id="rock">💎</span>
+      </div>
+
+      <div class="controls">
+        <div id="nogada-gauge">
+          채굴 진행도: <span id="nogada-count">0</span> / 10
+        </div>
+
+        <button id="nogada-btn">⛏️ 채굴하기</button>
+        <button id="draw-btn" onclick="drawOripa(1)" disabled>🎁 1회 뽑기</button>
+        <button id="draw-10-btn" onclick="drawOripa(10)" disabled>🎁 10연속 뽑기</button>
+        <button id="buy-tool-btn" onclick="buyTool()">🛠️ 초고속 자동 채굴기 구매 (비용: 100만 원)</button>
+      </div>
+    </section>
+
+    <section id="box-section" style="display:none;">
+      <div class="stats">
+        <div class="box">
+          <span class="stat-label">개봉 박스</span>
+          <span class="stat-value" id="box-open-count">0</span>
+        </div>
+
+        <div class="box">
+          <span class="stat-label">박스힛</span>
+          <span class="stat-value hit-val" id="box-hit-count">0</span>
+        </div>
+
+        <div class="box">
+          <span class="stat-label">시크릿</span>
+          <span class="stat-value secret-val" id="secret-count">0</span>
+        </div>
+
+        <div class="box">
+          <span class="stat-label">슈퍼힛</span>
+          <span class="stat-value secret-val" id="super-hit-count">0</span>
+        </div>
+      </div>
+
+      <div class="section-title">📦 박스깡 선택</div>
+
+      <div class="box-product-list">
+        <div class="box-product">
+          <div class="box-product-title">라이트 박스 - 40,000원</div>
+          <div class="box-product-desc">
+            10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
+            박스힛 슬롯: 박스힛 94.9% / 시크릿 5% / 슈퍼힛 0.1%
+          </div>
+          <button class="box-open-btn light" onclick="openBox('light')">라이트 박스 개봉</button>
+        </div>
+
+        <div class="box-product">
+          <div class="box-product-title">스탠다드 박스 - 90,000원</div>
+          <div class="box-product-desc">
+            10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
+            박스힛 슬롯: 박스힛 94.85% / 시크릿 5% / 슈퍼힛 0.15%
+          </div>
+          <button class="box-open-btn standard" onclick="openBox('standard')">스탠다드 박스 개봉</button>
+        </div>
+
+        <div class="box-product">
+          <div class="box-product-title">프리미엄 박스 - 120,000원</div>
+          <div class="box-product-desc">
+            10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
+            박스힛 슬롯: 박스힛 94.8% / 시크릿 5% / 슈퍼힛 0.2%
+          </div>
+          <button class="box-open-btn premium" onclick="openBox('premium')">프리미엄 박스 개봉</button>
+        </div>
+
+        <div class="box-product">
+          <div class="box-product-title">하이엔드 박스 - 190,000원</div>
+          <div class="box-product-desc">
+            10장 구성. 7베이스 + 2레어 슬롯 + 1박스힛 슬롯.<br>
+            박스힛 슬롯: 박스힛 94.7% / 시크릿 5% / 슈퍼힛 0.3%
+          </div>
+          <button class="box-open-btn highend" onclick="openBox('highend')">하이엔드 박스 개봉</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="box-oripa-section" style="display:none;">
+      <div class="stats">
+        <div class="box">
+          <span class="stat-label">현재 회차</span>
+          <span class="stat-value" id="box-oripa-round-no">-</span>
+        </div>
+
+        <div class="box">
+          <span class="stat-label">남은 구좌</span>
+          <span class="stat-value" id="box-oripa-remain">100</span>
+        </div>
+
+        <div class="box">
+          <span class="stat-label">내가 뽑은 구좌</span>
+          <span class="stat-value hit-val" id="box-oripa-sold">0</span>
+        </div>
+
+        <div class="box">
+          <span class="stat-label">1회 가격</span>
+          <span class="stat-value">10만원</span>
+        </div>
+      </div>
+
+      <div class="section-title">🎟️ 실시간 공통 박스 오리파</div>
+
+      <div class="section-card">
+        <b>1회 100,000원</b>으로 아래 뽑기판에서 원하는 위치를 직접 선택합니다.<br>
+        모든 접속자가 같은 100칸 뽑기판을 공유합니다. 누군가 선택한 칸은 모두에게 열린 상태로 보입니다.<br><br>
+        🎁 <b>라스트원상:</b> 각 회차의 마지막 칸을 여는 사람은 기본 보상과 별도로 <b>35만원 상당 레전드 미개봉 박스</b>를 추가 획득합니다.
+
+        <table class="prize-table">
+          <thead>
+            <tr>
+              <th>번호</th>
+              <th>구성</th>
+              <th>가치</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1번 ~ 3번</td>
+              <td>레전드 미개봉 박스</td>
+              <td>350,000원</td>
+            </tr>
+            <tr>
+              <td>4번 ~ 10번</td>
+              <td>프리미엄 미개봉 박스</td>
+              <td>300,000원</td>
+            </tr>
+            <tr>
+              <td>11번 ~ 20번</td>
+              <td>스탠다드 미개봉 박스</td>
+              <td>250,000원</td>
+            </tr>
+            <tr>
+              <td>21번 ~ 25번</td>
+              <td>스페셜 미개봉 박스</td>
+              <td>180,000원</td>
+            </tr>
+            <tr>
+              <td>26번 ~ 30번</td>
+              <td>라이트 미개봉 박스</td>
+              <td>150,000원</td>
+            </tr>
+            <tr>
+              <td>31번 ~ 35번</td>
+              <td>일판 메가드림 미개봉 3팩</td>
+              <td>15,000원</td>
+            </tr>
+            <tr>
+              <td>36번 ~ 100번</td>
+              <td>일판 메가드림 미개봉 1팩</td>
+              <td>5,000원</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="box-oripa-board-wrap">
+        <div class="box-oripa-board-title">
+          🐶 추억의 뽑기판 - <span id="box-oripa-board-title-round">-</span>회차<br>
+          <span style="font-size:0.86em; color:#666;">가로 5칸 × 세로 20줄 / 원하는 칸을 선택하세요</span>
+        </div>
+        <div id="box-oripa-board" class="box-oripa-board"></div>
+      </div>
+
+      <div class="live-log">
+        <div class="live-log-header">🔥 실시간 박스 오리파 로그</div>
+        <ul id="box-oripa-live-log" class="live-log-list">
+          <li style="text-align:center;color:#999;">아직 로그가 없습니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div id="pack-overlay">
+      <div id="pack-area"></div>
+    </div>
+
+    <div id="valuable-container">
+      <div id="valuable-header">🏆 고가 카드 보관함 / 그레이딩</div>
+      <div id="valuable-list">
+        <div class="empty-card">아직 그레이딩 가능한 고가 카드가 없습니다.</div>
       </div>
     </div>
-  </section>
 
-  <section id="box-oripa-section" style="display:none;">
-    <div class="stats">
-      <div class="box">
-        <span class="stat-label">총 구좌</span>
-        <span class="stat-value">100</span>
+    <div id="ranking-container">
+      <div id="ranking-header">🏅 전체 랭킹</div>
+      <div class="ranking-tabs">
+        <button id="rank-money-tab" class="ranking-tab active" onclick="switchRanking('money')">💸 돈쓴 랭킹</button>
+        <button id="rank-recovery-tab" class="ranking-tab" onclick="switchRanking('recovery')">📈 회수율</button>
+        <button id="rank-hit-tab" class="ranking-tab" onclick="switchRanking('hit')">💎 최고 힛</button>
       </div>
-
-      <div class="box">
-        <span class="stat-label">남은 구좌</span>
-        <span class="stat-value" id="box-oripa-remain">100</span>
-      </div>
-
-      <div class="box">
-        <span class="stat-label">뽑은 구좌</span>
-        <span class="stat-value hit-val" id="box-oripa-sold">0</span>
-      </div>
-
-      <div class="box">
-        <span class="stat-label">1회 가격</span>
-        <span class="stat-value">10만원</span>
+      <div id="ranking-list">
+        <div class="empty-card">랭킹을 불러오는 중입니다.</div>
       </div>
     </div>
 
-    <div class="section-title">🎟️ 100구좌 한정 박스 오리파</div>
-
-    <div class="section-card">
-      <b>1회 100,000원</b>으로 아래 뽑기판에서 원하는 위치를 직접 선택합니다.<br>
-      보상 위치는 게임 시작 시 랜덤으로 숨겨져 있으며, 선택한 칸은 다시 선택할 수 없습니다.
-
-      <table class="prize-table">
-        <thead>
-          <tr>
-            <th>번호</th>
-            <th>구성</th>
-            <th>가치</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1번 ~ 3번</td>
-            <td>레전드 미개봉 박스</td>
-            <td>350,000원</td>
-          </tr>
-          <tr>
-            <td>4번 ~ 10번</td>
-            <td>프리미엄 미개봉 박스</td>
-            <td>300,000원</td>
-          </tr>
-          <tr>
-            <td>11번 ~ 20번</td>
-            <td>스탠다드 미개봉 박스</td>
-            <td>250,000원</td>
-          </tr>
-          <tr>
-            <td>21번 ~ 25번</td>
-            <td>스페셜 미개봉 박스</td>
-            <td>180,000원</td>
-          </tr>
-          <tr>
-            <td>26번 ~ 30번</td>
-            <td>라이트 미개봉 박스</td>
-            <td>150,000원</td>
-          </tr>
-          <tr>
-            <td>31번 ~ 35번</td>
-            <td>일판 메가드림 미개봉 3팩</td>
-            <td>15,000원</td>
-          </tr>
-          <tr>
-            <td>36번 ~ 100번</td>
-            <td>일판 메가드림 미개봉 1팩</td>
-            <td>5,000원</td>
-          </tr>
-        </tbody>
-      </table>
+    <div id="log-container">
+      <div id="log-header">📉 뼈맞는 실시간 누적 기회비용 로그</div>
+      <ul id="log-list">
+        <li style="text-align:center; color:#999;">아직 사용한 금액이 없습니다.</li>
+      </ul>
     </div>
 
-    <div class="box-oripa-board-wrap">
-      <div class="box-oripa-board-title">
-        🐶 추억의 뽑기판<br>
-        <span style="font-size:0.86em; color:#666;">가로 5칸 × 세로 20줄 / 원하는 칸을 선택하세요</span>
-      </div>
-      <div id="box-oripa-board" class="box-oripa-board"></div>
-    </div>
-  </section>
+    <button id="share-btn" onclick="shareLink()">🔗 이 매운맛 게임 공유하기</button>
 
-  <div id="pack-overlay">
-    <div id="pack-area"></div>
-  </div>
-
-  <div id="valuable-container">
-    <div id="valuable-header">🏆 고가 카드 보관함 / 그레이딩</div>
-    <div id="valuable-list">
-      <div class="empty-card">아직 그레이딩 가능한 고가 카드가 없습니다.</div>
-    </div>
-  </div>
-
-  <div id="log-container">
-    <div id="log-header">📉 뼈맞는 실시간 누적 기회비용 로그</div>
-    <ul id="log-list">
-      <li style="text-align:center; color:#999;">아직 사용한 금액이 없습니다.</li>
-    </ul>
-  </div>
-
-  <button id="share-btn" onclick="shareLink()">🔗 이 매운맛 게임 공유하기</button>
-
-  <div id="boss-popup">
+    <div id="boss-popup">
 👨‍💼(사장님)
 
 아이구 호갱
@@ -1237,15 +1439,26 @@
 아니 고객님!
 남은 재고를 싹 털어주셔서
 정말 감사합니다! 🙇‍♂️💸
+    </div>
   </div>
 
   <script>
+    const SUPABASE_URL = "https://ydgnnikfmesvosghsdeg.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZ25uaWtmbWVzdm9zZ2hzZGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MzI3NTcsImV4cCI6MjA5NzQwODc1N30.2fZgjUNFJVm3PrUsfqeO8Eu9UwyFoHYj9ao1Js6VFCg";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     let currentMode = "oripa";
+    let currentNickname = "";
+    let currentPinHash = "";
 
     let totalSpent = 0;
     let totalEarned = 0;
     let isAnimating = false;
     let hideCardTimeout;
+
+    let sessionBestHitName = "";
+    let sessionBestHitValue = 0;
 
     const ORIPA_TOTAL = 2000;
     let remain = 2000;
@@ -1267,11 +1480,13 @@
     let secretCount = 0;
     let superHitCount = 0;
 
-    const BOX_ORIPA_TOTAL = 100;
     const BOX_ORIPA_PRICE = 100000;
-    let boxOripaDeck = [];
+    let activeBoxOripaRound = null;
+    let boxOripaBoard = [];
     let boxOripaSold = 0;
     let boxOripaEarned = 0;
+    let boxOripaRealtimeChannel = null;
+    let currentRankingMode = "money";
 
     const hitValueTable = [
       1000000, 900000, 800000, 700000, 600000,
@@ -1313,58 +1528,6 @@
       }
     ];
 
-    const boxOripaPrizeTable = [
-      {
-        from: 1,
-        to: 3,
-        name: "레전드 미개봉 박스",
-        rarity: "prizeLegend",
-        fixedValue: 350000
-      },
-      {
-        from: 4,
-        to: 10,
-        name: "프리미엄 미개봉 박스",
-        rarity: "prizePremium",
-        fixedValue: 300000
-      },
-      {
-        from: 11,
-        to: 20,
-        name: "스탠다드 미개봉 박스",
-        rarity: "prizeStandard",
-        fixedValue: 250000
-      },
-      {
-        from: 21,
-        to: 25,
-        name: "스페셜 미개봉 박스",
-        rarity: "prizeSpecial",
-        fixedValue: 180000
-      },
-      {
-        from: 26,
-        to: 30,
-        name: "라이트 미개봉 박스",
-        rarity: "prizeLight",
-        fixedValue: 150000
-      },
-      {
-        from: 31,
-        to: 35,
-        name: "일판 메가드림 미개봉 3팩",
-        rarity: "prizeThreePack",
-        fixedValue: 15000
-      },
-      {
-        from: 36,
-        to: 100,
-        name: "일판 메가드림 미개봉 1팩",
-        rarity: "prizeOnePack",
-        fixedValue: 5000
-      }
-    ];
-
     const random10kTexts = [
       "뜨끈한 국밥 한 그릇을 참았습니다.",
       "스타벅스 달달한 돌체라떼 두 잔 값을 태웠습니다.",
@@ -1376,6 +1539,13 @@
     ];
 
     const ui = {
+      authScreen: document.getElementById("auth-screen"),
+      gameScreen: document.getElementById("game-screen"),
+      nicknameInput: document.getElementById("nickname-input"),
+      pinInput: document.getElementById("pin-input"),
+      authStartBtn: document.getElementById("auth-start-btn"),
+      currentPlayerName: document.getElementById("current-player-name"),
+
       oripaTab: document.getElementById("oripa-tab"),
       boxTab: document.getElementById("box-tab"),
       boxOripaTab: document.getElementById("box-oripa-tab"),
@@ -1403,17 +1573,96 @@
       secretCount: document.getElementById("secret-count"),
       superHitCount: document.getElementById("super-hit-count"),
 
+      boxOripaRoundNo: document.getElementById("box-oripa-round-no"),
+      boxOripaBoardTitleRound: document.getElementById("box-oripa-board-title-round"),
       boxOripaRemain: document.getElementById("box-oripa-remain"),
       boxOripaSold: document.getElementById("box-oripa-sold"),
       boxOripaBoard: document.getElementById("box-oripa-board"),
+      boxOripaLiveLog: document.getElementById("box-oripa-live-log"),
 
       packOverlay: document.getElementById("pack-overlay"),
       packArea: document.getElementById("pack-area"),
 
       valuableList: document.getElementById("valuable-list"),
+      rankingList: document.getElementById("ranking-list"),
+      rankMoneyTab: document.getElementById("rank-money-tab"),
+      rankRecoveryTab: document.getElementById("rank-recovery-tab"),
+      rankHitTab: document.getElementById("rank-hit-tab"),
+
       logList: document.getElementById("log-list"),
       bossPopup: document.getElementById("boss-popup")
     };
+
+    async function sha256(text) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(function(byte) {
+        return byte.toString(16).padStart(2, "0");
+      }).join("");
+    }
+
+    async function startWithNickname() {
+      const nickname = ui.nicknameInput.value.trim();
+      const pin = ui.pinInput.value.trim();
+
+      if (nickname.length < 2) {
+        alert("닉네임은 2글자 이상 입력해 주세요.");
+        return;
+      }
+
+      if (!/^[0-9]{4}$/.test(pin)) {
+        alert("PIN은 숫자 4자리로 입력해 주세요.");
+        return;
+      }
+
+      ui.authStartBtn.disabled = true;
+      ui.authStartBtn.innerText = "확인 중...";
+
+      try {
+        const pinHash = await sha256(nickname + ":" + pin);
+
+        const { data, error } = await supabaseClient.rpc("start_or_get_player", {
+          p_nickname: nickname,
+          p_pin_hash: pinHash
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        const result = Array.isArray(data) ? data[0] : data;
+
+        if (!result || !result.ok) {
+          alert(result ? result.message : "닉네임 확인에 실패했습니다.");
+          return;
+        }
+
+        currentNickname = result.nickname;
+        currentPinHash = pinHash;
+
+        ui.currentPlayerName.innerText = currentNickname;
+        ui.authScreen.style.display = "none";
+        ui.gameScreen.style.display = "block";
+
+        initOripaDeck();
+        updateUI();
+        renderValuableCards();
+
+        await loadActiveBoxOripaRound();
+        await loadRankings();
+        subscribeBoxOripaRealtime();
+
+        ui.result.innerHTML = "오리파 또는 박스깡을 시작하세요!";
+      } catch (err) {
+        console.error(err);
+        alert("Supabase 연결 또는 닉네임 확인 중 오류가 발생했습니다.");
+      } finally {
+        ui.authStartBtn.disabled = false;
+        ui.authStartBtn.innerText = "게임 시작";
+      }
+    }
 
     function initOripaDeck() {
       oripaDeck = [];
@@ -1441,51 +1690,135 @@
           value: value
         });
       }
+
+      remain = ORIPA_TOTAL;
     }
 
-    function initBoxOripaDeck() {
-      boxOripaDeck = [];
+    async function loadActiveBoxOripaRound() {
+      const { data: activeData, error: activeError } = await supabaseClient
+        .from("box_oripa_rounds")
+        .select("*")
+        .eq("status", "active")
+        .order("round_no", { ascending: false })
+        .limit(1);
 
-      for (let number = 1; number <= BOX_ORIPA_TOTAL; number++) {
-        const prizeConfig = getBoxOripaPrizeConfig(number);
-
-        boxOripaDeck.push({
-          mode: "boxOripa",
-          number: number,
-          rarity: prizeConfig.rarity,
-          label: "BOX ORIPA",
-          name: prizeConfig.name,
-          value: prizeConfig.fixedValue,
-          opened: false
-        });
+      if (activeError) {
+        console.error(activeError);
+        return;
       }
 
-      shuffleArray(boxOripaDeck);
-    }
+      if (!activeData || activeData.length === 0) {
+        const { data: rpcData, error: rpcError } = await supabaseClient.rpc("create_box_oripa_round");
 
-    function getBoxOripaPrizeConfig(number) {
-      for (let i = 0; i < boxOripaPrizeTable.length; i++) {
-        const item = boxOripaPrizeTable[i];
-
-        if (number >= item.from && number <= item.to) {
-          return item;
+        if (rpcError) {
+          console.error(rpcError);
+          return;
         }
+
+        const roundId = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+
+        const { data: roundData, error: roundError } = await supabaseClient
+          .from("box_oripa_rounds")
+          .select("*")
+          .eq("id", roundId)
+          .single();
+
+        if (roundError) {
+          console.error(roundError);
+          return;
+        }
+
+        activeBoxOripaRound = roundData;
+      } else {
+        activeBoxOripaRound = activeData[0];
       }
 
-      return boxOripaPrizeTable[boxOripaPrizeTable.length - 1];
+      await loadBoxOripaBoard();
+      await loadBoxOripaLogs();
+      updateUI();
     }
 
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
+    async function loadBoxOripaBoard() {
+      if (!activeBoxOripaRound) return;
+
+      const { data, error } = await supabaseClient
+        .from("box_oripa_board")
+        .select("*")
+        .eq("round_id", activeBoxOripaRound.id)
+        .order("position", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        return;
       }
+
+      boxOripaBoard = data || [];
+      renderBoxOripaBoard();
+    }
+
+    async function loadBoxOripaLogs() {
+      if (!activeBoxOripaRound) return;
+
+      const { data, error } = await supabaseClient
+        .from("box_oripa_logs")
+        .select("*")
+        .eq("round_id", activeBoxOripaRound.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      renderBoxOripaLogs(data || []);
+    }
+
+    function subscribeBoxOripaRealtime() {
+      if (boxOripaRealtimeChannel) {
+        supabaseClient.removeChannel(boxOripaRealtimeChannel);
+      }
+
+      boxOripaRealtimeChannel = supabaseClient
+        .channel("box-oripa-realtime")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "box_oripa_board"
+          },
+          async function() {
+            await loadActiveBoxOripaRound();
+          }
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "box_oripa_logs"
+          },
+          async function() {
+            await loadBoxOripaLogs();
+          }
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "box_oripa_rounds"
+          },
+          async function() {
+            await loadActiveBoxOripaRound();
+          }
+        )
+        .subscribe();
     }
 
     function getBoxOripaRemainCount() {
-      return boxOripaDeck.filter(function(item) {
+      return boxOripaBoard.filter(function(item) {
         return !item.opened;
       }).length;
     }
@@ -1493,7 +1826,12 @@
     function renderBoxOripaBoard() {
       ui.boxOripaBoard.innerHTML = "";
 
-      boxOripaDeck.forEach(function(prize, index) {
+      if (!boxOripaBoard || boxOripaBoard.length === 0) {
+        ui.boxOripaBoard.innerHTML = "<div style='grid-column:1/-1;padding:20px;color:#777;'>뽑기판을 불러오는 중입니다.</div>";
+        return;
+      }
+
+      boxOripaBoard.forEach(function(prize) {
         const cell = document.createElement("button");
         cell.className = "box-oripa-cell";
 
@@ -1503,20 +1841,288 @@
           cell.disabled = true;
 
           cell.innerHTML =
-            "<span>" + prize.number + "번</span>" +
-            "<span class='cell-small'>" + formatWonValue(prize.value) + "</span>";
+            "<span>" + prize.prize_number + "번</span>" +
+            "<span class='cell-small'>" + formatWonValue(prize.prize_value) + "</span>" +
+            "<span class='cell-opener'>" + escapeHtml(prize.opened_by || "") + "</span>";
         } else {
           cell.innerHTML =
             "<span class='cell-question'>🎁</span>" +
             "<span class='cell-small'>선택</span>";
 
           cell.onclick = function() {
-            drawBoxOripaByPosition(index);
+            drawBoxOripaByPosition(prize.position);
           };
         }
 
         ui.boxOripaBoard.appendChild(cell);
       });
+
+      updateUI();
+    }
+
+    function renderBoxOripaLogs(logs) {
+      if (!logs || logs.length === 0) {
+        ui.boxOripaLiveLog.innerHTML = '<li style="text-align:center;color:#999;">아직 로그가 없습니다.</li>';
+        return;
+      }
+
+      ui.boxOripaLiveLog.innerHTML = "";
+
+      logs.forEach(function(log) {
+        const li = document.createElement("li");
+
+        let html =
+          "<b>[" + log.round_no + "회차]</b> " +
+          escapeHtml(log.nickname) + "님이 " +
+          "<b>" + log.prize_number + "번 " + escapeHtml(log.prize_name) + "</b> " +
+          formatWonValue(log.prize_value) + " 상당 획득";
+
+        if (log.is_last_one) {
+          html +=
+            "<br>🎁 <b style='color:#e74c3c;'>라스트원상 추가!</b> " +
+            escapeHtml(log.last_one_prize_name || "라스트원상") +
+            " " + formatWonValue(log.last_one_prize_value) + " 상당";
+        }
+
+        li.innerHTML = html;
+        ui.boxOripaLiveLog.appendChild(li);
+      });
+    }
+
+    async function drawBoxOripaByPosition(position) {
+      if (isAnimating || !activeBoxOripaRound || !currentNickname) return;
+
+      const target = boxOripaBoard.find(function(item) {
+        return item.position === position;
+      });
+
+      if (!target || target.opened) return;
+
+      isAnimating = true;
+      updateUI();
+
+      try {
+        const { data, error } = await supabaseClient.rpc("draw_box_oripa_cell", {
+          p_round_id: activeBoxOripaRound.id,
+          p_position: position,
+          p_nickname: currentNickname
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        const result = Array.isArray(data) ? data[0] : data;
+
+        if (!result || !result.ok) {
+          alert(result ? result.message : "이미 선택된 칸입니다.");
+          await loadActiveBoxOripaRound();
+          isAnimating = false;
+          updateUI();
+          return;
+        }
+
+        const prizeValue = Number(result.prize_value || 0);
+        const lastOneValue = Number(result.last_one_prize_value || 0);
+        const earnedNow = prizeValue + lastOneValue;
+
+        const prizeCard = {
+          mode: "boxOripa",
+          number: result.prize_number,
+          rarity: result.rarity,
+          name: result.prize_name,
+          value: prizeValue
+        };
+
+        const overlayCards = [prizeCard];
+
+        if (result.is_last_one && lastOneValue > 0) {
+          overlayCards.push({
+            mode: "boxOripa",
+            number: "LAST",
+            rarity: "prizeLegend",
+            name: result.last_one_prize_name || "라스트원상 레전드 미개봉 박스",
+            value: lastOneValue
+          });
+        }
+
+        boxOripaSold++;
+        boxOripaEarned += earnedNow;
+        totalSpent += BOX_ORIPA_PRICE;
+        totalEarned += earnedNow;
+
+        updateSessionBestHit(result.prize_name, prizeValue);
+
+        if (result.is_last_one && lastOneValue > 0) {
+          updateSessionBestHit(result.last_one_prize_name || "라스트원상 레전드 미개봉 박스", lastOneValue);
+        }
+
+        showCardOverlay(overlayCards, "BOX<br>ORIPA", async function() {
+          const recovery = ((earnedNow / BOX_ORIPA_PRICE) * 100).toFixed(1);
+
+          if (result.is_last_one) {
+            ui.result.innerHTML =
+              "🎉 <span style='color:#e74c3c'>라스트원상 당첨!</span><br>" +
+              "기본 보상: " + result.prize_number + "번 " + result.prize_name +
+              " / " + formatWonValue(prizeValue) + " 상당<br>" +
+              "라스트원상: " + (result.last_one_prize_name || "레전드 미개봉 박스") +
+              " / " + formatWonValue(lastOneValue) + " 상당<br>" +
+              "총 회수 가치 " + earnedNow.toLocaleString() + "원 / 회수율 " + recovery + "%";
+            triggerConfetti();
+            triggerConfetti();
+          } else if (result.prize_number <= 3) {
+            ui.result.innerHTML =
+              "🏆 <span style='color:#8e44ad'>박스 오리파 " +
+              result.prize_number + "번! " + result.prize_name +
+              " 당첨! 회수 가치 " + prizeValue.toLocaleString() +
+              "원 / 회수율 " + recovery + "%</span>";
+            triggerConfetti();
+            triggerConfetti();
+          } else if (result.prize_number <= 30) {
+            ui.result.innerHTML =
+              "🎉 <span style='color:#e74c3c'>박스 오리파 " +
+              result.prize_number + "번! " + result.prize_name +
+              " 당첨! 회수 가치 " + prizeValue.toLocaleString() +
+              "원 / 회수율 " + recovery + "%</span>";
+            triggerConfetti();
+          } else {
+            ui.result.innerHTML =
+              "🥶 <span style='color:#7f8c8d'>박스 오리파 " +
+              result.prize_number + "번. " + result.prize_name +
+              " 당첨. 회수 가치 " + prizeValue.toLocaleString() +
+              "원 / 회수율 " + recovery + "%</span>";
+          }
+
+          addLog(
+            "<span class='log-amount'>-100,000원 지출:</span> " +
+            "🎟️ <b>박스 오리파 " + result.prize_number + "번</b> - " +
+            result.prize_name + " 당첨. 회수 가치 " +
+            earnedNow.toLocaleString() + "원, 회수율 " + recovery + "%."
+          );
+
+          addOpportunityLog("박스 오리파");
+
+          await loadActiveBoxOripaRound();
+          updateUI();
+        });
+      } catch (err) {
+        console.error(err);
+        alert("박스 오리파 선택 중 오류가 발생했습니다.");
+        isAnimating = false;
+        updateUI();
+      }
+    }
+
+    async function loadRankings() {
+      if (currentRankingMode === "money") {
+        const { data, error } = await supabaseClient
+          .from("oripa_money_ranking")
+          .select("*");
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        renderRankingMoney(data || []);
+      }
+
+      if (currentRankingMode === "recovery") {
+        const { data, error } = await supabaseClient
+          .from("oripa_recovery_ranking")
+          .select("*");
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        renderRankingRecovery(data || []);
+      }
+
+      if (currentRankingMode === "hit") {
+        const { data, error } = await supabaseClient
+          .from("oripa_best_hit_ranking")
+          .select("*");
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        renderRankingHit(data || []);
+      }
+    }
+
+    function switchRanking(mode) {
+      currentRankingMode = mode;
+
+      ui.rankMoneyTab.classList.toggle("active", mode === "money");
+      ui.rankRecoveryTab.classList.toggle("active", mode === "recovery");
+      ui.rankHitTab.classList.toggle("active", mode === "hit");
+
+      ui.rankingList.innerHTML = '<div class="empty-card">랭킹을 불러오는 중입니다.</div>';
+      loadRankings();
+    }
+
+    function renderRankingMoney(rows) {
+      if (!rows.length) {
+        ui.rankingList.innerHTML = '<div class="empty-card">아직 돈쓴 랭킹이 없습니다.</div>';
+        return;
+      }
+
+      ui.rankingList.innerHTML = rows.map(function(row, index) {
+        return (
+          '<div class="ranking-item">' +
+            '<span class="rank-no">' + (index + 1) + '위</span>' +
+            '<span class="rank-name">' + escapeHtml(row.nickname) + '</span>' +
+            '<span class="rank-meta">총 사용 ' + Number(row.total_spent).toLocaleString() + '원 / 총 회수 ' + Number(row.total_earned).toLocaleString() + '원</span>' +
+          '</div>'
+        );
+      }).join("");
+    }
+
+    function renderRankingRecovery(rows) {
+      if (!rows.length) {
+        ui.rankingList.innerHTML = '<div class="empty-card">아직 회수율 랭킹이 없습니다.</div>';
+        return;
+      }
+
+      ui.rankingList.innerHTML = rows.map(function(row, index) {
+        return (
+          '<div class="ranking-item">' +
+            '<span class="rank-no">' + (index + 1) + '위</span>' +
+            '<span class="rank-name">' + escapeHtml(row.nickname) + '</span>' +
+            '<span class="rank-meta">회수율 ' + Number(row.recovery_rate).toFixed(1) + '% / 사용 ' + Number(row.total_spent).toLocaleString() + '원 / 회수 ' + Number(row.total_earned).toLocaleString() + '원</span>' +
+          '</div>'
+        );
+      }).join("");
+    }
+
+    function renderRankingHit(rows) {
+      if (!rows.length) {
+        ui.rankingList.innerHTML = '<div class="empty-card">아직 최고 힛 랭킹이 없습니다.</div>';
+        return;
+      }
+
+      ui.rankingList.innerHTML = rows.map(function(row, index) {
+        return (
+          '<div class="ranking-item">' +
+            '<span class="rank-no">' + (index + 1) + '위</span>' +
+            '<span class="rank-name">' + escapeHtml(row.nickname) + '</span>' +
+            '<span class="rank-meta">' + escapeHtml(row.best_hit_name || "최고 힛") + ' / ' + Number(row.best_hit_value).toLocaleString() + '원 상당</span>' +
+          '</div>'
+        );
+      }).join("");
+    }
+
+    function updateSessionBestHit(name, value) {
+      const safeValue = Number(value || 0);
+
+      if (safeValue > sessionBestHitValue) {
+        sessionBestHitName = name;
+        sessionBestHitValue = safeValue;
+      }
     }
 
     function getRandomBaseValue() {
@@ -1551,7 +2157,7 @@
         } else if (mode === "box") {
           ui.result.innerHTML = "박스를 선택해 박스깡을 시작하세요! 📦";
         } else {
-          ui.result.innerHTML = "100칸 뽑기판에서 원하는 위치를 선택하세요! 🎟️";
+          ui.result.innerHTML = "실시간 박스 오리파 뽑기판에서 원하는 위치를 선택하세요! 🎟️";
         }
       }
 
@@ -1570,6 +2176,14 @@
       ui.secretCount.innerText = secretCount;
       ui.superHitCount.innerText = superHitCount;
 
+      if (activeBoxOripaRound) {
+        ui.boxOripaRoundNo.innerText = activeBoxOripaRound.round_no;
+        ui.boxOripaBoardTitleRound.innerText = activeBoxOripaRound.round_no;
+      } else {
+        ui.boxOripaRoundNo.innerText = "-";
+        ui.boxOripaBoardTitleRound.innerText = "-";
+      }
+
       ui.boxOripaRemain.innerText = getBoxOripaRemainCount();
       ui.boxOripaSold.innerText = boxOripaSold;
 
@@ -1583,7 +2197,7 @@
       ui.finance.innerHTML =
         "💰 총 사용 금액: <b>" + spentStr + "원</b> / " +
         "💎 총 회수 카드 가치: <b>" + earnedStr + "원</b><br>" +
-        "📈 전체 회수율: <b>" + recoveryRate + "%</b>";
+        "📈 현재 플레이 회수율: <b>" + recoveryRate + "%</b>";
 
       if (remain <= 0) {
         ui.drawBtn.disabled = true;
@@ -1721,6 +2335,8 @@
           oripaHitCount++;
           batchHits++;
 
+          updateSessionBestHit(card.name, card.value);
+
           addValuableCard({
             source: "oripa",
             sourceLabel: "오리파",
@@ -1805,6 +2421,8 @@
         }
 
         if (isGradableBoxRarity(card.rarity)) {
+          updateSessionBestHit(boxConfig.name + " - " + getRarityLabel(card.rarity), card.value);
+
           addValuableCard({
             source: "box",
             sourceLabel: "박스깡",
@@ -1843,72 +2461,6 @@
         );
 
         renderValuableCards();
-      });
-    }
-
-    function drawBoxOripaByPosition(index) {
-      if (isAnimating || !boxOripaDeck[index] || boxOripaDeck[index].opened) return;
-
-      isAnimating = true;
-      updateUI();
-      clearTimeout(hideCardTimeout);
-
-      const prize = boxOripaDeck[index];
-      prize.opened = true;
-
-      boxOripaSold++;
-      boxOripaEarned += prize.value;
-
-      totalSpent += BOX_ORIPA_PRICE;
-      totalEarned += prize.value;
-
-      showCardOverlay([prize], "BOX<br>ORIPA", function() {
-        const recovery = ((prize.value / BOX_ORIPA_PRICE) * 100).toFixed(1);
-
-        if (prize.number <= 3) {
-          ui.result.innerHTML =
-            "🏆 <span style='color:#8e44ad'>박스 오리파 " +
-            prize.number + "번! " + prize.name +
-            " 당첨! 회수 가치 " + prize.value.toLocaleString() +
-            "원 / 회수율 " + recovery + "%</span>";
-          triggerConfetti();
-          triggerConfetti();
-        } else if (prize.number <= 30) {
-          ui.result.innerHTML =
-            "🎉 <span style='color:#e74c3c'>박스 오리파 " +
-            prize.number + "번! " + prize.name +
-            " 당첨! 회수 가치 " + prize.value.toLocaleString() +
-            "원 / 회수율 " + recovery + "%</span>";
-          triggerConfetti();
-        } else if (prize.number <= 35) {
-          ui.result.innerHTML =
-            "📦 <span style='color:#2c3e50'>박스 오리파 " +
-            prize.number + "번! " + prize.name +
-            " 당첨. 회수 가치 " + prize.value.toLocaleString() +
-            "원 / 회수율 " + recovery + "%</span>";
-        } else {
-          ui.result.innerHTML =
-            "🥶 <span style='color:#7f8c8d'>박스 오리파 " +
-            prize.number + "번. " + prize.name +
-            " 당첨. 회수 가치 " + prize.value.toLocaleString() +
-            "원 / 회수율 " + recovery + "%</span>";
-        }
-
-        addLog(
-          "<span class='log-amount'>-100,000원 지출:</span> " +
-          "🎟️ <b>박스 오리파 " + prize.number + "번</b> - " +
-          prize.name + " 당첨. 회수 가치 " +
-          prize.value.toLocaleString() + "원, 회수율 " + recovery + "%."
-        );
-
-        addOpportunityLog("박스 오리파");
-        renderBoxOripaBoard();
-
-        if (getBoxOripaRemainCount() <= 0) {
-          ui.result.innerHTML += "<br>🚨 박스 오리파 100구좌가 모두 소진되었습니다.";
-        }
-
-        updateUI();
       });
     }
 
@@ -2135,53 +2687,12 @@
         };
       }
 
-      if (roll < 96.6) {
-        return {
-          type: "graded",
-          grade: 7,
-          multiplier: 0.5
-        };
-      }
-
-      if (roll < 97.6) {
-        return {
-          type: "graded",
-          grade: 6,
-          multiplier: 0.5
-        };
-      }
-
-      if (roll < 98.4) {
-        return {
-          type: "graded",
-          grade: 5,
-          multiplier: 0.5
-        };
-      }
-
-      if (roll < 99.0) {
-        return {
-          type: "graded",
-          grade: 4,
-          multiplier: 0.5
-        };
-      }
-
-      if (roll < 99.5) {
-        return {
-          type: "graded",
-          grade: 3,
-          multiplier: 0.5
-        };
-      }
-
-      if (roll < 99.8) {
-        return {
-          type: "graded",
-          grade: 2,
-          multiplier: 0.5
-        };
-      }
+      if (roll < 96.6) return { type: "graded", grade: 7, multiplier: 0.5 };
+      if (roll < 97.6) return { type: "graded", grade: 6, multiplier: 0.5 };
+      if (roll < 98.4) return { type: "graded", grade: 5, multiplier: 0.5 };
+      if (roll < 99.0) return { type: "graded", grade: 4, multiplier: 0.5 };
+      if (roll < 99.5) return { type: "graded", grade: 3, multiplier: 0.5 };
+      if (roll < 99.8) return { type: "graded", grade: 2, multiplier: 0.5 };
 
       return {
         type: "graded",
@@ -2209,6 +2720,10 @@
       card.lost = result.type === "lost";
 
       totalEarned = totalEarned - beforeValue + afterValue;
+
+      if (afterValue > 0) {
+        updateSessionBestHit(card.name + " 그레이딩 " + result.grade + "점", afterValue);
+      }
 
       updateUI();
       renderValuableCards();
@@ -2299,7 +2814,7 @@
         item.innerHTML =
           '<div class="valuable-title">' +
             '<span class="source-badge">' + card.sourceLabel + '</span>' +
-            getRarityIcon(card.rarity) + " " + card.name +
+            getRarityIcon(card.rarity) + " " + escapeHtml(card.name) +
           '</div>' +
           '<div class="valuable-meta">기준 가치: ' + formatWonValue(card.baseValue) + " 상당</div>" +
           '<div class="valuable-meta">그레이딩 결과: ' + gradeHtml + "</div>" +
@@ -2347,6 +2862,8 @@
     }
 
     function formatWonValue(value) {
+      value = Number(value || 0);
+
       if (value >= 10000) {
         const man = value / 10000;
 
@@ -2474,7 +2991,7 @@
       }, 500);
     }
 
-    function endGame() {
+    async function endGame() {
       if (isAnimating || isMiningMode) return;
 
       if (totalSpent === 0) {
@@ -2486,24 +3003,64 @@
 
       const finalMessage =
         "[📊 최종 정산]\n\n" +
+        "👤 닉네임: " + currentNickname + "\n" +
         "💸 총 사용 금액: " + totalSpent.toLocaleString() + "원\n" +
         "💎 총 회수 카드 가치: " + Math.floor(totalEarned).toLocaleString() + "원\n" +
-        "📈 전체 회수율: " + recoveryRate + "%\n\n" +
+        "📈 현재 플레이 회수율: " + recoveryRate + "%\n" +
+        "💎 최고 단일 힛: " + (sessionBestHitName || "없음") + " / " + sessionBestHitValue.toLocaleString() + "원\n\n" +
         "🎁 오리파 힛카드: " + oripaHitCount + "장\n" +
         "📦 개봉 박스: " + boxOpenCount + "박스\n" +
         "🎯 박스힛: " + boxHitCount + "장\n" +
         "㊙️ 시크릿: " + secretCount + "장\n" +
         "💥 슈퍼힛: " + superHitCount + "장\n" +
         "🎟️ 박스 오리파: " + boxOripaSold + "구좌\n\n" +
-        "확인을 누르면 모든 내역이 초기화됩니다.";
+        "확인을 누르면 랭킹에 저장 후 현재 플레이가 초기화됩니다.";
 
-      alert(finalMessage);
+      const ok = confirm(finalMessage);
 
+      if (!ok) return;
+
+      try {
+        const { data, error } = await supabaseClient.rpc("save_oripa_ranking", {
+          p_nickname: currentNickname,
+          p_pin_hash: currentPinHash,
+          p_total_spent: Math.floor(totalSpent),
+          p_total_earned: Math.floor(totalEarned),
+          p_best_hit_name: sessionBestHitName || null,
+          p_best_hit_value: Math.floor(sessionBestHitValue),
+          p_oripa_hit_count: oripaHitCount,
+          p_box_open_count: boxOpenCount,
+          p_box_oripa_count: boxOripaSold
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        const result = Array.isArray(data) ? data[0] : data;
+
+        if (!result || !result.ok) {
+          alert(result ? result.message : "랭킹 저장에 실패했습니다.");
+          return;
+        }
+
+        alert("랭킹 기록이 저장되었습니다!");
+        await loadRankings();
+        resetLocalGame();
+      } catch (err) {
+        console.error(err);
+        alert("랭킹 저장 중 오류가 발생했습니다.");
+      }
+    }
+
+    function resetLocalGame() {
       totalSpent = 0;
       totalEarned = 0;
       isAnimating = false;
 
-      remain = ORIPA_TOTAL;
+      sessionBestHitName = "";
+      sessionBestHitValue = 0;
+
       oripaHitCount = 0;
       oripaBaseCount = 0;
       nogada = 0;
@@ -2534,7 +3091,6 @@
       ui.pickaxe.className = "";
 
       initOripaDeck();
-      initBoxOripaDeck();
 
       clearTimeout(hideCardTimeout);
       ui.packOverlay.style.display = "none";
@@ -2544,7 +3100,6 @@
       ui.result.innerHTML = "오리파 또는 박스깡을 시작하세요!";
       ui.logList.innerHTML = '<li style="text-align:center; color:#999;">아직 사용한 금액이 없습니다.</li>';
 
-      renderBoxOripaBoard();
       updateUI();
       renderValuableCards();
       switchMode("oripa");
@@ -2584,11 +3139,14 @@
       document.body.removeChild(textArea);
     }
 
-    initOripaDeck();
-    initBoxOripaDeck();
-    renderBoxOripaBoard();
-    updateUI();
-    renderValuableCards();
+    function escapeHtml(str) {
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
   </script>
 </body>
 </html>
