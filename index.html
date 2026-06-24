@@ -190,7 +190,7 @@
       word-break: keep-all;
     }
 
-    #my-best-hit, #my-lost-count { color: #e74c3c; }
+    #my-best-hit, #my-lost-count, #my-balance { color: #e74c3c; }
 
     .hit-ticker {
       display: none;
@@ -1012,7 +1012,7 @@
 
     .ranking-tabs {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 6px;
       padding: 10px;
       background: #f5f5f5;
@@ -1032,6 +1032,21 @@
     .ranking-tab.active {
       background: #e74c3c;
       color: white;
+    }
+
+    .balance-positive {
+      color: #27ae60;
+      font-weight: 900;
+    }
+
+    .balance-negative {
+      color: #e74c3c;
+      font-weight: 900;
+    }
+
+    .balance-zero {
+      color: #7f8c8d;
+      font-weight: 900;
     }
 
     .ranking-item {
@@ -1283,6 +1298,11 @@
             </div>
 
             <div>
+              <span class="my-cumulative-label">누적 잔고</span>
+              <b id="my-balance">0원</b>
+            </div>
+
+            <div>
               <span class="my-cumulative-label">최고 힛</span>
               <b id="my-best-hit">없음</b>
             </div>
@@ -1510,6 +1530,8 @@
         <button id="rank-recovery-tab" class="ranking-tab" onclick="switchRanking('recovery')">📈 회수율</button>
         <button id="rank-hit-tab" class="ranking-tab" onclick="switchRanking('hit')">💎 최고힛</button>
         <button id="rank-lost-tab" class="ranking-tab" onclick="switchRanking('lost')">📦 분실왕</button>
+        <button id="rank-gold-tab" class="ranking-tab" onclick="switchRanking('gold')">👑 황금손</button>
+        <button id="rank-bad-tab" class="ranking-tab" onclick="switchRanking('bad')">💩 똥손</button>
       </div>
 
       <div id="ranking-list">
@@ -1644,6 +1666,7 @@
       myTotalSpent: document.getElementById("my-total-spent"),
       myTotalEarned: document.getElementById("my-total-earned"),
       myRecoveryRate: document.getElementById("my-recovery-rate"),
+      myBalance: document.getElementById("my-balance"),
       myBestHit: document.getElementById("my-best-hit"),
       myLostCount: document.getElementById("my-lost-count"),
       myCumulativePanel: document.getElementById("my-cumulative-panel"),
@@ -1698,6 +1721,8 @@
       rankRecoveryTab: document.getElementById("rank-recovery-tab"),
       rankHitTab: document.getElementById("rank-hit-tab"),
       rankLostTab: document.getElementById("rank-lost-tab"),
+      rankGoldTab: document.getElementById("rank-gold-tab"),
+      rankBadTab: document.getElementById("rank-bad-tab"),
 
       logList: document.getElementById("log-list"),
       bossPopup: document.getElementById("boss-popup")
@@ -1822,6 +1847,7 @@
       const totalSpentValue = Number(data.total_spent || 0);
       const totalEarnedValue = Number(data.total_earned || 0);
       const lostCountValue = Number(data.grading_lost_count || 0);
+      const balanceValue = totalEarnedValue - totalSpentValue;
       const recoveryRate = totalSpentValue > 0
         ? ((totalEarnedValue / totalSpentValue) * 100).toFixed(1)
         : "0.0";
@@ -1829,11 +1855,14 @@
       const spentText = totalSpentValue.toLocaleString() + "원";
       const earnedText = totalEarnedValue.toLocaleString() + "원";
       const recoveryText = recoveryRate + "%";
+      const balanceText = formatSignedWon(balanceValue);
       const lostText = lostCountValue.toLocaleString() + "회";
 
       ui.myTotalSpent.innerText = spentText;
       ui.myTotalEarned.innerText = earnedText;
       ui.myRecoveryRate.innerText = recoveryText;
+      ui.myBalance.innerText = balanceText;
+      ui.myBalance.className = getBalanceClass(balanceValue);
       ui.myLostCount.innerText = lostText;
 
       if (data.best_hit_name && Number(data.best_hit_value || 0) > 0) {
@@ -1845,9 +1874,9 @@
 
       if (ui.myCumulativeSummaryText) {
         ui.myCumulativeSummaryText.innerText =
-          "📊 내 누계  사용 " + compactWon(totalSpentValue) +
+          "📊 내 누계  잔고 " + formatSignedCompactWon(balanceValue) +
+          " · 사용 " + compactWon(totalSpentValue) +
           " · 회수 " + compactWon(totalEarnedValue) +
-          " · " + recoveryText +
           " · 분실 " + lostText;
       }
     }
@@ -1864,6 +1893,38 @@
       }
 
       return value.toLocaleString() + "원";
+    }
+
+    function formatSignedWon(value) {
+      value = Number(value || 0);
+
+      if (value > 0) {
+        return "+" + value.toLocaleString() + "원";
+      }
+
+      return value.toLocaleString() + "원";
+    }
+
+    function formatSignedCompactWon(value) {
+      value = Number(value || 0);
+
+      if (value > 0) {
+        return "+" + compactWon(value);
+      }
+
+      if (value < 0) {
+        return "-" + compactWon(Math.abs(value));
+      }
+
+      return "0원";
+    }
+
+    function getBalanceClass(value) {
+      value = Number(value || 0);
+
+      if (value > 0) return "balance-positive";
+      if (value < 0) return "balance-negative";
+      return "balance-zero";
     }
 
     function initOripaDeck() {
@@ -2388,6 +2449,32 @@
 
         renderRankingLost(data || []);
       }
+
+      if (currentRankingMode === "gold") {
+        const { data, error } = await supabaseClient
+          .from("oripa_gold_hand_ranking")
+          .select("*");
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        renderRankingBalance(data || [], "gold");
+      }
+
+      if (currentRankingMode === "bad") {
+        const { data, error } = await supabaseClient
+          .from("oripa_bad_hand_ranking")
+          .select("*");
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        renderRankingBalance(data || [], "bad");
+      }
     }
 
     function switchRanking(mode) {
@@ -2397,6 +2484,8 @@
       ui.rankRecoveryTab.classList.toggle("active", mode === "recovery");
       ui.rankHitTab.classList.toggle("active", mode === "hit");
       ui.rankLostTab.classList.toggle("active", mode === "lost");
+      ui.rankGoldTab.classList.toggle("active", mode === "gold");
+      ui.rankBadTab.classList.toggle("active", mode === "bad");
 
       ui.rankingList.innerHTML = '<div class="empty-card">랭킹을 불러오는 중입니다.</div>';
       loadRankings();
@@ -2465,6 +2554,30 @@
             '<span class="rank-no">' + (index + 1) + '위</span>' +
             '<span class="rank-name">' + escapeHtml(row.nickname) + '</span>' +
             '<span class="rank-meta">그레이딩 분실 ' + Number(row.grading_lost_count || 0).toLocaleString() + '회 / 총 사용 ' + Number(row.total_spent || 0).toLocaleString() + '원</span>' +
+          '</div>'
+        );
+      }).join("");
+    }
+
+    function renderRankingBalance(rows, mode) {
+      const isGold = mode === "gold";
+      const emptyText = isGold ? "아직 황금손 랭킹이 없습니다." : "아직 똥손 랭킹이 없습니다.";
+      const label = isGold ? "👑 황금손" : "💩 똥손";
+
+      if (!rows.length) {
+        ui.rankingList.innerHTML = '<div class="empty-card">' + emptyText + '</div>';
+        return;
+      }
+
+      ui.rankingList.innerHTML = rows.map(function(row, index) {
+        const balance = Number(row.balance || 0);
+        const balanceClass = getBalanceClass(balance);
+
+        return (
+          '<div class="ranking-item">' +
+            '<span class="rank-no">' + (index + 1) + '위</span>' +
+            '<span class="rank-name">' + escapeHtml(row.nickname) + '</span>' +
+            '<span class="rank-meta">' + label + ' 잔고 <span class="' + balanceClass + '">' + formatSignedWon(balance) + '</span> / 사용 ' + Number(row.total_spent || 0).toLocaleString() + '원 / 회수 ' + Number(row.total_earned || 0).toLocaleString() + '원</span>' +
           '</div>'
         );
       }).join("");
@@ -2548,12 +2661,15 @@
 
       const spentStr = totalSpent.toLocaleString();
       const earnedStr = Math.floor(totalEarned).toLocaleString();
+      const balance = Math.floor(totalEarned - totalSpent);
+      const balanceClass = getBalanceClass(balance);
       const recoveryRate = totalSpent > 0 ? ((totalEarned / totalSpent) * 100).toFixed(1) : "0.0";
 
       ui.finance.innerHTML =
         "💰 총 사용 금액: <b>" + spentStr + "원</b> / " +
-        "💎 총 회수 카드 가치: <b>" + earnedStr + "원</b><br>" +
-        "📈 현재 플레이 회수율: <b>" + recoveryRate + "%</b>" +
+        "💎 총 회수 가치: <b>" + earnedStr + "원</b><br>" +
+        "📉 잔고: <b class='" + balanceClass + "'>" + formatSignedWon(balance) + "</b>" +
+        " / 📈 회수율: <b>" + recoveryRate + "%</b>" +
         " / 📦 이번 분실: <b>" + gradingLostCount + "회</b>";
 
       if (remain <= 0) {
@@ -3321,6 +3437,7 @@
         "👤 닉네임: " + currentNickname + "\n" +
         "💸 총 사용 금액: " + totalSpent.toLocaleString() + "원\n" +
         "💎 총 회수 카드 가치: " + Math.floor(totalEarned).toLocaleString() + "원\n" +
+        "📉 잔고: " + formatSignedWon(Math.floor(totalEarned - totalSpent)) + "\n" +
         "📈 현재 플레이 회수율: " + recoveryRate + "%\n" +
         "💎 최고 단일 힛: " + (sessionBestHitName || "없음") + " / " + sessionBestHitValue.toLocaleString() + "원\n" +
         "📦 그레이딩 분실: " + gradingLostCount + "회\n\n" +
