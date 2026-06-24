@@ -44,8 +44,9 @@
       background: transparent;
       color: #555;
       font-weight: bold;
-      padding: 11px 8px;
+      padding: 11px 6px;
       margin: 0;
+      font-size: 0.95em;
     }
 
     .mode-tab.active {
@@ -251,6 +252,20 @@
       font-weight: bold;
     }
 
+    .section-card {
+      max-width: 600px;
+      margin: 12px auto;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: left;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+      line-height: 1.5;
+      color: #444;
+      font-size: 0.94em;
+    }
+
     .box-product-list {
       max-width: 600px;
       margin: 12px auto;
@@ -305,6 +320,42 @@
 
     .box-open-btn.highend {
       background: #c0392b;
+    }
+
+    .box-oripa-btn {
+      width: 100%;
+      max-width: 420px;
+      margin: 10px auto;
+      background: #2c3e50;
+      color: white;
+      font-weight: bold;
+      border: none;
+      padding: 14px 16px;
+    }
+
+    .prize-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.9em;
+    }
+
+    .prize-table th {
+      background: #24184d;
+      color: white;
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .prize-table td {
+      padding: 8px;
+      border: 1px solid #e1e1e1;
+      text-align: center;
+      background: #fff;
+    }
+
+    .prize-table tr:nth-child(even) td {
+      background: #f7f5fb;
     }
 
     #pack-overlay {
@@ -370,6 +421,8 @@
       font-size: 0.75em;
       border: 2px solid #f1c40f;
       letter-spacing: 1px;
+      text-align: center;
+      line-height: 1.1;
     }
 
     .card {
@@ -488,6 +541,50 @@
       color: white;
       border: 2px solid #f1c40f;
       box-shadow: 0 0 16px rgba(241,196,15,0.9);
+    }
+
+    .card-rarity-prizeLegend {
+      background: linear-gradient(135deg, #111 0%, #6c3483 45%, #f1c40f 100%);
+      color: white;
+      border: 2px solid #f1c40f;
+      box-shadow: 0 0 16px rgba(241,196,15,0.95);
+    }
+
+    .card-rarity-prizePremium {
+      background: linear-gradient(135deg, #512e5f 0%, #d2b4de 100%);
+      color: white;
+      border: 2px solid #af7ac5;
+      box-shadow: 0 0 12px rgba(155,89,182,0.6);
+    }
+
+    .card-rarity-prizeStandard {
+      background: linear-gradient(135deg, #1f618d 0%, #aed6f1 100%);
+      color: white;
+      border: 2px solid #3498db;
+    }
+
+    .card-rarity-prizeSpecial {
+      background: linear-gradient(135deg, #b9770e 0%, #f9e79f 100%);
+      color: #4a2c00;
+      border: 2px solid #f1c40f;
+    }
+
+    .card-rarity-prizeLight {
+      background: linear-gradient(135deg, #117a65 0%, #a3e4d7 100%);
+      color: white;
+      border: 2px solid #1abc9c;
+    }
+
+    .card-rarity-prizeThreePack {
+      background: linear-gradient(135deg, #566573 0%, #d5d8dc 100%);
+      color: #222;
+      border: 2px solid #85929e;
+    }
+
+    .card-rarity-prizeOnePack {
+      background: linear-gradient(135deg, #ecf0f1 0%, #ffffff 100%);
+      color: #7f8c8d;
+      border: 2px solid #bdc3c7;
     }
 
     #valuable-container {
@@ -713,6 +810,11 @@
         font-size: 1.65rem;
       }
 
+      .mode-tab {
+        font-size: 0.82em;
+        padding: 9px 4px;
+      }
+
       .stats {
         gap: 8px;
       }
@@ -765,6 +867,15 @@
       #result-area {
         font-size: 1.02em;
       }
+
+      .prize-table {
+        font-size: 0.78em;
+      }
+
+      .prize-table th,
+      .prize-table td {
+        padding: 6px 4px;
+      }
     }
   </style>
 </head>
@@ -775,6 +886,7 @@
   <div class="mode-tabs">
     <button id="oripa-tab" class="mode-tab active" onclick="switchMode('oripa')">🎁 오리파</button>
     <button id="box-tab" class="mode-tab" onclick="switchMode('box')">📦 박스깡</button>
+    <button id="box-oripa-tab" class="mode-tab" onclick="switchMode('boxOripa')">🎟️ 박스 오리파</button>
   </div>
 
   <div class="common-panel">
@@ -891,6 +1003,80 @@
     </div>
   </section>
 
+  <section id="box-oripa-section" style="display:none;">
+    <div class="stats">
+      <div class="box">
+        <span class="stat-label">총 구좌</span>
+        <span class="stat-value">100</span>
+      </div>
+
+      <div class="box">
+        <span class="stat-label">남은 구좌</span>
+        <span class="stat-value" id="box-oripa-remain">100</span>
+      </div>
+
+      <div class="box">
+        <span class="stat-label">뽑은 구좌</span>
+        <span class="stat-value hit-val" id="box-oripa-sold">0</span>
+      </div>
+
+      <div class="box">
+        <span class="stat-label">1회 가격</span>
+        <span class="stat-value">10만원</span>
+      </div>
+    </div>
+
+    <div class="section-title">🎟️ 100구좌 한정 박스 오리파</div>
+
+    <div class="section-card">
+      <b>1회 100,000원</b>으로 1번부터 100번 중 하나를 랜덤으로 배정받습니다.<br>
+      총 100구좌 한정이며, 소진 시 박스 오리파는 종료됩니다.
+
+      <table class="prize-table">
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>구성</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1번 ~ 3번</td>
+            <td>레전드 미개봉 박스</td>
+          </tr>
+          <tr>
+            <td>4번 ~ 10번</td>
+            <td>프리미엄 미개봉 박스</td>
+          </tr>
+          <tr>
+            <td>11번 ~ 20번</td>
+            <td>스탠다드 미개봉 박스</td>
+          </tr>
+          <tr>
+            <td>21번 ~ 25번</td>
+            <td>스페셜 미개봉 박스</td>
+          </tr>
+          <tr>
+            <td>26번 ~ 30번</td>
+            <td>라이트 미개봉 박스</td>
+          </tr>
+          <tr>
+            <td>31번 ~ 35번</td>
+            <td>일판 메가드림 미개봉 3팩</td>
+          </tr>
+          <tr>
+            <td>36번 ~ 100번</td>
+            <td>일판 메가드림 미개봉 1팩</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button id="box-oripa-draw-btn" class="box-oripa-btn" onclick="drawBoxOripa()">
+      🎟️ 박스 오리파 1회 뽑기 - 100,000원
+    </button>
+  </section>
+
   <div id="pack-overlay">
     <div id="pack-area"></div>
   </div>
@@ -949,6 +1135,12 @@
     let secretCount = 0;
     let superHitCount = 0;
 
+    const BOX_ORIPA_TOTAL = 100;
+    const BOX_ORIPA_PRICE = 100000;
+    let boxOripaDeck = [];
+    let boxOripaSold = 0;
+    let boxOripaEarned = 0;
+
     const hitValueTable = [
       1000000, 900000, 800000, 700000, 600000,
       500000, 400000, 300000, 200000, 100000,
@@ -989,6 +1181,65 @@
       }
     ];
 
+    const boxOripaPrizeTable = [
+      {
+        from: 1,
+        to: 3,
+        name: "레전드 미개봉 박스",
+        rarity: "prizeLegend",
+        valueMin: 500000,
+        valueMax: 1000000
+      },
+      {
+        from: 4,
+        to: 10,
+        name: "프리미엄 미개봉 박스",
+        rarity: "prizePremium",
+        valueMin: 250000,
+        valueMax: 450000
+      },
+      {
+        from: 11,
+        to: 20,
+        name: "스탠다드 미개봉 박스",
+        rarity: "prizeStandard",
+        valueMin: 120000,
+        valueMax: 250000
+      },
+      {
+        from: 21,
+        to: 25,
+        name: "스페셜 미개봉 박스",
+        rarity: "prizeSpecial",
+        valueMin: 80000,
+        valueMax: 150000
+      },
+      {
+        from: 26,
+        to: 30,
+        name: "라이트 미개봉 박스",
+        rarity: "prizeLight",
+        valueMin: 50000,
+        valueMax: 100000
+      },
+      {
+        from: 31,
+        to: 35,
+        name: "일판 메가드림 미개봉 3팩",
+        rarity: "prizeThreePack",
+        valueMin: 15000,
+        valueMax: 45000
+      },
+      {
+        from: 36,
+        to: 100,
+        name: "일판 메가드림 미개봉 1팩",
+        rarity: "prizeOnePack",
+        valueMin: 5000,
+        valueMax: 15000
+      }
+    ];
+
     const random10kTexts = [
       "뜨끈한 국밥 한 그릇을 참았습니다.",
       "스타벅스 달달한 돌체라떼 두 잔 값을 태웠습니다.",
@@ -1002,8 +1253,11 @@
     const ui = {
       oripaTab: document.getElementById("oripa-tab"),
       boxTab: document.getElementById("box-tab"),
+      boxOripaTab: document.getElementById("box-oripa-tab"),
+
       oripaSection: document.getElementById("oripa-section"),
       boxSection: document.getElementById("box-section"),
+      boxOripaSection: document.getElementById("box-oripa-section"),
 
       finance: document.getElementById("finance-area"),
       result: document.getElementById("result-area"),
@@ -1023,6 +1277,10 @@
       boxHitCount: document.getElementById("box-hit-count"),
       secretCount: document.getElementById("secret-count"),
       superHitCount: document.getElementById("super-hit-count"),
+
+      boxOripaRemain: document.getElementById("box-oripa-remain"),
+      boxOripaSold: document.getElementById("box-oripa-sold"),
+      boxOripaDrawBtn: document.getElementById("box-oripa-draw-btn"),
 
       packOverlay: document.getElementById("pack-overlay"),
       packArea: document.getElementById("pack-area"),
@@ -1060,6 +1318,36 @@
       }
     }
 
+    function initBoxOripaDeck() {
+      boxOripaDeck = [];
+
+      for (let number = 1; number <= BOX_ORIPA_TOTAL; number++) {
+        const prizeConfig = getBoxOripaPrizeConfig(number);
+        const value = randomRangeByStep(prizeConfig.valueMin, prizeConfig.valueMax, 1000);
+
+        boxOripaDeck.push({
+          mode: "boxOripa",
+          number: number,
+          rarity: prizeConfig.rarity,
+          label: "BOX ORIPA",
+          name: prizeConfig.name,
+          value: value
+        });
+      }
+    }
+
+    function getBoxOripaPrizeConfig(number) {
+      for (let i = 0; i < boxOripaPrizeTable.length; i++) {
+        const item = boxOripaPrizeTable[i];
+
+        if (number >= item.from && number <= item.to) {
+          return item;
+        }
+      }
+
+      return boxOripaPrizeTable[boxOripaPrizeTable.length - 1];
+    }
+
     function getRandomBaseValue() {
       const baseValues = [
         10, 20, 30, 40, 50,
@@ -1080,14 +1368,20 @@
 
       ui.oripaSection.style.display = mode === "oripa" ? "block" : "none";
       ui.boxSection.style.display = mode === "box" ? "block" : "none";
+      ui.boxOripaSection.style.display = mode === "boxOripa" ? "block" : "none";
 
       ui.oripaTab.classList.toggle("active", mode === "oripa");
       ui.boxTab.classList.toggle("active", mode === "box");
+      ui.boxOripaTab.classList.toggle("active", mode === "boxOripa");
 
       if (!isAnimating) {
-        ui.result.innerHTML = mode === "oripa"
-          ? "오리파 채굴을 시작하세요! ⛏️"
-          : "박스를 선택해 박스깡을 시작하세요! 📦";
+        if (mode === "oripa") {
+          ui.result.innerHTML = "오리파 채굴을 시작하세요! ⛏️";
+        } else if (mode === "box") {
+          ui.result.innerHTML = "박스를 선택해 박스깡을 시작하세요! 📦";
+        } else {
+          ui.result.innerHTML = "100구좌 한정 박스 오리파를 뽑아보세요! 🎟️";
+        }
       }
 
       updateUI();
@@ -1104,6 +1398,9 @@
       ui.boxHitCount.innerText = boxHitCount;
       ui.secretCount.innerText = secretCount;
       ui.superHitCount.innerText = superHitCount;
+
+      ui.boxOripaRemain.innerText = boxOripaDeck.length;
+      ui.boxOripaSold.innerText = boxOripaSold;
 
       ui.drawBtn.innerText = "🎁 1회 뽑기 (기회: " + drawTickets + ")";
       ui.draw10Btn.innerText = "🎁 10연뽑 (기회: " + Math.floor(drawTickets / 10) + ")";
@@ -1139,6 +1436,8 @@
       boxButtons.forEach(function(btn) {
         btn.disabled = isAnimating;
       });
+
+      ui.boxOripaDrawBtn.disabled = isAnimating || boxOripaDeck.length <= 0;
     }
 
     function doNogada() {
@@ -1371,6 +1670,69 @@
       });
     }
 
+    function drawBoxOripa() {
+      if (isAnimating || boxOripaDeck.length <= 0) return;
+
+      isAnimating = true;
+      updateUI();
+      clearTimeout(hideCardTimeout);
+
+      const idx = Math.floor(Math.random() * boxOripaDeck.length);
+      const prize = boxOripaDeck.splice(idx, 1)[0];
+
+      boxOripaSold++;
+      boxOripaEarned += prize.value;
+
+      totalSpent += BOX_ORIPA_PRICE;
+      totalEarned += prize.value;
+
+      showCardOverlay([prize], "BOX<br>ORIPA", function() {
+        const recovery = ((prize.value / BOX_ORIPA_PRICE) * 100).toFixed(1);
+
+        if (prize.number <= 3) {
+          ui.result.innerHTML =
+            "🏆 <span style='color:#8e44ad'>박스 오리파 " +
+            prize.number + "번! " + prize.name +
+            " 당첨! 회수 가치 " + prize.value.toLocaleString() +
+            "원 / 회수율 " + recovery + "%</span>";
+          triggerConfetti();
+          triggerConfetti();
+        } else if (prize.number <= 30) {
+          ui.result.innerHTML =
+            "🎉 <span style='color:#e74c3c'>박스 오리파 " +
+            prize.number + "번! " + prize.name +
+            " 당첨! 회수 가치 " + prize.value.toLocaleString() +
+            "원 / 회수율 " + recovery + "%</span>";
+          triggerConfetti();
+        } else if (prize.number <= 35) {
+          ui.result.innerHTML =
+            "📦 <span style='color:#2c3e50'>박스 오리파 " +
+            prize.number + "번! " + prize.name +
+            " 당첨. 회수 가치 " + prize.value.toLocaleString() +
+            "원 / 회수율 " + recovery + "%</span>";
+        } else {
+          ui.result.innerHTML =
+            "🥶 <span style='color:#7f8c8d'>박스 오리파 " +
+            prize.number + "번. " + prize.name +
+            " 당첨. 회수 가치 " + prize.value.toLocaleString() +
+            "원 / 회수율 " + recovery + "%</span>";
+        }
+
+        addLog(
+          "<span class='log-amount'>-100,000원 지출:</span> " +
+          "🎟️ <b>박스 오리파 " + prize.number + "번</b> - " +
+          prize.name + " 당첨. 회수 가치 " +
+          prize.value.toLocaleString() + "원, 회수율 " + recovery + "%."
+        );
+
+        addOpportunityLog("박스 오리파");
+
+        if (boxOripaDeck.length <= 0) {
+          ui.result.innerHTML += "<br>🚨 박스 오리파 100구좌가 모두 소진되었습니다.";
+        }
+      });
+    }
+
     function generateBoxCards(boxConfig) {
       const cards = [];
 
@@ -1524,6 +1886,11 @@
                 "BASE<br>" +
                 "베이스 카드<br>" +
                 card.value.toLocaleString() + "원 상당";
+            } else if (card.mode === "boxOripa") {
+              resDiv.innerHTML =
+                "🎟️ " + card.number + "번<br>" +
+                card.name + "<br>" +
+                formatWonValue(card.value) + " 상당";
             } else {
               resDiv.innerHTML =
                 getRarityIcon(card.rarity) + "<br>" +
@@ -1772,6 +2139,13 @@
       if (rarity === "boxHit") return "박스힛";
       if (rarity === "secret") return "시크릿";
       if (rarity === "superHit") return "슈퍼힛";
+      if (rarity === "prizeLegend") return "레전드 미개봉 박스";
+      if (rarity === "prizePremium") return "프리미엄 미개봉 박스";
+      if (rarity === "prizeStandard") return "스탠다드 미개봉 박스";
+      if (rarity === "prizeSpecial") return "스페셜 미개봉 박스";
+      if (rarity === "prizeLight") return "라이트 미개봉 박스";
+      if (rarity === "prizeThreePack") return "일판 메가드림 미개봉 3팩";
+      if (rarity === "prizeOnePack") return "일판 메가드림 미개봉 1팩";
       return "카드";
     }
 
@@ -1783,6 +2157,13 @@
       if (rarity === "boxHit") return "🎯 BOX HIT";
       if (rarity === "secret") return "㊙️ SECRET";
       if (rarity === "superHit") return "💥 SUPER HIT";
+      if (rarity === "prizeLegend") return "🏆 LEGEND";
+      if (rarity === "prizePremium") return "💜 PREMIUM";
+      if (rarity === "prizeStandard") return "🔵 STANDARD";
+      if (rarity === "prizeSpecial") return "⭐ SPECIAL";
+      if (rarity === "prizeLight") return "🟢 LIGHT";
+      if (rarity === "prizeThreePack") return "📦 3PACK";
+      if (rarity === "prizeOnePack") return "📄 1PACK";
       return "CARD";
     }
 
@@ -1933,7 +2314,8 @@
         "📦 개봉 박스: " + boxOpenCount + "박스\n" +
         "🎯 박스힛: " + boxHitCount + "장\n" +
         "㊙️ 시크릿: " + secretCount + "장\n" +
-        "💥 슈퍼힛: " + superHitCount + "장\n\n" +
+        "💥 슈퍼힛: " + superHitCount + "장\n" +
+        "🎟️ 박스 오리파: " + boxOripaSold + "구좌\n\n" +
         "확인을 누르면 모든 내역이 초기화됩니다.";
 
       alert(finalMessage);
@@ -1956,6 +2338,9 @@
       secretCount = 0;
       superHitCount = 0;
 
+      boxOripaSold = 0;
+      boxOripaEarned = 0;
+
       valuableCards = [];
 
       clearInterval(miningTimer);
@@ -1970,6 +2355,7 @@
       ui.pickaxe.className = "";
 
       initOripaDeck();
+      initBoxOripaDeck();
 
       clearTimeout(hideCardTimeout);
       ui.packOverlay.style.display = "none";
@@ -2019,6 +2405,7 @@
     }
 
     initOripaDeck();
+    initBoxOripaDeck();
     updateUI();
     renderValuableCards();
   </script>
