@@ -120,11 +120,52 @@
 
     .my-cumulative-panel {
       margin-top: 10px;
-      padding: 10px;
       background: rgba(255,255,255,0.82);
       border: 1px solid rgba(241,196,15,0.75);
       border-radius: 10px;
+      overflow: hidden;
       text-align: left;
+    }
+
+    .my-cumulative-summary {
+      width: 100%;
+      margin: 0;
+      padding: 9px 10px;
+      border: none;
+      background: white;
+      color: #5f4300;
+      border-radius: 0;
+      font-weight: 900;
+      font-size: 0.86em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      line-height: 1.35;
+      text-align: left;
+    }
+
+    #my-cumulative-summary-text {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #my-cumulative-toggle-icon {
+      flex: 0 0 auto;
+      color: #8a6500;
+      font-size: 0.85em;
+    }
+
+    .my-cumulative-detail {
+      padding: 10px;
+      border-top: 1px solid rgba(241,196,15,0.45);
+    }
+
+    .my-cumulative-panel.collapsed .my-cumulative-detail {
+      display: none;
     }
 
     .my-cumulative-title {
@@ -1174,6 +1215,11 @@
       body { padding: 14px; }
       h1 { font-size: 1.65rem; }
 
+      .my-cumulative-summary {
+        font-size: 0.8em;
+        padding: 8px 9px;
+      }
+
       .my-cumulative-grid {
         grid-template-columns: 1fr;
       }
@@ -1291,28 +1337,37 @@
       👤 플레이어: <span id="current-player-name">-</span><br>
       <span style="font-size:0.84em; color:#777;">정산하기를 눌러야 랭킹에 누적 저장됩니다.</span>
 
-      <div class="my-cumulative-panel">
-        <div class="my-cumulative-title">📊 내 누계 기록</div>
+      <div class="my-cumulative-panel collapsed" id="my-cumulative-panel">
+        <button class="my-cumulative-summary" type="button" onclick="toggleMyCumulativePanel()">
+          <span id="my-cumulative-summary-text">
+            📊 내 누계  사용 0원 · 회수 0원 · 0.0%
+          </span>
+          <span id="my-cumulative-toggle-icon">▼</span>
+        </button>
 
-        <div class="my-cumulative-grid">
-          <div>
-            <span class="my-cumulative-label">총 사용</span>
-            <b id="my-total-spent">0원</b>
-          </div>
+        <div class="my-cumulative-detail" id="my-cumulative-detail">
+          <div class="my-cumulative-title">📊 내 누계 기록</div>
 
-          <div>
-            <span class="my-cumulative-label">총 회수</span>
-            <b id="my-total-earned">0원</b>
-          </div>
+          <div class="my-cumulative-grid">
+            <div>
+              <span class="my-cumulative-label">총 사용</span>
+              <b id="my-total-spent">0원</b>
+            </div>
 
-          <div>
-            <span class="my-cumulative-label">누적 회수율</span>
-            <b id="my-recovery-rate">0.0%</b>
-          </div>
+            <div>
+              <span class="my-cumulative-label">총 회수</span>
+              <b id="my-total-earned">0원</b>
+            </div>
 
-          <div>
-            <span class="my-cumulative-label">최고 힛</span>
-            <b id="my-best-hit">없음</b>
+            <div>
+              <span class="my-cumulative-label">누적 회수율</span>
+              <b id="my-recovery-rate">0.0%</b>
+            </div>
+
+            <div>
+              <span class="my-cumulative-label">최고 힛</span>
+              <b id="my-best-hit">없음</b>
+            </div>
           </div>
         </div>
       </div>
@@ -1674,6 +1729,9 @@
       myTotalEarned: document.getElementById("my-total-earned"),
       myRecoveryRate: document.getElementById("my-recovery-rate"),
       myBestHit: document.getElementById("my-best-hit"),
+      myCumulativePanel: document.getElementById("my-cumulative-panel"),
+      myCumulativeSummaryText: document.getElementById("my-cumulative-summary-text"),
+      myCumulativeToggleIcon: document.getElementById("my-cumulative-toggle-icon"),
 
       globalHitTicker: document.getElementById("global-hit-ticker"),
       globalHitTickerTrack: document.getElementById("global-hit-ticker-track"),
@@ -1799,6 +1857,16 @@
       }
     }
 
+    function toggleMyCumulativePanel() {
+      if (!ui.myCumulativePanel) return;
+
+      const isCollapsed = ui.myCumulativePanel.classList.toggle("collapsed");
+
+      if (ui.myCumulativeToggleIcon) {
+        ui.myCumulativeToggleIcon.innerText = isCollapsed ? "▼" : "▲";
+      }
+    }
+
     async function loadMyCumulativeStats() {
       if (!currentNickname || !currentPinHash) return;
 
@@ -1838,9 +1906,13 @@
         ? ((totalEarnedValue / totalSpentValue) * 100).toFixed(1)
         : "0.0";
 
-      ui.myTotalSpent.innerText = totalSpentValue.toLocaleString() + "원";
-      ui.myTotalEarned.innerText = totalEarnedValue.toLocaleString() + "원";
-      ui.myRecoveryRate.innerText = recoveryRate + "%";
+      const spentText = totalSpentValue.toLocaleString() + "원";
+      const earnedText = totalEarnedValue.toLocaleString() + "원";
+      const recoveryText = recoveryRate + "%";
+
+      ui.myTotalSpent.innerText = spentText;
+      ui.myTotalEarned.innerText = earnedText;
+      ui.myRecoveryRate.innerText = recoveryText;
 
       if (data.best_hit_name && Number(data.best_hit_value || 0) > 0) {
         ui.myBestHit.innerText =
@@ -1848,6 +1920,27 @@
       } else {
         ui.myBestHit.innerText = "없음";
       }
+
+      if (ui.myCumulativeSummaryText) {
+        ui.myCumulativeSummaryText.innerText =
+          "📊 내 누계  사용 " + compactWon(totalSpentValue) +
+          " · 회수 " + compactWon(totalEarnedValue) +
+          " · " + recoveryText;
+      }
+    }
+
+    function compactWon(value) {
+      value = Number(value || 0);
+
+      if (value >= 100000000) {
+        return (value / 100000000).toFixed(1).replace(".0", "") + "억";
+      }
+
+      if (value >= 10000) {
+        return Math.floor(value / 10000).toLocaleString() + "만원";
+      }
+
+      return value.toLocaleString() + "원";
     }
 
     function initOripaDeck() {
