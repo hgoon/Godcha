@@ -322,17 +322,6 @@
       background: #c0392b;
     }
 
-    .box-oripa-btn {
-      width: 100%;
-      max-width: 420px;
-      margin: 10px auto;
-      background: #2c3e50;
-      color: white;
-      font-weight: bold;
-      border: none;
-      padding: 14px 16px;
-    }
-
     .prize-table {
       width: 100%;
       border-collapse: collapse;
@@ -356,6 +345,115 @@
 
     .prize-table tr:nth-child(even) td {
       background: #f7f5fb;
+    }
+
+    .box-oripa-board-wrap {
+      max-width: 600px;
+      margin: 14px auto 0;
+      background: #ffe082;
+      border: 2px solid #f1c40f;
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .box-oripa-board-title {
+      font-weight: 900;
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-size: 1.05em;
+      line-height: 1.35;
+    }
+
+    .box-oripa-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .box-oripa-cell {
+      aspect-ratio: 1 / 1.25;
+      border: 1px solid #d6c17a;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1f4f8f, #12325d);
+      color: white;
+      font-weight: bold;
+      font-size: 0.82em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.16);
+      cursor: pointer;
+      line-height: 1.2;
+      min-width: 0;
+    }
+
+    .box-oripa-cell:hover {
+      filter: brightness(1.08);
+    }
+
+    .box-oripa-cell.opened {
+      cursor: default;
+      transform: none;
+      filter: none;
+      border-width: 2px;
+    }
+
+    .box-oripa-cell.prizeLegend {
+      background: linear-gradient(135deg, #111 0%, #6c3483 45%, #f1c40f 100%);
+      color: white;
+      border-color: #f1c40f;
+      box-shadow: 0 0 12px rgba(241,196,15,0.8);
+    }
+
+    .box-oripa-cell.prizePremium {
+      background: linear-gradient(135deg, #512e5f, #af7ac5);
+      color: white;
+      border-color: #af7ac5;
+    }
+
+    .box-oripa-cell.prizeStandard {
+      background: linear-gradient(135deg, #1f618d, #5dade2);
+      color: white;
+      border-color: #3498db;
+    }
+
+    .box-oripa-cell.prizeSpecial {
+      background: linear-gradient(135deg, #b9770e, #f9e79f);
+      color: #4a2c00;
+      border-color: #f1c40f;
+    }
+
+    .box-oripa-cell.prizeLight {
+      background: linear-gradient(135deg, #117a65, #58d68d);
+      color: white;
+      border-color: #1abc9c;
+    }
+
+    .box-oripa-cell.prizeThreePack {
+      background: linear-gradient(135deg, #566573, #d5d8dc);
+      color: #222;
+      border-color: #85929e;
+    }
+
+    .box-oripa-cell.prizeOnePack {
+      background: #f5f5f5;
+      color: #7f8c8d;
+      border-color: #bdc3c7;
+    }
+
+    .cell-question {
+      font-size: 1.25em;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .cell-small {
+      display: block;
+      font-size: 0.74em;
+      opacity: 0.92;
     }
 
     #pack-overlay {
@@ -837,6 +935,28 @@
         padding: 9px 11px;
       }
 
+      .box-oripa-board-wrap {
+        padding: 9px;
+      }
+
+      .box-oripa-board {
+        gap: 4px;
+      }
+
+      .box-oripa-cell {
+        border-radius: 6px;
+        font-size: 0.7em;
+        padding: 2px;
+      }
+
+      .cell-question {
+        font-size: 1.1em;
+      }
+
+      .cell-small {
+        font-size: 0.68em;
+      }
+
       #pack-area {
         width: 94vw;
         max-width: 385px;
@@ -1029,8 +1149,8 @@
     <div class="section-title">🎟️ 100구좌 한정 박스 오리파</div>
 
     <div class="section-card">
-      <b>1회 100,000원</b>으로 1번부터 100번 중 하나를 랜덤으로 배정받습니다.<br>
-      총 100구좌 한정이며, 소진 시 박스 오리파는 종료됩니다.
+      <b>1회 100,000원</b>으로 아래 뽑기판에서 원하는 위치를 직접 선택합니다.<br>
+      보상 위치는 게임 시작 시 랜덤으로 숨겨져 있으며, 선택한 칸은 다시 선택할 수 없습니다.
 
       <table class="prize-table">
         <thead>
@@ -1080,9 +1200,13 @@
       </table>
     </div>
 
-    <button id="box-oripa-draw-btn" class="box-oripa-btn" onclick="drawBoxOripa()">
-      🎟️ 박스 오리파 1회 뽑기 - 100,000원
-    </button>
+    <div class="box-oripa-board-wrap">
+      <div class="box-oripa-board-title">
+        🐶 추억의 뽑기판<br>
+        <span style="font-size:0.86em; color:#666;">가로 5칸 × 세로 20줄 / 원하는 칸을 선택하세요</span>
+      </div>
+      <div id="box-oripa-board" class="box-oripa-board"></div>
+    </div>
   </section>
 
   <div id="pack-overlay">
@@ -1281,7 +1405,7 @@
 
       boxOripaRemain: document.getElementById("box-oripa-remain"),
       boxOripaSold: document.getElementById("box-oripa-sold"),
-      boxOripaDrawBtn: document.getElementById("box-oripa-draw-btn"),
+      boxOripaBoard: document.getElementById("box-oripa-board"),
 
       packOverlay: document.getElementById("pack-overlay"),
       packArea: document.getElementById("pack-area"),
@@ -1331,9 +1455,12 @@
           rarity: prizeConfig.rarity,
           label: "BOX ORIPA",
           name: prizeConfig.name,
-          value: prizeConfig.fixedValue
+          value: prizeConfig.fixedValue,
+          opened: false
         });
       }
+
+      shuffleArray(boxOripaDeck);
     }
 
     function getBoxOripaPrizeConfig(number) {
@@ -1346,6 +1473,50 @@
       }
 
       return boxOripaPrizeTable[boxOripaPrizeTable.length - 1];
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+      }
+    }
+
+    function getBoxOripaRemainCount() {
+      return boxOripaDeck.filter(function(item) {
+        return !item.opened;
+      }).length;
+    }
+
+    function renderBoxOripaBoard() {
+      ui.boxOripaBoard.innerHTML = "";
+
+      boxOripaDeck.forEach(function(prize, index) {
+        const cell = document.createElement("button");
+        cell.className = "box-oripa-cell";
+
+        if (prize.opened) {
+          cell.classList.add("opened");
+          cell.classList.add(prize.rarity);
+          cell.disabled = true;
+
+          cell.innerHTML =
+            "<span>" + prize.number + "번</span>" +
+            "<span class='cell-small'>" + formatWonValue(prize.value) + "</span>";
+        } else {
+          cell.innerHTML =
+            "<span class='cell-question'>🎁</span>" +
+            "<span class='cell-small'>선택</span>";
+
+          cell.onclick = function() {
+            drawBoxOripaByPosition(index);
+          };
+        }
+
+        ui.boxOripaBoard.appendChild(cell);
+      });
     }
 
     function getRandomBaseValue() {
@@ -1380,7 +1551,7 @@
         } else if (mode === "box") {
           ui.result.innerHTML = "박스를 선택해 박스깡을 시작하세요! 📦";
         } else {
-          ui.result.innerHTML = "100구좌 한정 박스 오리파를 뽑아보세요! 🎟️";
+          ui.result.innerHTML = "100칸 뽑기판에서 원하는 위치를 선택하세요! 🎟️";
         }
       }
 
@@ -1399,7 +1570,7 @@
       ui.secretCount.innerText = secretCount;
       ui.superHitCount.innerText = superHitCount;
 
-      ui.boxOripaRemain.innerText = boxOripaDeck.length;
+      ui.boxOripaRemain.innerText = getBoxOripaRemainCount();
       ui.boxOripaSold.innerText = boxOripaSold;
 
       ui.drawBtn.innerText = "🎁 1회 뽑기 (기회: " + drawTickets + ")";
@@ -1437,7 +1608,12 @@
         btn.disabled = isAnimating;
       });
 
-      ui.boxOripaDrawBtn.disabled = isAnimating || boxOripaDeck.length <= 0;
+      const cells = document.querySelectorAll(".box-oripa-cell");
+      cells.forEach(function(cell) {
+        if (!cell.classList.contains("opened")) {
+          cell.disabled = isAnimating || getBoxOripaRemainCount() <= 0;
+        }
+      });
     }
 
     function doNogada() {
@@ -1670,15 +1846,15 @@
       });
     }
 
-    function drawBoxOripa() {
-      if (isAnimating || boxOripaDeck.length <= 0) return;
+    function drawBoxOripaByPosition(index) {
+      if (isAnimating || !boxOripaDeck[index] || boxOripaDeck[index].opened) return;
 
       isAnimating = true;
       updateUI();
       clearTimeout(hideCardTimeout);
 
-      const idx = Math.floor(Math.random() * boxOripaDeck.length);
-      const prize = boxOripaDeck.splice(idx, 1)[0];
+      const prize = boxOripaDeck[index];
+      prize.opened = true;
 
       boxOripaSold++;
       boxOripaEarned += prize.value;
@@ -1726,10 +1902,13 @@
         );
 
         addOpportunityLog("박스 오리파");
+        renderBoxOripaBoard();
 
-        if (boxOripaDeck.length <= 0) {
+        if (getBoxOripaRemainCount() <= 0) {
           ui.result.innerHTML += "<br>🚨 박스 오리파 100구좌가 모두 소진되었습니다.";
         }
+
+        updateUI();
       });
     }
 
@@ -2365,6 +2544,7 @@
       ui.result.innerHTML = "오리파 또는 박스깡을 시작하세요!";
       ui.logList.innerHTML = '<li style="text-align:center; color:#999;">아직 사용한 금액이 없습니다.</li>';
 
+      renderBoxOripaBoard();
       updateUI();
       renderValuableCards();
       switchMode("oripa");
@@ -2406,6 +2586,7 @@
 
     initOripaDeck();
     initBoxOripaDeck();
+    renderBoxOripaBoard();
     updateUI();
     renderValuableCards();
   </script>
