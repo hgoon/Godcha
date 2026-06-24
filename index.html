@@ -1037,36 +1037,44 @@
           <tr>
             <th>번호</th>
             <th>구성</th>
+            <th>가치</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>1번 ~ 3번</td>
             <td>레전드 미개봉 박스</td>
+            <td>350,000원</td>
           </tr>
           <tr>
             <td>4번 ~ 10번</td>
             <td>프리미엄 미개봉 박스</td>
+            <td>300,000원</td>
           </tr>
           <tr>
             <td>11번 ~ 20번</td>
             <td>스탠다드 미개봉 박스</td>
+            <td>250,000원</td>
           </tr>
           <tr>
             <td>21번 ~ 25번</td>
             <td>스페셜 미개봉 박스</td>
+            <td>180,000원</td>
           </tr>
           <tr>
             <td>26번 ~ 30번</td>
             <td>라이트 미개봉 박스</td>
+            <td>150,000원</td>
           </tr>
           <tr>
             <td>31번 ~ 35번</td>
             <td>일판 메가드림 미개봉 3팩</td>
+            <td>15,000원</td>
           </tr>
           <tr>
             <td>36번 ~ 100번</td>
             <td>일판 메가드림 미개봉 1팩</td>
+            <td>5,000원</td>
           </tr>
         </tbody>
       </table>
@@ -1187,56 +1195,49 @@
         to: 3,
         name: "레전드 미개봉 박스",
         rarity: "prizeLegend",
-        valueMin: 500000,
-        valueMax: 1000000
+        fixedValue: 350000
       },
       {
         from: 4,
         to: 10,
         name: "프리미엄 미개봉 박스",
         rarity: "prizePremium",
-        valueMin: 250000,
-        valueMax: 450000
+        fixedValue: 300000
       },
       {
         from: 11,
         to: 20,
         name: "스탠다드 미개봉 박스",
         rarity: "prizeStandard",
-        valueMin: 120000,
-        valueMax: 250000
+        fixedValue: 250000
       },
       {
         from: 21,
         to: 25,
         name: "스페셜 미개봉 박스",
         rarity: "prizeSpecial",
-        valueMin: 80000,
-        valueMax: 150000
+        fixedValue: 180000
       },
       {
         from: 26,
         to: 30,
         name: "라이트 미개봉 박스",
         rarity: "prizeLight",
-        valueMin: 50000,
-        valueMax: 100000
+        fixedValue: 150000
       },
       {
         from: 31,
         to: 35,
         name: "일판 메가드림 미개봉 3팩",
         rarity: "prizeThreePack",
-        valueMin: 15000,
-        valueMax: 45000
+        fixedValue: 15000
       },
       {
         from: 36,
         to: 100,
         name: "일판 메가드림 미개봉 1팩",
         rarity: "prizeOnePack",
-        valueMin: 5000,
-        valueMax: 15000
+        fixedValue: 5000
       }
     ];
 
@@ -1323,7 +1324,6 @@
 
       for (let number = 1; number <= BOX_ORIPA_TOTAL; number++) {
         const prizeConfig = getBoxOripaPrizeConfig(number);
-        const value = randomRangeByStep(prizeConfig.valueMin, prizeConfig.valueMax, 1000);
 
         boxOripaDeck.push({
           mode: "boxOripa",
@@ -1331,7 +1331,7 @@
           rarity: prizeConfig.rarity,
           label: "BOX ORIPA",
           name: prizeConfig.name,
-          value: value
+          value: prizeConfig.fixedValue
         });
       }
     }
