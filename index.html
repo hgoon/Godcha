@@ -8,32 +8,58 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
-      text-align: center;
-      padding: 18px;
       margin: 0;
-      background-color: #f4f4f4;
-      overflow-x: hidden;
+      padding: 16px;
+      background: #f4f4f4;
       color: #222;
+      text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+      overflow-x: hidden;
     }
 
     h1 {
-      color: #333;
-      font-size: 1.9rem;
       margin: 22px 0 18px;
+      font-size: 1.9rem;
+      color: #333;
       line-height: 1.25;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: white;
+      font-size: 1em;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background: #bdc3c7 !important;
+      color: #777 !important;
+      border-color: #aaa !important;
+      cursor: not-allowed;
+      transform: none;
     }
 
     .auth-screen {
       max-width: 480px;
       margin: 40px auto;
-      background: white;
-      border-radius: 16px;
       padding: 24px 18px;
+      background: white;
       border: 1px solid #ddd;
+      border-radius: 16px;
       box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }
 
@@ -43,19 +69,19 @@
     }
 
     .auth-desc {
-      font-size: 0.92em;
-      color: #666;
-      line-height: 1.5;
       margin-bottom: 18px;
+      color: #666;
+      font-size: 0.92em;
+      line-height: 1.5;
     }
 
     .auth-input {
       width: 100%;
+      margin-bottom: 10px;
       padding: 13px 12px;
       border: 1px solid #ccc;
       border-radius: 9px;
       font-size: 1em;
-      margin-bottom: 10px;
     }
 
     .auth-btn {
@@ -76,40 +102,89 @@
       line-height: 1.45;
     }
 
-    #game-screen { display: none; }
+    #game-screen {
+      display: none;
+    }
 
     .player-panel {
       max-width: 600px;
       margin: 0 auto 12px;
+      padding: 10px;
       background: #fff7dc;
       border: 1px solid #f1c40f;
       color: #5f4300;
       border-radius: 12px;
-      padding: 10px;
       font-weight: bold;
       line-height: 1.45;
     }
 
+    .my-cumulative-panel {
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(241,196,15,0.75);
+      border-radius: 10px;
+      text-align: left;
+    }
+
+    .my-cumulative-title {
+      margin-bottom: 8px;
+      color: #5f4300;
+      font-weight: 900;
+      font-size: 0.92em;
+    }
+
+    .my-cumulative-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .my-cumulative-grid div {
+      padding: 8px;
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      line-height: 1.35;
+    }
+
+    .my-cumulative-label {
+      display: block;
+      margin-bottom: 2px;
+      color: #777;
+      font-size: 0.76em;
+    }
+
+    .my-cumulative-grid b {
+      color: #2c3e50;
+      font-size: 0.9em;
+      word-break: keep-all;
+    }
+
+    #my-best-hit {
+      color: #e74c3c;
+    }
+
     .hit-ticker {
+      display: none;
+      align-items: center;
       max-width: 600px;
+      height: 38px;
       margin: 0 auto 12px;
+      overflow: hidden;
+      color: white;
       background: linear-gradient(90deg, #111, #3b145f, #111);
-      color: #fff;
       border: 2px solid #f1c40f;
       border-radius: 999px;
-      overflow: hidden;
-      height: 38px;
-      display: flex;
-      align-items: center;
       box-shadow: 0 3px 10px rgba(0,0,0,0.18);
     }
 
     .hit-ticker-track {
-      white-space: nowrap;
       display: inline-block;
       padding-left: 100%;
-      font-weight: 900;
+      white-space: nowrap;
       font-size: 0.9em;
+      font-weight: 900;
       animation: tickerMove 16s linear infinite;
     }
 
@@ -123,20 +198,20 @@
       gap: 8px;
       max-width: 600px;
       margin: 0 auto 12px;
-      background: #e9ecef;
       padding: 6px;
+      background: #e9ecef;
       border-radius: 12px;
     }
 
     .mode-tab {
       flex: 1;
+      margin: 0;
+      padding: 11px 6px;
       border: none;
       border-radius: 9px;
       background: transparent;
       color: #555;
       font-weight: bold;
-      padding: 11px 6px;
-      margin: 0;
       font-size: 0.95em;
     }
 
@@ -149,83 +224,99 @@
     .common-panel {
       max-width: 600px;
       margin: 0 auto 14px;
-      background: white;
-      border-radius: 12px;
       padding: 12px;
+      background: white;
       border: 1px solid #ddd;
+      border-radius: 12px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
     #finance-area {
-      font-size: 1em;
-      color: #444;
-      background: #f1f3f5;
       padding: 10px;
+      background: #f1f3f5;
       border-radius: 8px;
+      color: #444;
       line-height: 1.5;
     }
 
-    #result-area {
-      min-height: 52px;
-      font-size: 1.1em;
-      margin: 12px auto;
+    #reset-btn {
+      width: 100%;
+      max-width: 400px;
+      border: none;
+      background: #e74c3c;
+      color: white;
       font-weight: bold;
-      color: #2c3e50;
+    }
+
+    #result-area {
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       max-width: 600px;
-      line-height: 1.4;
-      background: white;
-      border-radius: 10px;
+      min-height: 52px;
+      margin: 12px auto;
       padding: 10px;
+      background: white;
       border: 1px solid #ddd;
+      border-radius: 10px;
+      color: #2c3e50;
+      font-size: 1.1em;
+      font-weight: bold;
+      line-height: 1.4;
     }
 
     .stats {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin: 15px auto;
-      max-width: 600px;
       flex-wrap: wrap;
+      gap: 10px;
+      max-width: 600px;
+      margin: 15px auto;
     }
 
     .box {
-      border: 2px solid #ddd;
-      padding: 10px;
-      border-radius: 10px;
-      background-color: white;
       flex: 1;
       min-width: 120px;
+      padding: 10px;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.08);
     }
 
     .stat-label {
-      font-size: 0.8em;
-      color: #666;
       display: block;
       margin-bottom: 5px;
+      color: #666;
+      font-size: 0.8em;
     }
 
     .stat-value {
+      color: #333;
       font-size: 1.25em;
       font-weight: bold;
-      color: #333;
     }
 
-    .hit-val { color: #e74c3c; }
-    .base-val { color: #7f8c8d; }
-    .secret-val { color: #8e44ad; }
+    .hit-val {
+      color: #e74c3c;
+    }
+
+    .base-val {
+      color: #7f8c8d;
+    }
+
+    .secret-val {
+      color: #8e44ad;
+    }
 
     #mining-area {
-      font-size: 3em;
-      height: 1.2em;
-      margin-top: 18px;
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 18px;
+      height: 1.2em;
+      margin-top: 18px;
+      font-size: 3em;
     }
 
     #pickaxe {
@@ -233,8 +324,13 @@
       transform-origin: bottom right;
     }
 
-    .swinging { animation: swing-once 0.15s ease-out; }
-    .turbo-swinging { animation: swing-once 0.06s linear infinite; }
+    .swinging {
+      animation: swing-once 0.15s ease-out;
+    }
+
+    .turbo-swinging {
+      animation: swing-once 0.06s linear infinite;
+    }
 
     @keyframes swing-once {
       0% { transform: rotate(0deg); }
@@ -244,78 +340,45 @@
     }
 
     .controls {
+      max-width: 600px;
       margin: 15px auto;
       padding: 15px;
       border-top: 1px solid #ccc;
-      max-width: 600px;
-    }
-
-    button {
-      padding: 10px 15px;
-      font-size: 1em;
-      cursor: pointer;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      transition: background 0.2s, transform 0.1s;
-      touch-action: manipulation;
-      -webkit-user-select: none;
-      user-select: none;
-      margin: 5px;
-    }
-
-    button:active { transform: scale(0.98); }
-
-    button:disabled {
-      background-color: #bdc3c7 !important;
-      color: #777 !important;
-      border-color: #aaa !important;
-      cursor: not-allowed;
-      transform: none;
     }
 
     #nogada-btn {
-      background-color: #f1c40f;
-      color: #333;
-      font-weight: bold;
       width: 100%;
       max-width: 400px;
-      display: inline-block;
+      background: #f1c40f;
+      color: #333;
+      font-weight: bold;
     }
 
     #draw-btn {
-      background-color: #3498db;
+      background: #3498db;
       color: white;
     }
 
     #draw-10-btn {
-      background-color: #e67e22;
+      background: #e67e22;
       color: white;
       font-weight: bold;
-    }
-
-    #reset-btn {
-      background-color: #e74c3c;
-      color: white;
-      font-weight: bold;
-      width: 100%;
-      max-width: 400px;
-      border: none;
     }
 
     #buy-tool-btn {
       display: block;
       width: 100%;
-      margin: 10px 0 0 0;
-      background-color: #9b59b6;
+      margin: 10px 0 0;
+      background: #9b59b6;
       color: white;
       font-weight: bold;
       border: 2px solid #8e44ad;
     }
 
     #nogada-gauge {
-      font-size: 0.9em;
-      color: #555;
       margin-bottom: 5px;
+      color: #555;
+      font-size: 0.9em;
     }
 
     .section-title {
@@ -330,55 +393,55 @@
     .section-card {
       max-width: 600px;
       margin: 12px auto;
+      padding: 14px;
       background: white;
       border: 1px solid #ddd;
       border-radius: 12px;
-      padding: 14px;
       text-align: left;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.06);
-      line-height: 1.5;
       color: #444;
       font-size: 0.94em;
+      line-height: 1.5;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.06);
     }
 
     .box-product-list {
-      max-width: 600px;
-      margin: 12px auto;
       display: grid;
       grid-template-columns: 1fr;
       gap: 10px;
+      max-width: 600px;
+      margin: 12px auto;
     }
 
     .box-product {
+      padding: 13px;
       background: white;
       border: 1px solid #ddd;
       border-radius: 12px;
-      padding: 13px;
       text-align: left;
       box-shadow: 0 2px 5px rgba(0,0,0,0.06);
     }
 
     .box-product-title {
-      font-weight: bold;
-      font-size: 1.05em;
       margin-bottom: 5px;
       color: #2c3e50;
+      font-weight: bold;
+      font-size: 1.05em;
     }
 
     .box-product-desc {
+      margin-bottom: 8px;
       color: #666;
       font-size: 0.9em;
       line-height: 1.45;
-      margin-bottom: 8px;
     }
 
     .box-open-btn {
       width: 100%;
-      margin: 8px 0 0 0;
+      margin: 8px 0 0;
       border: none;
       color: white;
-      font-weight: bold;
       background: #34495e;
+      font-weight: bold;
     }
 
     .box-open-btn.light { background: #16a085; }
@@ -389,18 +452,18 @@
     .box-oripa-remain-summary {
       max-width: 600px;
       margin: 10px auto;
+      padding: 12px;
       background: white;
       border: 1px solid #ddd;
       border-radius: 14px;
-      padding: 12px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.06);
     }
 
     .remain-summary-title {
-      font-weight: 900;
-      color: #2c3e50;
       margin-bottom: 10px;
+      color: #2c3e50;
       text-align: left;
+      font-weight: 900;
     }
 
     .remain-summary-grid {
@@ -410,17 +473,17 @@
     }
 
     .remain-summary-card {
-      border-radius: 10px;
-      border: 1px solid #ddd;
       padding: 10px 6px;
-      text-align: center;
       background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      text-align: center;
       line-height: 1.3;
     }
 
     .remain-summary-card.hot {
-      border-color: #e74c3c;
       background: #fff1f0;
+      border-color: #e74c3c;
     }
 
     .remain-summary-card.soldout {
@@ -430,17 +493,17 @@
 
     .remain-summary-label {
       display: block;
+      margin-bottom: 4px;
+      color: #555;
       font-size: 0.8em;
       font-weight: bold;
-      color: #555;
-      margin-bottom: 4px;
     }
 
     .remain-summary-count {
       display: block;
+      color: #e74c3c;
       font-size: 1.1em;
       font-weight: 900;
-      color: #e74c3c;
     }
 
     .remain-summary-card.soldout .remain-summary-count {
@@ -451,9 +514,9 @@
       max-width: 600px;
       margin: 10px auto 14px;
       padding: 11px 12px;
-      border-radius: 12px;
       background: #fff7dc;
       border: 1px solid #f1c40f;
+      border-radius: 12px;
       color: #5f4300;
       font-weight: bold;
       line-height: 1.45;
@@ -474,23 +537,23 @@
 
     .prize-table {
       width: 100%;
-      border-collapse: collapse;
       margin-top: 10px;
+      border-collapse: collapse;
       font-size: 0.9em;
     }
 
     .prize-table th {
+      padding: 8px;
       background: #24184d;
       color: white;
-      padding: 8px;
       border: 1px solid #ddd;
     }
 
     .prize-table td {
       padding: 8px;
+      background: white;
       border: 1px solid #e1e1e1;
       text-align: center;
-      background: #fff;
     }
 
     .prize-table tr:nth-child(even) td {
@@ -500,18 +563,18 @@
     .box-oripa-board-wrap {
       max-width: 600px;
       margin: 14px auto 0;
+      padding: 12px;
       background: #ffe082;
       border: 2px solid #f1c40f;
       border-radius: 16px;
-      padding: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
     .box-oripa-board-title {
-      font-weight: 900;
-      color: #2c3e50;
       margin-bottom: 10px;
+      color: #2c3e50;
       font-size: 1.05em;
+      font-weight: 900;
       line-height: 1.35;
     }
 
@@ -523,28 +586,27 @@
 
     .box-oripa-cell {
       aspect-ratio: 1 / 1.25;
-      border: 1px solid #d6c17a;
-      border-radius: 8px;
+      min-width: 0;
+      padding: 4px;
       background: linear-gradient(135deg, #1f4f8f, #12325d);
       color: white;
-      font-weight: bold;
+      border: 1px solid #d6c17a;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.16);
       font-size: 0.82em;
+      font-weight: bold;
+      line-height: 1.2;
+      text-align: center;
+      cursor: pointer;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      padding: 4px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.16);
-      cursor: pointer;
-      line-height: 1.2;
-      min-width: 0;
-      flex-direction: column;
+      margin: 0;
     }
 
     .box-oripa-cell.opened {
       cursor: default;
-      transform: none;
-      filter: none;
       border-width: 2px;
     }
 
@@ -592,9 +654,9 @@
     }
 
     .cell-question {
-      font-size: 1.25em;
       display: block;
       margin-bottom: 2px;
+      font-size: 1.25em;
     }
 
     .cell-small {
@@ -605,10 +667,10 @@
 
     .cell-opener {
       display: block;
+      max-width: 100%;
+      margin-top: 2px;
       font-size: 0.65em;
       opacity: 0.78;
-      margin-top: 2px;
-      max-width: 100%;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -618,34 +680,34 @@
       max-width: 600px;
       margin: 12px auto;
       background: white;
-      border-radius: 12px;
       border: 1px solid #ddd;
+      border-radius: 12px;
       text-align: left;
       overflow: hidden;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
     .live-log-header {
+      padding: 10px 12px;
       background: #24184d;
       color: white;
       font-weight: bold;
-      padding: 10px 12px;
     }
 
     .live-log-list {
-      padding: 0;
-      margin: 0;
-      list-style: none;
       max-height: 180px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
       overflow-y: auto;
     }
 
     .live-log-list li {
       padding: 9px 12px;
       border-bottom: 1px dashed #ddd;
+      color: #444;
       font-size: 0.86em;
       line-height: 1.4;
-      color: #444;
     }
 
     #pack-overlay {
@@ -654,11 +716,11 @@
       display: none;
       justify-content: center;
       align-items: center;
+      padding: 16px;
       background: rgba(0, 0, 0, 0.55);
       z-index: 9997;
       opacity: 1;
       transition: opacity 0.3s ease;
-      padding: 16px;
     }
 
     #pack-area {
@@ -693,32 +755,32 @@
     }
 
     .pack {
-      width: 100%;
-      height: 90px;
-      background: linear-gradient(135deg, #2c3e50, #000000);
-      border-radius: 6px;
-      z-index: 2;
       position: absolute;
       bottom: 0;
+      z-index: 2;
+      width: 100%;
+      height: 90px;
+      background: linear-gradient(135deg, #2c3e50, #000);
+      border: 2px solid #f1c40f;
+      border-radius: 6px;
+      color: #f1c40f;
+      font-size: 0.75em;
+      font-weight: 900;
+      letter-spacing: 1px;
+      line-height: 1.1;
+      text-align: center;
       box-shadow: 0 5px 10px rgba(0,0,0,0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #f1c40f;
-      font-weight: 900;
-      font-size: 0.75em;
-      border: 2px solid #f1c40f;
-      letter-spacing: 1px;
-      text-align: center;
-      line-height: 1.1;
     }
 
     .card {
-      width: 90%;
-      height: 85px;
       position: absolute;
       bottom: 3px;
       z-index: 1;
+      width: 90%;
+      height: 85px;
     }
 
     .card-inner {
@@ -734,17 +796,17 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      backface-visibility: hidden;
-      border-radius: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      border: 1px solid #ccc;
       padding: 2px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       word-break: keep-all;
       font-size: 0.72em;
-      flex-direction: column;
+      font-weight: bold;
       text-align: center;
       line-height: 1.23;
     }
@@ -761,9 +823,13 @@
       );
     }
 
-    .card-back { transform: rotateY(180deg); }
+    .card-back {
+      transform: rotateY(180deg);
+    }
 
-    .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
+    .shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both infinite;
+    }
 
     @keyframes shake {
       10%, 90% { transform: translate3d(-1px, 0, 0); }
@@ -772,7 +838,9 @@
       40%, 60% { transform: translate3d(2px, 0, 0); }
     }
 
-    .slide-up { animation: slideUp 0.3s ease-out forwards; }
+    .slide-up {
+      animation: slideUp 0.3s ease-out forwards;
+    }
 
     @keyframes slideUp {
       to {
@@ -781,22 +849,24 @@
       }
     }
 
-    .flip { transform: rotateY(180deg); }
+    .flip {
+      transform: rotateY(180deg);
+    }
 
     .card-rarity-base {
-      background: linear-gradient(135deg, #ecf0f1 0%, #ffffff 100%);
+      background: linear-gradient(135deg, #ecf0f1 0%, #fff 100%);
       color: #7f8c8d;
       border: 2px solid #bdc3c7;
     }
 
     .card-rarity-rare {
-      background: linear-gradient(135deg, #d6eaf8 0%, #ffffff 100%);
+      background: linear-gradient(135deg, #d6eaf8 0%, #fff 100%);
       color: #2874a6;
       border: 2px solid #3498db;
     }
 
     .card-rarity-superRare {
-      background: linear-gradient(135deg, #e8daef 0%, #ffffff 100%);
+      background: linear-gradient(135deg, #e8daef 0%, #fff 100%);
       color: #7d3c98;
       border: 2px solid #9b59b6;
     }
@@ -804,13 +874,13 @@
     .card-rarity-hit,
     .card-rarity-boxHit {
       background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%);
+      color: #c0392b;
       border: 2px solid #ff758c;
       box-shadow: 0 0 10px rgba(255, 117, 140, 0.6);
-      color: #c0392b;
     }
 
     .card-rarity-secret {
-      background: linear-gradient(135deg, #f7dc6f 0%, #ffffff 45%, #d2b4de 100%);
+      background: linear-gradient(135deg, #f7dc6f 0%, #fff 45%, #d2b4de 100%);
       color: #6c3483;
       border: 2px solid #f1c40f;
       box-shadow: 0 0 12px rgba(241,196,15,0.7);
@@ -855,7 +925,7 @@
     }
 
     .card-rarity-prizeOnePack {
-      background: linear-gradient(135deg, #ecf0f1 0%, #ffffff 100%);
+      background: linear-gradient(135deg, #ecf0f1 0%, #fff 100%);
       color: #7f8c8d;
       border: 2px solid #bdc3c7;
     }
@@ -863,9 +933,9 @@
     #valuable-container,
     #ranking-container,
     #log-container {
-      margin: 24px auto 0;
       max-width: 600px;
-      background: #fff;
+      margin: 24px auto 0;
+      background: white;
       border: 1px solid #ddd;
       border-radius: 10px;
       overflow: hidden;
@@ -875,9 +945,9 @@
 
     #valuable-header,
     #ranking-header {
+      padding: 11px 15px;
       background: #2c3e50;
       color: white;
-      padding: 11px 15px;
       font-weight: bold;
       font-size: 1em;
     }
@@ -889,55 +959,55 @@
     }
 
     .empty-card {
-      text-align: center;
-      color: #999;
       padding: 18px 10px;
+      color: #999;
+      text-align: center;
       font-size: 0.92em;
     }
 
     .valuable-item {
+      margin-bottom: 10px;
+      padding: 12px;
       background: white;
       border: 1px solid #ddd;
       border-left: 5px solid #e74c3c;
       border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 10px;
       line-height: 1.45;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .valuable-title {
-      font-weight: bold;
-      color: #c0392b;
-      font-size: 1.02em;
       margin-bottom: 4px;
+      color: #c0392b;
+      font-weight: bold;
+      font-size: 1.02em;
     }
 
     .valuable-meta {
-      font-size: 0.9em;
-      color: #555;
       margin: 2px 0;
+      color: #555;
+      font-size: 0.9em;
     }
 
     .source-badge {
       display: inline-block;
-      font-size: 0.78em;
+      margin-right: 4px;
       padding: 2px 6px;
-      border-radius: 999px;
       background: #ecf0f1;
       color: #555;
-      margin-right: 4px;
+      border-radius: 999px;
+      font-size: 0.78em;
     }
 
     .grade-btn {
-      margin: 8px 0 0 0;
+      margin: 8px 0 0;
+      padding: 8px 10px;
       background: #34495e;
       color: white;
-      font-size: 0.9em;
-      font-weight: bold;
       border: none;
       border-radius: 6px;
-      padding: 8px 10px;
+      font-size: 0.9em;
+      font-weight: bold;
     }
 
     .grade-result-10 { color: #e74c3c; font-weight: bold; }
@@ -945,10 +1015,10 @@
     .grade-result-low { color: #7f8c8d; font-weight: bold; }
 
     .grade-result-lost {
-      color: #111;
-      background: #f1c40f;
       display: inline-block;
       padding: 2px 6px;
+      background: #f1c40f;
+      color: #111;
       border-radius: 4px;
       font-weight: bold;
     }
@@ -962,14 +1032,14 @@
 
     .ranking-tab {
       flex: 1;
-      border: none;
+      margin: 0;
+      padding: 8px 4px;
       background: #e9ecef;
       color: #555;
+      border: none;
+      border-radius: 8px;
       font-size: 0.82em;
       font-weight: bold;
-      padding: 8px 4px;
-      border-radius: 8px;
-      margin: 0;
     }
 
     .ranking-tab.active {
@@ -978,58 +1048,60 @@
     }
 
     .ranking-item {
-      border-bottom: 1px dashed #ddd;
       padding: 10px 4px;
+      border-bottom: 1px dashed #ddd;
       line-height: 1.45;
     }
 
-    .ranking-item:last-child { border-bottom: none; }
+    .ranking-item:last-child {
+      border-bottom: none;
+    }
 
     .rank-no {
       display: inline-block;
       min-width: 34px;
-      font-weight: bold;
       color: #e74c3c;
+      font-weight: bold;
     }
 
     .rank-name {
-      font-weight: bold;
       color: #2c3e50;
+      font-weight: bold;
     }
 
     .rank-meta {
       display: block;
-      font-size: 0.85em;
-      color: #666;
-      margin-left: 36px;
       margin-top: 2px;
+      margin-left: 36px;
+      color: #666;
+      font-size: 0.85em;
     }
 
     #log-header {
+      margin: 0;
+      padding: 10px 15px;
       background: #e74c3c;
       color: white;
-      padding: 10px 15px;
       font-weight: bold;
       font-size: 1em;
-      margin: 0;
     }
 
     #log-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
       height: 260px;
-      overflow-y: auto;
+      margin: 0;
+      padding: 0;
       background: #fafafa;
+      list-style: none;
+      overflow-y: auto;
     }
 
     #log-list li {
       padding: 10px 15px;
       border-bottom: 1px dashed #ccc;
-      font-size: 0.9em;
       color: #555;
-      animation: fadeIn 0.3s;
+      font-size: 0.9em;
       line-height: 1.4;
+      animation: fadeIn 0.3s;
     }
 
     @keyframes fadeIn {
@@ -1037,13 +1109,20 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .log-amount { color: #c0392b; font-weight: bold; }
-    .log-warning { color: #e67e22; font-weight: bold; }
+    .log-amount {
+      color: #c0392b;
+      font-weight: bold;
+    }
+
+    .log-warning {
+      color: #e67e22;
+      font-weight: bold;
+    }
 
     .confetti {
       position: fixed;
-      z-index: 9999;
       top: -15px;
+      z-index: 9999;
       pointer-events: none;
       animation: fall linear forwards;
     }
@@ -1055,16 +1134,16 @@
 
     #share-btn {
       display: block;
-      margin: 40px auto;
       width: 90%;
       max-width: 400px;
-      background-color: #2ecc71;
-      color: white;
-      font-weight: bold;
+      margin: 40px auto;
       padding: 15px 20px;
-      font-size: 1.05em;
+      background: #2ecc71;
+      color: white;
       border: none;
       border-radius: 8px;
+      font-weight: bold;
+      font-size: 1.05em;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 
@@ -1072,44 +1151,31 @@
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      z-index: 10000;
+      display: none;
+      width: 80%;
+      max-width: 400px;
+      padding: 30px;
       background: rgba(0, 0, 0, 0.9);
       color: #f1c40f;
-      padding: 30px;
+      border: 4px solid #f1c40f;
       border-radius: 15px;
       font-size: 1.45em;
       font-weight: bold;
-      z-index: 10000;
-      display: none;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-      border: 4px solid #f1c40f;
       line-height: 1.5;
       white-space: pre-wrap;
-      width: 80%;
-      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
     }
 
     @media (max-width: 480px) {
       body { padding: 14px; }
       h1 { font-size: 1.65rem; }
 
-      .mode-tab {
-        font-size: 0.82em;
-        padding: 9px 4px;
-      }
-
-      .box {
-        min-width: calc(50% - 8px);
-        padding: 9px;
-      }
-
-      #mining-area { font-size: 2.6em; }
-
-      button {
-        font-size: 0.93em;
-        padding: 9px 11px;
+      .my-cumulative-grid {
+        grid-template-columns: 1fr;
       }
 
       .hit-ticker {
@@ -1122,18 +1188,41 @@
         animation-duration: 14s;
       }
 
+      .mode-tab {
+        padding: 9px 4px;
+        font-size: 0.82em;
+      }
+
+      .box {
+        min-width: calc(50% - 8px);
+        padding: 9px;
+      }
+
+      #mining-area {
+        font-size: 2.6em;
+      }
+
+      button {
+        padding: 9px 11px;
+        font-size: 0.93em;
+      }
+
       .remain-summary-grid {
         grid-template-columns: repeat(2, 1fr);
       }
 
-      .box-oripa-board-wrap { padding: 9px; }
+      .box-oripa-board-wrap {
+        padding: 9px;
+      }
 
-      .box-oripa-board { gap: 4px; }
+      .box-oripa-board {
+        gap: 4px;
+      }
 
       .box-oripa-cell {
+        padding: 2px;
         border-radius: 6px;
         font-size: 0.7em;
-        padding: 2px;
       }
 
       #pack-area {
@@ -1154,14 +1243,18 @@
         font-size: 0.68em;
       }
 
-      .card { height: 78px; }
+      .card {
+        height: 78px;
+      }
 
       .card-front,
       .card-back {
         font-size: 0.68em;
       }
 
-      .prize-table { font-size: 0.78em; }
+      .prize-table {
+        font-size: 0.78em;
+      }
 
       .prize-table th,
       .prize-table td {
@@ -1175,6 +1268,7 @@
   <div id="auth-screen" class="auth-screen">
     <h1>실전 오리파 & 박스깡</h1>
     <h2>닉네임을 입력하세요</h2>
+
     <div class="auth-desc">
       랭킹과 박스 오리파 실시간 공통판에 사용할 닉네임입니다.<br>
       기존 닉네임은 같은 4자리 PIN으로 이어서 사용할 수 있습니다.
@@ -1196,9 +1290,35 @@
     <div class="player-panel">
       👤 플레이어: <span id="current-player-name">-</span><br>
       <span style="font-size:0.84em; color:#777;">정산하기를 눌러야 랭킹에 누적 저장됩니다.</span>
+
+      <div class="my-cumulative-panel">
+        <div class="my-cumulative-title">📊 내 누계 기록</div>
+
+        <div class="my-cumulative-grid">
+          <div>
+            <span class="my-cumulative-label">총 사용</span>
+            <b id="my-total-spent">0원</b>
+          </div>
+
+          <div>
+            <span class="my-cumulative-label">총 회수</span>
+            <b id="my-total-earned">0원</b>
+          </div>
+
+          <div>
+            <span class="my-cumulative-label">누적 회수율</span>
+            <b id="my-recovery-rate">0.0%</b>
+          </div>
+
+          <div>
+            <span class="my-cumulative-label">최고 힛</span>
+            <b id="my-best-hit">없음</b>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div id="global-hit-ticker" class="hit-ticker" style="display:none;">
+    <div id="global-hit-ticker" class="hit-ticker">
       <div id="global-hit-ticker-track" class="hit-ticker-track">
         🔥 아직 이번 회차 주요 힛 기록이 없습니다.
       </div>
@@ -1360,6 +1480,7 @@
       <div class="section-card">
         <b>1회 100,000원</b>으로 아래 뽑기판에서 원하는 위치를 직접 선택합니다.<br>
         모든 접속자가 같은 100칸 뽑기판을 공유합니다. 누군가 선택한 칸은 모두에게 열린 상태로 보입니다.<br><br>
+
         🎁 <b>라스트원상:</b> 각 회차의 마지막 칸을 여는 사람은 기본 보상과 별도로 <b>35만원 상당 레전드 미개봉 박스</b>를 추가 획득합니다.<br>
         ※ 박스 오리파 보상은 미개봉 박스/팩 기준의 회수 가치로 반영됩니다.<br>
         ※ 카드가 아니므로 고가 카드 보관함/그레이딩 대상에는 등록되지 않습니다.
@@ -1389,6 +1510,7 @@
           🐶 추억의 뽑기판 - <span id="box-oripa-board-title-round">-</span>회차<br>
           <span style="font-size:0.86em; color:#666;">가로 5칸 × 세로 20줄 / 원하는 칸을 선택하세요</span>
         </div>
+
         <div id="box-oripa-board" class="box-oripa-board"></div>
       </div>
 
@@ -1413,11 +1535,13 @@
 
     <div id="ranking-container">
       <div id="ranking-header">🏅 전체 랭킹</div>
+
       <div class="ranking-tabs">
         <button id="rank-money-tab" class="ranking-tab active" onclick="switchRanking('money')">💸 돈쓴 랭킹</button>
         <button id="rank-recovery-tab" class="ranking-tab" onclick="switchRanking('recovery')">📈 회수율</button>
         <button id="rank-hit-tab" class="ranking-tab" onclick="switchRanking('hit')">💎 최고 힛</button>
       </div>
+
       <div id="ranking-list">
         <div class="empty-card">랭킹을 불러오는 중입니다.</div>
       </div>
@@ -1446,7 +1570,6 @@
   <script>
     const SUPABASE_URL = "https://ydgnnikfmesvosghsdeg.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkZ25uaWtmbWVzdm9zZ2hzZGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MzI3NTcsImV4cCI6MjA5NzQwODc1N30.2fZgjUNFJVm3PrUsfqeO8Eu9UwyFoHYj9ao1Js6VFCg";
-
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentMode = "oripa";
@@ -1547,6 +1670,11 @@
       authStartBtn: document.getElementById("auth-start-btn"),
       currentPlayerName: document.getElementById("current-player-name"),
 
+      myTotalSpent: document.getElementById("my-total-spent"),
+      myTotalEarned: document.getElementById("my-total-earned"),
+      myRecoveryRate: document.getElementById("my-recovery-rate"),
+      myBestHit: document.getElementById("my-best-hit"),
+
       globalHitTicker: document.getElementById("global-hit-ticker"),
       globalHitTickerTrack: document.getElementById("global-hit-ticker-track"),
 
@@ -1604,6 +1732,7 @@
       const data = encoder.encode(text);
       const hashBuffer = await crypto.subtle.digest("SHA-256", data);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
+
       return hashArray.map(function(byte) {
         return byte.toString(16).padStart(2, "0");
       }).join("");
@@ -1656,6 +1785,8 @@
 
         await loadActiveBoxOripaRound();
         await loadRankings();
+        await loadMyCumulativeStats();
+
         subscribeBoxOripaRealtime();
 
         ui.result.innerHTML = "오리파 또는 박스깡을 시작하세요!";
@@ -1665,6 +1796,57 @@
       } finally {
         ui.authStartBtn.disabled = false;
         ui.authStartBtn.innerText = "게임 시작";
+      }
+    }
+
+    async function loadMyCumulativeStats() {
+      if (!currentNickname || !currentPinHash) return;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from("oripa_rankings")
+          .select("total_spent,total_earned,best_hit_name,best_hit_value,oripa_hit_count,box_open_count,box_oripa_count")
+          .eq("nickname", currentNickname)
+          .eq("pin_hash", currentPinHash)
+          .maybeSingle();
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        if (!data) {
+          renderMyCumulativeStats({
+            total_spent: 0,
+            total_earned: 0,
+            best_hit_name: null,
+            best_hit_value: 0
+          });
+          return;
+        }
+
+        renderMyCumulativeStats(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderMyCumulativeStats(data) {
+      const totalSpentValue = Number(data.total_spent || 0);
+      const totalEarnedValue = Number(data.total_earned || 0);
+      const recoveryRate = totalSpentValue > 0
+        ? ((totalEarnedValue / totalSpentValue) * 100).toFixed(1)
+        : "0.0";
+
+      ui.myTotalSpent.innerText = totalSpentValue.toLocaleString() + "원";
+      ui.myTotalEarned.innerText = totalEarnedValue.toLocaleString() + "원";
+      ui.myRecoveryRate.innerText = recoveryRate + "%";
+
+      if (data.best_hit_name && Number(data.best_hit_value || 0) > 0) {
+        ui.myBestHit.innerText =
+          data.best_hit_name + " / " + Number(data.best_hit_value).toLocaleString() + "원";
+      } else {
+        ui.myBestHit.innerText = "없음";
       }
     }
 
@@ -1758,6 +1940,8 @@
 
       boxOripaBoard = data || [];
       renderBoxOripaBoard();
+      renderBoxOripaRemainSummary();
+      updateUI();
     }
 
     async function loadBoxOripaLogs() {
@@ -1822,7 +2006,9 @@
       ui.boxOripaBoard.innerHTML = "";
 
       if (!boxOripaBoard || boxOripaBoard.length === 0) {
-        ui.boxOripaBoard.innerHTML = "<div style='grid-column:1/-1;padding:20px;color:#777;'>뽑기판을 불러오는 중입니다.</div>";
+        ui.boxOripaBoard.innerHTML =
+          "<div style='grid-column:1/-1;padding:20px;color:#777;'>뽑기판을 불러오는 중입니다.</div>";
+
         renderBoxOripaRemainSummary();
         return;
       }
@@ -1858,12 +2044,21 @@
     }
 
     function renderBoxOripaRemainSummary() {
-      if (!boxOripaBoard || boxOripaBoard.length === 0) {
-        ui.boxOripaRemainSummary.innerHTML =
-          '<div class="empty-card">잔여 힛 정보를 불러오는 중입니다.</div>';
+      const summaryEl = document.getElementById("box-oripa-remain-summary");
+      const lastOneEl = document.getElementById("last-one-summary");
 
-        ui.lastOneSummary.innerHTML = "🎁 라스트원상 정보를 불러오는 중입니다.";
-        ui.lastOneSummary.classList.remove("hot");
+      if (!summaryEl || !lastOneEl) {
+        console.warn("잔여 힛 UI 영역을 찾지 못했습니다.");
+        return;
+      }
+
+      if (!boxOripaBoard || boxOripaBoard.length === 0) {
+        summaryEl.innerHTML =
+          '<div class="remain-summary-title">🔥 잔여 힛 현황</div>' +
+          '<div class="empty-card">뽑기판 정보를 불러오는 중입니다.</div>';
+
+        lastOneEl.innerHTML = "🎁 라스트원상 정보를 불러오는 중입니다.";
+        lastOneEl.classList.remove("hot");
         return;
       }
 
@@ -1893,7 +2088,7 @@
         );
       }).join("");
 
-      ui.boxOripaRemainSummary.innerHTML =
+      summaryEl.innerHTML =
         '<div class="remain-summary-title">🔥 잔여 힛 현황</div>' +
         '<div class="remain-summary-grid">' +
           cardsHtml +
@@ -1902,17 +2097,17 @@
       const remainCount = getBoxOripaRemainCount();
 
       if (remainCount <= 0) {
-        ui.lastOneSummary.classList.remove("hot");
-        ui.lastOneSummary.innerHTML =
+        lastOneEl.classList.remove("hot");
+        lastOneEl.innerHTML =
           "🎁 이번 회차가 종료되었습니다. 새 회차를 불러오는 중입니다.";
       } else if (remainCount <= 10) {
-        ui.lastOneSummary.classList.add("hot");
-        ui.lastOneSummary.innerHTML =
+        lastOneEl.classList.add("hot");
+        lastOneEl.innerHTML =
           "🚨 <b>라스트원상 임박!</b><br>" +
           "남은 칸 " + remainCount + "개. 마지막 칸 개봉자에게 35만원 레전드 미개봉 박스 추가 지급!";
       } else {
-        ui.lastOneSummary.classList.remove("hot");
-        ui.lastOneSummary.innerHTML =
+        lastOneEl.classList.remove("hot");
+        lastOneEl.innerHTML =
           "🎁 라스트원상 남아있음<br>" +
           "현재 남은 칸 " + remainCount + "개. 마지막 칸 개봉자에게 35만원 레전드 미개봉 박스 추가 지급.";
       }
@@ -2077,6 +2272,7 @@
               "라스트원상: " + (result.last_one_prize_name || "레전드 미개봉 박스") +
               " / " + formatWonValue(lastOneValue) + " 상당<br>" +
               "총 회수 가치 " + earnedNow.toLocaleString() + "원 / 회수율 " + recovery + "%";
+
             triggerConfetti();
             triggerConfetti();
           } else if (result.prize_number <= 3) {
@@ -2085,6 +2281,7 @@
               result.prize_number + "번! " + result.prize_name +
               " 당첨! 회수 가치 " + prizeValue.toLocaleString() +
               "원 / 회수율 " + recovery + "%</span>";
+
             triggerConfetti();
             triggerConfetti();
           } else if (result.prize_number <= 30) {
@@ -2093,6 +2290,7 @@
               result.prize_number + "번! " + result.prize_name +
               " 당첨! 회수 가치 " + prizeValue.toLocaleString() +
               "원 / 회수율 " + recovery + "%</span>";
+
             triggerConfetti();
           } else {
             ui.result.innerHTML =
@@ -2267,6 +2465,8 @@
           ui.result.innerHTML = "박스를 선택해 박스깡을 시작하세요! 📦";
         } else {
           ui.result.innerHTML = "실시간 박스 오리파 뽑기판에서 원하는 위치를 선택하세요! 🎟️";
+          renderBoxOripaRemainSummary();
+          loadActiveBoxOripaRound();
         }
       }
 
@@ -2468,6 +2668,7 @@
             "🎉 <span style='color:#e74c3c'>" +
             count + "장 중 오리파 힛카드 " + batchHits + "장 획득! " +
             "총 카드 가치 " + Math.floor(batchEarned).toLocaleString() + "원</span>";
+
           triggerConfetti();
         } else {
           ui.result.innerHTML =
@@ -2515,10 +2716,12 @@
 
       cards.forEach(function(card) {
         if (card.rarity === "boxHit") boxHitCount++;
+
         if (card.rarity === "secret") {
           secretCount++;
           hasSecretOrSuper = true;
         }
+
         if (card.rarity === "superHit") {
           superHitCount++;
           hasSecretOrSuper = true;
@@ -2548,6 +2751,7 @@
             boxConfig.name + " 대박! 회수 가치 " +
             boxValue.toLocaleString() + "원 / 박스 회수율 " +
             boxRecovery + "%</span>";
+
           triggerConfetti();
           triggerConfetti();
         } else {
@@ -2623,6 +2827,7 @@
       if (rarity === "boxHit") return randomRangeByStep(boxPrice * 0.1, boxPrice * 0.25, 1000);
       if (rarity === "secret") return boxPrice * 5;
       if (rarity === "superHit") return boxPrice * 20;
+
       return 0;
     }
 
@@ -2937,8 +3142,14 @@
 
     function triggerConfetti() {
       const colors = [
-        "#f1c40f", "#e74c3c", "#3498db", "#2ecc71",
-        "#9b59b6", "#e67e22", "#1abc9c", "#ff758c"
+        "#f1c40f",
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#9b59b6",
+        "#e67e22",
+        "#1abc9c",
+        "#ff758c"
       ];
 
       const count = 50;
@@ -3070,6 +3281,7 @@
         "단, 아직 그레이딩을 보내지 않은 고가 카드는 보관함에 이월됩니다.";
 
       const ok = confirm(finalMessage);
+
       if (!ok) return;
 
       try {
@@ -3095,8 +3307,11 @@
         }
 
         alert("랭킹 기록이 저장되었습니다!");
-        await loadRankings();
+
         resetLocalGame();
+
+        await loadRankings();
+        await loadMyCumulativeStats();
       } catch (err) {
         console.error(err);
         alert("랭킹 저장 중 오류가 발생했습니다.");
