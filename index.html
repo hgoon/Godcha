@@ -2562,7 +2562,7 @@
     function renderRankingBalance(rows, mode) {
       const isGold = mode === "gold";
       const emptyText = isGold ? "아직 황금손 랭킹이 없습니다." : "아직 똥손 랭킹이 없습니다.";
-      const label = isGold ? "👑 황금손" : "💩 똥손";
+      const label = isGold ? "👑 황금손 잔고" : "💩 똥손 잔고";
 
       if (!rows.length) {
         ui.rankingList.innerHTML = '<div class="empty-card">' + emptyText + '</div>';
@@ -2577,7 +2577,7 @@
           '<div class="ranking-item">' +
             '<span class="rank-no">' + (index + 1) + '위</span>' +
             '<span class="rank-name">' + escapeHtml(row.nickname) + '</span>' +
-            '<span class="rank-meta">' + label + ' 잔고 <span class="' + balanceClass + '">' + formatSignedWon(balance) + '</span> / 사용 ' + Number(row.total_spent || 0).toLocaleString() + '원 / 회수 ' + Number(row.total_earned || 0).toLocaleString() + '원</span>' +
+            '<span class="rank-meta">' + label + ' <span class="' + balanceClass + '">' + formatSignedWon(balance) + '</span></span>' +
           '</div>'
         );
       }).join("");
